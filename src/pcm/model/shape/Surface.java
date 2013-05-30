@@ -1,4 +1,4 @@
-package model.shape;
+package pcm.model.shape;
 
 import pcm.geom.Vector3D;
 
