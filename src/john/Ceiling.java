@@ -1,0 +1,20 @@
+package john;
+
+public class Ceiling extends Surface {
+
+	@Override
+	public double collisionDistance(Photon p) {
+		double d = (Photon.Z-p.rz) / p.nz;
+		if (d < p.e) d = Double.POSITIVE_INFINITY;
+		return d;
+	}
+
+	@Override
+	public boolean collision(Photon p) {
+		double d = collisionDistance(p);
+		p.move(d);
+		p.absorb();
+		return true;
+	}
+
+}

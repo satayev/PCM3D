@@ -72,4 +72,11 @@ public class Photon {
 		return (Math.random() < .2);
 	}
 
+	/**
+	 * This method handles absorbtion of the photon
+	 */
+	public void absorb() {
+		// TODO Statistics
+	}
+
 }
