@@ -5,15 +5,14 @@ package pcm.geom;
  * 
  * @author Satayev
  */
-public class Vector3D {
+public class Vector {
 
   // for ease of use in other classes fields are public
   // TODO(satayev): perhaps allow coordinates to be Integer, Float, BigDecimal, Fraction as well.
   public double x, y, z;
 
   /** Creates a zero vector. */
-  public Vector3D() {
-    x = y = z = 0;
+  public Vector() {
   }
 
   /**
@@ -22,9 +21,10 @@ public class Vector3D {
    * @param x x coordinate of the vector.
    * @param y y coordinate of the vector.
    */
-  public Vector3D(double x, double y) {
+  public Vector(double x, double y) {
     this.x = x;
     this.y = y;
+    this.z = 0;
   }
 
   /**
@@ -34,7 +34,7 @@ public class Vector3D {
    * @param y y coordinate of the vector.
    * @param z z coordinate of the vector.
    */
-  public Vector3D(double x, double y, double z) {
+  public Vector(double x, double y, double z) {
     this.x = x;
     this.y = y;
     this.z = z;
@@ -60,21 +60,10 @@ public class Vector3D {
    * @param dy y coordinate of the addend vector.
    * @param dz z coordinate of the addend vector.
    */
-  public void add(Vector3D addend) {
+  public void add(Vector addend) {
     this.x += addend.x;
     this.y += addend.y;
     this.z += addend.z;
-  }
-
-  /**
-   * Creates a new vector based on the summation of two addends.
-   * 
-   * @param a addend vector.
-   * @param b addend vector.
-   * @return sum of the two vectors.
-   */
-  public static Vector3D add(Vector3D a, Vector3D b) {
-    return new Vector3D(a.x + b.x, a.y + b.y, a.z + b.z);
   }
 
   /**
@@ -98,7 +87,7 @@ public class Vector3D {
    * @param that requested point.
    * @return distance to the requested point.
    */
-  public double distance(Vector3D that) {
+  public double distance(Vector that) {
     double dx = this.x - that.x;
     double dy = this.y - that.y;
     double dz = this.z - that.z;
@@ -123,7 +112,7 @@ public class Vector3D {
    * @param that requested vector.
    * @return dot product of this and the requested vector.
    */
-  public double dot(Vector3D that) {
+  public double dot(Vector that) {
     return this.x * that.x + this.y * that.y + this.z * that.z;
   }
 
@@ -135,8 +124,8 @@ public class Vector3D {
    * @param z z coordinate of the vector.
    * @return dot product of this and the requested vector.
    */
-  public Vector3D cross(double x, double y, double z) {
-    return new Vector3D(this.y * z - this.z * y, this.z * x - this.x * z, this.x * y - this.y * x);
+  public Vector cross(double x, double y, double z) {
+    return new Vector(this.y * z - this.z * y, this.z * x - this.x * z, this.x * y - this.y * x);
   }
 
   /**
@@ -145,18 +134,34 @@ public class Vector3D {
    * @param that requested vector.
    * @return dot product of this and the requested vector.
    */
-  public Vector3D cross(Vector3D that) {
-    return new Vector3D(this.y * that.z - this.z * that.y, this.z * that.x - this.x * that.z, this.x * that.y - this.y * that.x);
+  public Vector cross(Vector that) {
+    return new Vector(this.y * that.z - this.z * that.y, this.z * that.x - this.x * that.z, this.x * that.y - this.y * that.x);
   }
 
-  public static Vector3D unitVector(Vector3D vector) {
-    Vector3D result = new Vector3D(vector.x, vector.y, vector.z);
-    double dist = vector.distance(0, 0, 0);
-    if (dist > 0) {
-      result.x /= dist;
-      result.y /= dist;
-      result.z /= dist;
+  /** @return Length of the vector. */
+  public double length() {
+    return Math.sqrt(x * x + y * y + z * z);
+  }
+
+  /** @return Squared length of the vector. */
+  public double sqrlength() {
+    return x * x + y * y + z * z;
+  }
+
+  /** Normalizes this vector. */
+  public void normalize() {
+    double len = length();
+    if (len > 0) {
+      this.x /= len;
+      this.y /= len;
+      this.z /= len;
     }
-    return result;
+  }
+
+  /**
+   * @return a copy of this vector
+   */
+  public Vector clone() {
+    return new Vector(x, y, z);
   }
 }

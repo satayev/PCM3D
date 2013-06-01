@@ -1,6 +1,8 @@
 package pcm.model.shape;
 
-import pcm.geom.Vector3D;
+import pcm.geom.Intersection;
+import pcm.geom.Vector;
+import pcm.model.Photon;
 
 /**
  * {@code Surface} represent <i>walls</i> of the towers.
@@ -15,14 +17,14 @@ public abstract class Surface {
   // Fields
   // ///////////////////////////////////////////////////////////////////////////
   /** Position vector */
-  public Vector3D p;
+  public Vector p;
   /** Normal vector */
-  public Vector3D n;
+  public Vector n;
 
   // ///////////////////////////////////////////////////////////////////////////
   // Constructors
   // ///////////////////////////////////////////////////////////////////////////
-  public Surface(Vector3D position, Vector3D normal) {
+  public Surface(Vector position, Vector normal) {
     this.p = position;
     this.n = normal;
   }
@@ -30,6 +32,23 @@ public abstract class Surface {
   // ///////////////////////////////////////////////////////////////////////////
   // Methods
   // ///////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Finds a normal vector at some point on the surface.
+   * 
+   * @param at point on the surface.
+   * @return a normal vector.
+   */
+  public abstract Vector normal(Vector at);
+
+  /**
+   * Traces a photon ray and returns an intersection.
+   * If ray and the surface do not intersect returns null.
+   * 
+   * @param p photon
+   * @return intersection.
+   */
+  public abstract Intersection trace(Photon p);
 
   // ///////////////////////////////////////////////////////////////////////////
   // Getters and Setters

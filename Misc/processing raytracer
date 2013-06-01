@@ -1,0 +1,441 @@
+///////////////////////////////////////////////////////////////////////
+//
+// Command Line Interface (CLI) Parser  
+//
+///////////////////////////////////////////////////////////////////////
+String gCurrentFile = new String("rect_test.cli"); // A global variable for holding current active file name.
+
+///////////////////////////////////////////////////////////////////////
+//
+// Press key 1 to 9 and 0 to run different test cases.
+//
+///////////////////////////////////////////////////////////////////////
+void keyPressed() {
+  switch(key) {
+    case '1':  gCurrentFile = new String("t0.cli"); interpreter(); break;
+    case '2':  gCurrentFile = new String("t1.cli"); interpreter(); break;
+    case '3':  gCurrentFile = new String("t2.cli"); interpreter(); break;
+    case '4':  gCurrentFile = new String("t3.cli"); interpreter(); break;
+    case '5':  gCurrentFile = new String("c0.cli"); interpreter(); break;
+    case '6':  gCurrentFile = new String("c1.cli"); interpreter(); break;
+    case '7':  gCurrentFile = new String("c2.cli"); interpreter(); break;
+    case '8':  gCurrentFile = new String("c3.cli"); interpreter(); break;
+    case '9':  gCurrentFile = new String("c4.cli"); interpreter(); break;
+    case '0':  gCurrentFile = new String("c5.cli"); interpreter(); break;
+  }
+}
+
+void mouseClicked() {
+  float tan_x = tan(fov_x);
+  float tan_y = tan(fov_x * height / width);
+  
+  float x_incr = 2.0 * tan_x / width;
+  float y_incr = 2.0 * tan_y / height;
+  
+  Ray ray = new Ray(new PVector(0.0, 0.0, 0.0), new PVector(-tan_x + mouseX * x_incr, tan_y - mouseY * y_incr, -1));
+  float cDist = Float.MAX_VALUE;
+  Primitive cPrim = null;
+  
+  for (Primitive prim : prims)
+    if (prim instanceof Polygon) {
+      float currentDist = prim.intersects(ray);
+      if (currentDist < cDist) {
+        cDist = currentDist;
+        cPrim = prim;
+      }
+    }
+  if (cPrim != null) {
+    ArrayList<PVector> verts = ((Polygon)cPrim).verts;
+    for (PVector v : verts)
+      println("vertex " + v.x + " " + v.y + " " + v.z);
+      println("normal: " + cPrim.getNormal(new PVector(0.0, 0.0, 0.0)) + "\n");
+  }
+}
+
+///////////////////////////////////////////////////////////////////////
+//
+// Get a float value from a string.
+//
+///////////////////////////////////////////////////////////////////////
+float get_float(String str) { return float(str); }
+
+///////////////////////////////////////////////////////////////////////
+//
+//  Parser core. It parses the CLI file and processes it based on each 
+//  token. Only "color", "rect", and "write" tokens are implemented. 
+//  You should start from here and add more functionalities for your
+//  ray tracer.
+//
+//  Note: Function "splitToken()" is only available in processing 1.25 
+//       or higher.
+//
+///////////////////////////////////////////////////////////////////////
+void interpreter() {
+  prims.clear();
+  lightz.clear();
+  bg_col = color(0.0, 0.0, 0.0);
+  
+  Surface surface = null;
+  Polygon poly = null;
+  
+  String str[] = loadStrings(gCurrentFile);
+  if (str == null) println("Error! Failed to read the file.");
+  for (int i=0; i<str.length; i++) {
+    String[] token = splitTokens(str[i], " "); // Get a line and parse tokens.
+    if (token.length == 0) continue; // Skip blank line.
+    
+    if (token[0].equals("fov")) {
+      fov_x = radians(0.5 * get_float(token[1]));
+    }
+    else if (token[0].equals("background")) {
+      bg_col = color(get_float(token[1]), get_float(token[2]), get_float(token[3]));
+    }
+    else if (token[0].equals("light")) {
+      for (int j = 1; j < token.length;)
+        lightz.add(new Light(get_float(token[j++]), get_float(token[j++]), get_float(token[j++]),
+                             get_float(token[j++]), get_float(token[j++]), get_float(token[j++])));
+    }
+    else if (token[0].equals("surface")) {
+      surface = new Surface(get_float(token[1]), get_float(token[2]), get_float(token[3]),
+                            get_float(token[4]), get_float(token[5]), get_float(token[6]),
+                            get_float(token[7]), get_float(token[8]), get_float(token[9]),
+                            get_float(token[10]), get_float(token[11]));
+    }    
+    else if (token[0].equals("cyl")) {
+    }
+    else if (token[0].equals("sphere")) {
+      if (surface == null)
+        println("Error: no surface assigned to sphere.");
+      prims.add(new Sphere(get_float(token[1]), get_float(token[2]),
+                           get_float(token[3]), get_float(token[4]), surface));
+    }
+    else if (token[0].equals("begin")) {
+      if (surface == null)
+        println("Error: no surface assigned to polygon.");
+      if (poly != null)
+        println("Error: begin called before end");
+      poly = new Polygon(surface);
+    }
+    else if (token[0].equals("vertex")) {
+      if (poly == null)
+        println("Error: vertex called before begin");
+      poly.addVert(get_float(token[1]), get_float(token[2]), get_float(token[3]));
+    }
+    else if (token[0].equals("end")) {
+      if (poly == null)
+        println("Error: end called before begin");
+      poly.endPoly();
+      prims.add(poly);
+      poly = null;
+    }
+    else if (token[0].equals("color")) {
+      float r =get_float(token[1]);
+      float g =get_float(token[2]);
+      float b =get_float(token[3]);
+      fill(r, g, b);
+    }
+    else if (token[0].equals("rect")) {
+      float x0 = get_float(token[1]);
+      float y0 = get_float(token[2]);
+      float x1 = get_float(token[3]);
+      float y1 = get_float(token[4]);
+      rect(x0, height-y1, x1-x0, y1-y0);
+    }
+    else if (token[0].equals("write")){
+      if (prims.size() > 0)
+        doDraw = true;
+      draw();
+      save(token[1]);
+    }
+  }
+}
+
+class Ray {
+  PVector orig, dir;
+  
+  Ray(PVector origin, PVector direction) {
+    orig = origin;
+    dir = direction;
+    dir.normalize();
+    orig.add(PVector.div(dir, 10000.0));
+  }
+}
+
+class Surface {
+  color diff, amb, spec;
+  float phong, refl;
+  
+  Surface(float d_r, float d_g, float d_b, float a_r, float a_g, float a_b,
+          float s_r, float s_g, float s_b, float ph, float kr) {
+    diff = color(d_r, d_g, d_b);
+    amb =  color(a_r, a_g, a_b);
+    spec = color(s_r, s_g, s_b);
+    phong = ph;
+    refl = kr;
+  }
+}
+
+class Light {
+  PVector pos;
+  color col;
+  
+  Light(float x, float y, float z, float r, float g, float b) {
+    pos = new PVector(x, y, z);
+    col = color(r, g, b);
+  }
+}
+
+interface Primitive {
+  float intersects(Ray ray);
+  Surface getSurface();
+  PVector getNormal(PVector ip);
+}
+
+class Polygon implements Primitive {
+  ArrayList<PVector> verts;
+  float[] mins = {Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE};
+  float[] maxs = {Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE};
+  
+  Surface surf;
+  PVector n;
+  
+  Polygon(Surface surface) {
+    surf = surface;
+    verts = new ArrayList<PVector>();
+  }
+  
+  void addVert(float x, float y, float z) {
+    verts.add(new PVector(x, y, z));
+  }
+  
+  void endPoly() {
+    if (verts.size() < 3)
+      println("Error: polygon has less than 3 vertices.");
+    n = PVector.sub(verts.get(0), verts.get(1)).cross(PVector.sub(verts.get(2), verts.get(0)));
+    n.normalize();
+    
+    for (PVector v : verts) {
+      if (v.x < mins[0]) mins[0] = v.x;
+      if (v.x > maxs[0]) maxs[0] = v.x;
+      if (v.y < mins[1]) mins[1] = v.y;
+      if (v.y > maxs[1]) maxs[1] = v.y;
+      if (v.z < mins[2]) mins[2] = v.z;
+      if (v.z > maxs[2]) maxs[2] = v.z;
+    }
+    float ep = 0.000001;
+    for (int i = 0; i < 3; i++) {
+      mins[i] -= ep;
+      maxs[i] += ep;
+    }
+  }
+  
+  float intersects(Ray ray) {
+    float ndr = n.dot(ray.dir);
+    if (ndr != 0.0) {
+      float d = n.dot(PVector.sub(verts.get(0), ray.orig)) / ndr;
+      if (d > 0) {
+        float[] p = PVector.add(ray.orig, PVector.mult(ray.dir, d)).array();
+        if (p[0] > mins[0] && p[0] < maxs[0] && p[1] > mins[1] && p[1] < maxs[1] && p[2] > mins[2] && p[2] < maxs[2]) {
+          int x = 1;
+          int y = 2;
+          if (abs(n.z) > abs(n.x) && abs(n.z) > abs(n.y))
+            y = 0;
+          else if (abs(n.y) > abs(n.x))
+            x = 0;
+          
+          int hitCount = 0;
+          for (int i = 1; i <= verts.size(); i++) {
+            int j = i;
+            if (i == verts.size())
+              j = 0;
+            float[] a = verts.get(j).array();
+            float[] b = verts.get(i - 1).array();
+            
+            float slope = a[x] - b[x];
+            if (abs(slope) > 0.000001) {
+              slope = (a[y] - b[y]) / slope;
+              float ey = slope * p[x] + a[y] - slope * a[x];
+              if (ey < p[y] && ey >= mins[y] && ey <= maxs[y])
+                hitCount++;
+            }
+          }
+          if (hitCount == 1)
+            return d;
+        }
+      }
+    }
+    return Float.MAX_VALUE;
+  }
+  
+  Surface getSurface() {
+    return surf;
+  }
+  
+  PVector getNormal(PVector ip) {
+    return n;
+  }
+}
+
+class Sphere implements Primitive {
+  float radius;
+  PVector pos;
+  Surface surf;
+  
+  Sphere(float r, float x, float y, float z, Surface surface) {
+    radius = r;
+    pos = new PVector(x, y, z);
+    surf = surface;
+  }
+  
+  float intersects(Ray ray) {
+    PVector v = PVector.sub(pos, ray.orig);
+    float b = v.dot(ray.dir);
+    float det = (b * b) - v.dot(v) + sq(radius);
+    
+    if (det > 0) {
+      det = sqrt(det);
+      if (b + det > 0.0)
+        return b - det;
+    }
+    return Float.MAX_VALUE;
+  }
+  
+  Surface getSurface() {
+    return surf;
+  }
+  
+  PVector getNormal(PVector ip) {
+    PVector n = PVector.sub(ip, pos);
+    n.normalize();
+    return n;
+  }
+}
+
+///////////////////////////////////////////////////////////////////////
+//
+// Some initializations for the scene.
+//
+///////////////////////////////////////////////////////////////////////
+void setup() {
+  size(300, 300);  
+  noStroke();
+  colorMode(RGB, 1.0);
+  background(0, 0, 0);
+  interpreter();
+}
+
+///////////////////////////////////////////////////////////////////////
+//
+// Draw frames.
+//
+///////////////////////////////////////////////////////////////////////
+float fov_x;
+ArrayList<Primitive> prims = new ArrayList<Primitive>();
+ArrayList<Light> lightz = new ArrayList<Light>();
+color bg_col;
+boolean doDraw;
+
+color shootRay(Ray ray, int depth) {
+  if (depth <= 0)
+    return 0;
+  
+  float cDist = Float.MAX_VALUE;
+  Primitive cPrim = null;
+  
+  for (Primitive prim : prims) {
+    float currentDist = prim.intersects(ray);
+    if (currentDist < cDist) {
+      cDist = currentDist;
+      cPrim = prim;
+    }
+  }
+  
+  if (cDist < Float.MAX_VALUE) {
+    PVector hitPoint = PVector.add(ray.orig, PVector.mult(ray.dir, cDist));
+    PVector n = cPrim.getNormal(hitPoint);
+    Surface surface = cPrim.getSurface();
+    float r = red(surface.amb);
+    float g = green(surface.amb);
+    float b = blue(surface.amb);
+    
+    if (surface.refl > 0.0) {
+      color refl = shootRay(new Ray(hitPoint, PVector.sub(ray.dir, PVector.mult(n, 2.0 * ray.dir.dot(n)))), depth - 1);
+      r += red(refl) * surface.refl;
+      g += green(refl) * surface.refl;
+      b += blue(refl) * surface.refl;
+    }
+    
+    for (Light light : lightz) {
+      PVector l = PVector.sub(light.pos, hitPoint);
+      l.normalize();
+      
+      float pl = dist(hitPoint.x, hitPoint.y, hitPoint.z, light.pos.x, light.pos.y, light.pos.z);
+      Ray sRay = new Ray(hitPoint, l);
+      boolean shadow = false;
+      for (Primitive prim : prims)
+        if (prim != cPrim && prim.intersects(sRay) < pl) {
+          shadow = true;
+          break;
+        }
+        
+      if (!shadow) {
+        float ndl = n.dot(l);
+        if (ndl > 0){
+          float spec = 0;
+          if (surface.phong > 0.0) {
+            PVector s = PVector.sub(l, PVector.mult(n, 2.0 * ndl));
+            float vdr = ray.dir.dot(s);
+            if (vdr > 0.0)
+              spec = pow(vdr, surface.phong);
+          }
+
+          r += red(light.col) * (ndl * red(surface.diff) + spec * red(surface.spec));
+          g += green(light.col) * (ndl * green(surface.diff) + spec * green(surface.spec));
+          b += blue(light.col) * (ndl * blue(surface.diff) + spec * blue(surface.spec));
+        }
+      }
+    }
+    return color(r, g, b);
+  }
+  return bg_col;
+}
+
+void draw() {
+  if (doDraw) {
+    float tan_x = tan(fov_x);
+    float tan_y = tan(fov_x * height / width);
+    
+    int aa = 2;
+    float aas = aa * aa;
+    
+    float x_incr = 2.0 * tan_x / width;
+    float y_incr = 2.0 * tan_y / height;
+    
+    Ray ray = new Ray(new PVector(0.0, 0.0, 0.0), new PVector(0.0, tan_y, 0.0));
+    
+    float yR = tan_y;
+    for (int y = 0; y < height; y++) {
+      float xR = -tan_x;
+      ray.dir.x = -tan_x;
+      for (int  x = 0; x < width; x++) {
+        float r = 0.0;
+        float g = 0.0;
+        float b = 0.0;
+        for (int xa = 0; xa < aa; xa++)
+          for (int ya = 0; ya < aa; ya++) {
+            ray.dir.set(xR + xa * x_incr / aa, yR - ya * y_incr / aa, -1.0);
+            ray.dir.normalize();
+            
+            color col = shootRay(ray, 10);
+            r += red(col) / aas;
+            g += green(col) / aas;
+            b += blue(col) / aas;
+          }
+        set(x, y, color(r, g, b));
+        xR += x_incr;
+      }
+      yR -= y_incr;
+    }
+    doDraw = false;
+  }
+}

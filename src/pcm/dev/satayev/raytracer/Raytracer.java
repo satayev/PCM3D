@@ -2,6 +2,10 @@ package pcm.dev.satayev.raytracer;
 
 import java.util.List;
 
+import pcm.geom.Intersection;
+import pcm.model.shape.Plane;
+import pcm.model.shape.Sphere;
+
 public class Raytracer {
   static int min;
   static List<Object> objects;
