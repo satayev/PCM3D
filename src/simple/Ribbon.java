@@ -1,4 +1,6 @@
-package john;
+package simple;
+
+import pcm.geom.Vector3D;
 
 /**
  * This basic class represents a vertical surface with infinite height. 
@@ -50,10 +52,10 @@ public class Ribbon extends Surface {
 	 */
 	public double collisionDistance(Photon p) {
 		// nx * (p.rx + d*p.nx) + ny * (p.ry + d*p.ny) = c
-		double d = (c - nx * p.rx - ny * p.ry) / (nx * p.nx + ny * p.ny);
+		double d = (c - nx * p.r.x - ny * p.r.y) / (nx * p.n.x + ny * p.n.y);
 		if (d < p.e) return Double.MAX_VALUE;
 		// project onto the surface
-		double r = nx * (p.ry + d*p.ny - ry) - ny * (p.rx + d*p.nx - rx);
+		double r = nx * (p.r.y + d*p.n.y - ry) - ny * (p.r.x + d*p.n.x - rx);
 		if (r < 0 || r > b) return Double.MAX_VALUE;
 		return d;
 	}
@@ -65,9 +67,9 @@ public class Ribbon extends Surface {
 	 */
 	public boolean collision(Photon p) {
 		// calculate distance, move photon to surface
-		double d = (c - nx * p.rx - ny * p.ry) / (nx * p.nx + ny * p.ny);
+		double d = (c - nx * p.r.x - ny * p.r.y) / (nx * p.n.x + ny * p.n.y);
 		p.move(d); 
-		return !p.bounce(nx,ny,0.);
+		return !p.bounce(new Vector3D(nx,ny,0.));
 	}
 
 	/**
@@ -76,10 +78,10 @@ public class Ribbon extends Surface {
 	 * @return Returns true if the surface is directly along the x direction from the photon
 	 */
 	public boolean checkRight(Photon p) {
-		double d = (c - nx * p.rx - ny * p.ry) / nx;
+		double d = (c - nx * p.r.x - ny * p.r.y) / nx;
 		if (d < 0) return false;
 		// project onto the surface
-		double r = nx * (p.ry - ry) - ny * (p.rx + d - rx);
+		double r = nx * (p.r.y - ry) - ny * (p.r.x + d - rx);
 		if (r < 0 || r > b) return false;
 		return true;
 	}

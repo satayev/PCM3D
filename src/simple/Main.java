@@ -1,4 +1,4 @@
-package john;
+package simple;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +13,9 @@ public class Main {
 		double[] ly = {.25,.25,.75,.75};
 		List<Tower> LT = new ArrayList<Tower>();
 		List<Double> Lx = new ArrayList<Double>();
-		Lx.addAll(Lx);
+		Lx.addAll(lx);
 		List<Double> Ly = new ArrayList<Double>();
-		Ly.addAll(Ly);
+		Ly.addAll(ly);
 		LT.add(new Tower(Lx,Ly));
 		SimpleModel SM = new SimpleModel(LT, new Photon());
 		SM.run(1);

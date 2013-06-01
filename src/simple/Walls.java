@@ -1,17 +1,19 @@
-package john;
+package simple;
+
+import pcm.geom.Vector3D;
 
 public class Walls extends Surface {
 
 	@Override
 	public double collisionDistance(Photon p) {
 		double d = Double.POSITIVE_INFINITY;
-		double c = -p.rx / p.nx;
+		double c = -p.r.x / p.n.x;
 		if (c > p.e && c < d) d = c;
-		c = -p.ry / p.ny;
+		c = -p.r.y / p.n.y;
 		if (c > p.e && c < d) d = c;
-		c = (Photon.X-p.rx) / p.nx;
+		c = (Photon.X-p.r.x) / p.n.x;
 		if (c > p.e && c < d) d = c;
-		c = (Photon.Y-p.ry) / p.ny;
+		c = (Photon.Y-p.r.y) / p.n.y;
 		if (c > p.e && c < d) d = c;
 		return d;
 	}
@@ -20,8 +22,8 @@ public class Walls extends Surface {
 	public boolean collision(Photon p) {
 		double d = collisionDistance(p);
 		p.move(d);
-		if (p.rx < p.e || Photon.X - p.rx < p.e) p.move(Photon.X - p.rx,p.ry,p.rz);
-		if (p.ry < p.e || Photon.Y - p.ry < p.e) p.move(p.rx,Photon.Y - p.ry,p.rz);
+		if (p.r.x < p.e || Photon.X - p.r.x < p.e) p.move(new Vector3D(Photon.X - p.r.x,p.r.y,p.r.z));
+		if (p.r.y < p.e || Photon.Y - p.r.y < p.e) p.move(new Vector3D(p.r.x,Photon.Y - p.r.y,p.r.z));
 		return false;
 	}
 

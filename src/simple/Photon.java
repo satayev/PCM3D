@@ -1,4 +1,6 @@
-package john;
+package simple;
+
+import pcm.geom.Vector3D;
 
 /**
  * This class contains all information for the photon
@@ -6,9 +8,11 @@ package john;
  */
 public class Photon {
 
-	public static final double X = 1, Y = 1, Z = 1;;
-	public double rx, ry, rz, nx, ny, nz;
+	public static final double X = 1, Y = 1, Z = 1;
+	public Vector3D r, n;
 	public double e = .0001; // Uncertainty in position, for error
+	
+	public Statistic stat = new Statistic();
 	
 	public Photon() {
 		reset();
@@ -19,49 +23,43 @@ public class Photon {
 	 * The photon starts at the top with a downward trajectory
 	 */
 	public void reset() {
-		rx = X * Math.random();
-		ry = Y * Math.random();
-		rz = Z;
+		r.x = X * Math.random();
+		r.y = Y * Math.random();
+		r.z = Z;
 		double theta = 2*Math.PI*Math.random(), phi = Math.PI/2*Math.random();
-		nx = Math.cos(theta)*Math.cos(phi);
-		ny = Math.sin(theta)*Math.cos(phi);
-		nz = -Math.sin(phi);
+		n.x = Math.cos(theta)*Math.cos(phi);
+		n.y = Math.sin(theta)*Math.cos(phi);
+		n.z = -Math.sin(phi);
 	}
-	
+
 	/**
 	 * Moves the photon to the indicated position
-	 * @param rx X-coordinate
-	 * @param ry Y-coordinate
-	 * @param rz Z-coordinate
+	 * @param v The new position
 	 */
-	public void move(double rx, double ry, double rz) {
-		this.rx = rx;
-		this.ry = ry;
-		this.rz = rz;
+	public void move(Vector3D v) {
+		r.set(v);
 	}
 
 	public void move(double d) {
-		rx += d*nx;
-		ry += d*ny;
-		rz += d*nz;
+		r.add(n.copy().mult(d));
 	}
 
 	/**
 	 * Reflects the velocity on the vector given and makes a statistical recording
 	 * Checks if photon is absorbed instead.  
-	 * @param nx X-coordinate of surface normal vector
-	 * @param ny Y-coordinate of surface normal vector
-	 * @param nz Z-coordinate of surface normal vector
+	 * @param v The surface normal vector
 	 * @return Return true if the photon bounced, false if it was absorbed
 	 */
-	public boolean bounce(double nx, double ny, double nz) {
-		double r = -2 * (this.nx * nx + this.ny * ny + this.nz * nz);
-		this.nx += r * nx;
-		this.ny += r * ny;
-		this.nz += r * nz;
+	public boolean bounce(Vector3D v) {
+		n.add(v.copy().mult(-2*n.dot(v)));
 		// Statistics here
-		if(absorbsionChance()) return false;
-		else return false;
+		if(absorbsionChance()) {
+			absorb();
+			return false;
+		} else {
+			stat.addPath(r);
+			return true;
+		}
 	}
 
 	/**
@@ -76,7 +74,9 @@ public class Photon {
 	 * This method handles absorbtion of the photon
 	 */
 	public void absorb() {
-		// TODO Statistics
+		stat.addPath(r);
+		stat.absorb(r);
+		stat.newPhoton();
 	}
 
 }
