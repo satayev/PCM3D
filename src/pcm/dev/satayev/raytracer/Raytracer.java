@@ -60,7 +60,7 @@ public class Raytracer extends JPanel {
     rt.surfaces.add(new Sphere(new Vector(175, 100, 100), 25));
     rt.surfaces.add(new Sphere(new Vector(0, 0, 0), 100));
     rt.surfaces.add(new Plane(new Vector(0, -100, 0), new Vector(0, 1, 1)));
-    
+
     // assign distinct colors to surfaces
     for (int i = 0; i < rt.surfaces.size(); i++) {
       Color c = colors[i];
@@ -138,8 +138,6 @@ public class Raytracer extends JPanel {
 
     if (surfcol.length() > 1)
       surfcol.normalize();
-    //    reflcol.normalize();
-    //    refrcol.normalize();
 
     double r = (surfaceColorCoef * surfcol.x + reflectionCoef * reflcol.x + transparencyCoef * refrcol.x);
     double g = (surfaceColorCoef * surfcol.y + reflectionCoef * reflcol.y + transparencyCoef * refrcol.y);
