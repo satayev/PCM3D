@@ -1,4 +1,4 @@
-package john;
+package simple;
 
 import java.util.ArrayList;
 import java.util.List;

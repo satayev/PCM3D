@@ -1,4 +1,4 @@
-package john;
+package simple;
 
 public abstract class Surface {
 

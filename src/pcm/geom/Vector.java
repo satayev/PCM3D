@@ -166,7 +166,7 @@ public class Vector {
       kb = -1;
     }
     double D = 1 - ka * ka * (1 - dot * dot);
-    double b = kb*(dot * ka + Math.sqrt(D));
+    double b = kb * (dot * ka + Math.sqrt(D));
 
     this.x = ka * this.x + b * n.x;
     this.y = ka * this.y + b * n.y;
@@ -174,13 +174,14 @@ public class Vector {
   }
 
   /** Normalizes this vector. */
-  public void normalize() {
+  public Vector normalize() {
     double len = length();
     if (len > 0) {
       this.x /= len;
       this.y /= len;
       this.z /= len;
     }
+    return this;
   }
 
   /**
@@ -188,6 +189,30 @@ public class Vector {
    */
   public Vector clone() {
     return new Vector(x, y, z);
+  }
+
+  /**
+   * Sets the current vector to equal the values in r
+   * 
+   * @param r The vector to copy from
+   */
+  public void set(Vector r) {
+    x = r.x;
+    y = r.y;
+    z = r.z;
+  }
+
+  /**
+   * Multiplies the vector by a scalar
+   * 
+   * @param d The scalar to multiply by
+   * @return The current vector
+   */
+  public Vector mul(double d) {
+    x = d * x;
+    y = d * y;
+    z = d * z;
+    return this;
   }
 
   @Override
