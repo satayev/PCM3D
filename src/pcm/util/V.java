@@ -10,7 +10,7 @@ import pcm.geom.Vector;
 public final class V {
 
   /** Used for double comparison */
-  public static final double EPS = 1e-9;
+  public static final double EPS = 1e-5;
 
   public static final double INFINITY = Double.POSITIVE_INFINITY;
 
@@ -50,6 +50,17 @@ public final class V {
   /** @return returns a dot product of two vectors. */
   public static double dot(Vector a, Vector b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
+  }
+
+  /**
+   * Static version of {@link Photon.travel}.
+   */
+  public static Vector travel(Vector from, Vector velocity, double time) {
+    Vector result = new Vector();
+    result.x = from.x + time * velocity.x;
+    result.y = from.y + time * velocity.y;
+    result.z = from.z + time * velocity.z;
+    return result;
   }
 
   /**

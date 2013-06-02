@@ -104,12 +104,12 @@ public class Vector {
   }
 
   /**
-   * Finds a dot product of this and requested vector.
+   * Finds a cross product of this and requested vector.
    * 
    * @param x x coordinate of the vector.
    * @param y y coordinate of the vector.
    * @param z z coordinate of the vector.
-   * @return dot product of this and the requested vector.
+   * @return cross product of this and the requested vector.
    */
   public Vector cross(double x, double y, double z) {
     return new Vector(this.y * z - this.z * y, this.z * x - this.x * z, this.x * y - this.y * x);

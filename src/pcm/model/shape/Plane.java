@@ -14,7 +14,7 @@ public class Plane extends Surface {
   private double dot;
 
   public Plane(Vector position, Vector normal) {
-    super(position, V.normalize(normal));
+    super(position, normal);
     this.dot = V.dot(p, n);
   }
 

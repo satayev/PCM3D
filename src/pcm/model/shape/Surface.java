@@ -46,7 +46,7 @@ public abstract class Surface {
    * Computes time required by particle-like photon to travel until collision with the surface.
    * Result is Double.POSITIVE_INFINITY if surface and photon never collide.
    * 
-   * Collision point equals to (Photon.currentPosition + travelTime * Photon.velocity).
+   * Collision point equals to {@code Photon.currentPosition + travelTime * Photon.velocity}.
    * 
    * @param p the photon.
    * @return time until collision.

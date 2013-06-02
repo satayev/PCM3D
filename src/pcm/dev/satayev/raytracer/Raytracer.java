@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 
 import pcm.geom.Vector;
 import pcm.model.Photon;
-import pcm.model.shape.Plane;
+import pcm.model.shape.Polygon;
 import pcm.model.shape.Sphere;
 import pcm.model.shape.Surface;
 import pcm.util.V;
@@ -43,8 +43,8 @@ public class Raytracer extends JPanel {
   // size of the square canvas
   private final static int size = 500;
   // used to color surfaces
-  private final static Color[] colors = { Color.red, Color.blue, Color.green, Color.yellow,
-      Color.cyan, Color.magenta, Color.pink, Color.white };
+  private final static Color[] colors = { Color.red, Color.blue, Color.green, Color.yellow, Color.cyan, Color.magenta,
+      Color.pink, Color.white };
 
   public static void main(String[] args) {
     Raytracer rt = new Raytracer();
@@ -52,14 +52,20 @@ public class Raytracer extends JPanel {
     // add lights
     rt.lights.add(new Vector(eyeZ, eyeZ, eyeZ));
     rt.lights.add(new Vector(-eyeZ / 5, 0, 0));
-    rt.lights.add(new Vector(0, eyeZ, 0));
+    rt.lights.add(new Vector(0, eyeZ, eyeZ));
 
     // add surfaces
     rt.surfaces.add(new Sphere(new Vector(100, 55, 0), 25));
     rt.surfaces.add(new Sphere(new Vector(100, 100, 100), 50));
     rt.surfaces.add(new Sphere(new Vector(175, 100, 100), 25));
     rt.surfaces.add(new Sphere(new Vector(0, 0, 0), 100));
-    rt.surfaces.add(new Plane(new Vector(0, -100, 0), new Vector(0, 1, 1)));
+
+    // add a rectangle
+    Polygon rect = new Polygon(new Vector[] {
+        new Vector(-200, 100, 0), new Vector(200, 100, 0),
+        new Vector(200, -150, 0), new Vector(-200, -150, 0)
+    });
+    rt.surfaces.add(rect);
 
     // assign distinct colors to surfaces
     for (int i = 0; i < rt.surfaces.size(); i++) {
