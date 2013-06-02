@@ -1,6 +1,5 @@
 package pcm.model.shape;
 
-import pcm.geom.Intersection;
 import pcm.geom.Vector;
 import pcm.model.Photon;
 import pcm.util.V;
@@ -25,22 +24,18 @@ public class Plane extends Surface {
   }
 
   @Override
-  public Intersection trace(Photon photon) {
+  public double travelTime(Photon photon) {
     Vector v = photon.v;
     double vn = V.dot(v, n);
-    // parallel case
-    if (vn == 0)
-      return null;
+    if (Math.abs(vn) < V.EPS)
+      // parallel case
+      return V.INFINITY;
 
     Vector from = photon.p;
     double t = (dot - V.dot(from, n)) / vn;
-    if (t < 1e-5)
-      return null;
-    
-    Vector at = new Vector();
-    at.x = from.x + t * v.x;
-    at.y = from.y + t * v.y;
-    at.z = from.z + t * v.z;
-    return new Intersection(at, t);
+    if (t < V.EPS)
+      return V.INFINITY;
+
+    return t;
   }
 }

@@ -1,6 +1,5 @@
 package pcm.model.shape;
 
-import pcm.geom.Intersection;
 import pcm.geom.Vector;
 import pcm.model.Photon;
 
@@ -18,7 +17,7 @@ public abstract class Surface {
   // ///////////////////////////////////////////////////////////////////////////
   /** Position vector */
   public Vector p;
-  /** Normal vector */
+  /** Unit normal vector */
   public Vector n;
 
   // ///////////////////////////////////////////////////////////////////////////
@@ -27,6 +26,8 @@ public abstract class Surface {
   public Surface(Vector position, Vector normal) {
     this.p = position;
     this.n = normal;
+    if (this.n != null)
+      this.n.normalize();
   }
 
   // ///////////////////////////////////////////////////////////////////////////
@@ -34,21 +35,23 @@ public abstract class Surface {
   // ///////////////////////////////////////////////////////////////////////////
 
   /**
-   * Finds a normal vector at some point on the surface.
+   * Finds a unit normal vector at some point on the surface.
    * 
    * @param at point on the surface.
-   * @return a normal vector.
+   * @return a unit normal vector.
    */
   public abstract Vector normal(Vector at);
 
   /**
-   * Traces a photon ray and returns an intersection.
-   * If ray and the surface do not intersect returns null.
+   * Computes time required by particle-like photon to travel until collision with the surface.
+   * Result is Double.POSITIVE_INFINITY if surface and photon never collide.
    * 
-   * @param p photon
-   * @return intersection.
+   * Collision point equals to (Photon.currentPosition + travelTime * Photon.velocity).
+   * 
+   * @param p the photon.
+   * @return time until collision.
    */
-  public abstract Intersection trace(Photon p);
+  public abstract double travelTime(Photon photon);
 
   // ///////////////////////////////////////////////////////////////////////////
   // Getters and Setters

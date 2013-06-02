@@ -9,6 +9,11 @@ import pcm.geom.Vector;
  */
 public final class V {
 
+  /** Used for double comparison */
+  public static final double EPS = 1e-9;
+
+  public static final double INFINITY = Double.POSITIVE_INFINITY;
+
   /**
    * Adds two vectors and returns a new vector.
    * 
@@ -63,6 +68,14 @@ public final class V {
     return result;
   }
 
+  /**
+   * Refracts a vector given the normal and refraction coefficient.
+   * 
+   * @param a requested vector.
+   * @param n normal vector.
+   * @param q refraction coefficient.
+   * @return refracted vector.
+   */
   public static Vector refract(Vector a, Vector n, double q) {
     double dot = dot(a, n);
     double k;

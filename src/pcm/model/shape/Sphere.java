@@ -1,6 +1,5 @@
 package pcm.model.shape;
 
-import pcm.geom.Intersection;
 import pcm.geom.Vector;
 import pcm.model.Photon;
 import pcm.util.V;
@@ -31,32 +30,36 @@ public class Sphere extends Surface {
     normal.x = invR * (at.x - p.x);
     normal.y = invR * (at.y - p.y);
     normal.z = invR * (at.z - p.z);
+    normal.normalize();
     return normal;
   }
 
+  /**
+   * Assumes photon is always outside of the sphere.
+   */
   @Override
-  public Intersection trace(Photon photon) {
+  public double travelTime(Photon photon) {
     Vector A = photon.p;
-    Vector CA = V.sub(p, A);
+    Vector AC = V.sub(this.p, A);
     Vector v = photon.v;
+    
+    double acv = V.dot(AC, v);
+    if (acv < V.EPS)
+      // photon is moving in opposite direction
+      return V.INFINITY;
 
-    double cav = V.dot(CA, v);
-    if (cav < 1e-5)
-      return null;
-    double len = CA.sqrlength();
-    double D = cav * cav - len + sqrR;
-    if (D < 1e-5)
-      return null;
+    double len = AC.sqrlength();
+    double D = acv * acv - len + sqrR;
+    if (D < V.EPS)
+      // line never intersects sphere
+      return V.INFINITY;
     double sqrtD = Math.sqrt(D);
-    double t = cav - sqrtD;
-    if (t < 1e-5)
-      t = cav + sqrtD;
-    if (t < 1e-5)
-      return null;
-    Vector at = new Vector();
-    at.x = A.x + t * v.x;
-    at.y = A.y + t * v.y;
-    at.z = A.z + t * v.z;
-    return new Intersection(at, t);
+    double t = acv - sqrtD;
+    if (t < V.EPS)
+      t = acv + sqrtD;
+    if (t < V.EPS)
+      // intersections happen in the past
+      return V.INFINITY;
+    return t;
   }
 }

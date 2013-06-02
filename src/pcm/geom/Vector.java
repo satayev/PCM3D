@@ -7,24 +7,11 @@ package pcm.geom;
  */
 public class Vector {
 
-  // for ease of use in other classes fields are public
-  // TODO(satayev): perhaps allow coordinates to be Integer, Float, BigDecimal, Fraction as well.
+  // TODO(satayev): perhaps allow coordinates to be Integer, Float, BigDecimal, Rational as well.
   public double x, y, z;
 
   /** Creates a zero vector. */
   public Vector() {
-  }
-
-  /**
-   * Creates a vector on {@code z=0} plane.
-   * 
-   * @param x x coordinate of the vector.
-   * @param y y coordinate of the vector.
-   */
-  public Vector(double x, double y) {
-    this.x = x;
-    this.y = y;
-    this.z = 0;
   }
 
   /**
@@ -148,6 +135,44 @@ public class Vector {
     return x * x + y * y + z * z;
   }
 
+  /**
+   * Reflects a vector given the normal vector.
+   * 
+   * @param n normal vector.
+   */
+  public void reflect(Vector n) {
+    double k = 2 * this.dot(n);
+    this.x = this.x - k * n.x;
+    this.y = this.y - k * n.y;
+    this.z = this.z - k * n.z;
+  }
+
+  /**
+   * Refracts a vector given the normal and refraction coefficient.
+   * x,y,z are NaN if refraction is impossible.
+   * 
+   * @param n normal vector.
+   * @param q refraction coefficient.
+   */
+  public void refract(Vector n, double q) {
+    double dot = this.dot(n);
+    double ka, kb;
+    if (dot > 0) {
+      dot = -dot;
+      ka = q;
+      kb = 1;
+    } else {
+      ka = 1.0 / q;
+      kb = -1;
+    }
+    double D = 1 - ka * ka * (1 - dot * dot);
+    double b = kb*(dot * ka + Math.sqrt(D));
+
+    this.x = ka * this.x + b * n.x;
+    this.y = ka * this.y + b * n.y;
+    this.z = ka * this.z + b * n.z;
+  }
+
   /** Normalizes this vector. */
   public void normalize() {
     double len = length();
@@ -163,5 +188,10 @@ public class Vector {
    */
   public Vector clone() {
     return new Vector(x, y, z);
+  }
+
+  @Override
+  public String toString() {
+    return "[" + x + ", " + y + ", " + z + "]";
   }
 }
