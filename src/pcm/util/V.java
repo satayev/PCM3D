@@ -46,7 +46,27 @@ public final class V {
   public static Vector mul(double k, Vector a) {
     return new Vector(k * a.x, k * a.y, k * a.z);
   }
-
+  
+  /**
+   * Creates a new vector by adding one to a scaled multiple of another
+   * 
+   * @param scale the input scale
+   * @param vector the input vector
+   */
+  public static Vector scaleAdd(Vector a, double scale, Vector b) {
+    return new Vector(a.x + scale * b.x, a.y + scale * b.y, a.z + scale * b.z);
+  }
+  
+  /**
+   * Creates a new vector by adding a multiple of one to a multiple of another
+   * 
+   * @param scale the input scale
+   * @param vector the input vector
+   */
+  public static Vector scaleAdd(double scale1, Vector a, double scale2, Vector b) {
+    return new Vector(scale1 * a.x + scale2 * b.x, scale1 * a.y + scale2 * b.y, scale1 * a.z + scale2 * b.z);
+  }
+  
   /** @return returns a dot product of two vectors. */
   public static double dot(Vector a, Vector b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
