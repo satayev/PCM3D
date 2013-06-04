@@ -12,8 +12,21 @@ public class Vector {
 
   /** Creates a zero vector. */
   public Vector() {
+    x = y = z = 0;
   }
 
+  /**
+   * Creates a vector on {@code z=0} plane.
+   * 
+   * @param x x coordinate of the vector.
+   * @param y y coordinate of the vector.
+   */
+  public Vector(double x, double y) {
+    this.x = x;
+    this.y = y;
+    this.z = 0;
+  }
+  
   /**
    * Creates a vector in 3D space.
    * 
@@ -26,6 +39,8 @@ public class Vector {
     this.y = y;
     this.z = z;
   }
+  
+
 
   /**
    * Adds a vector to the current vector.
@@ -53,6 +68,19 @@ public class Vector {
     this.z += addend.z;
   }
 
+  /**
+   * Creates a new vector by subtracting one from another and finding their difference.
+   * 
+   * @param a first vector.
+   * @param b second vector.
+   * @return difference a-b.
+   */
+  public void sub(Vector v) {
+    this.x -= v.x;
+    this.y -= v.y;
+    this.z -= v.z;
+  }
+  
   /**
    * Finds a distance to another point.
    * 
@@ -192,6 +220,19 @@ public class Vector {
   }
 
   /**
+   * Redefines coordinates of vector
+   * 
+   * @param x new x coordinate of the vector.
+   * @param y new y coordinate of the vector.
+   * @param z new z coordinate of the vector.
+   */
+  public void set(double x, double y, double z) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+  }
+  
+  /**
    * Sets the current vector to equal the values in r
    * 
    * @param r The vector to copy from
@@ -214,6 +255,28 @@ public class Vector {
     z = d * z;
     return this;
   }
+  
+  /**
+   * Creates a vector of vector multiplied by a scalar
+   * 
+   * @param scale the input scale
+   */
+  public Vector multiple(double scale) {
+    return new Vector(this.x * scale, this.y * scale, this.z * scale);
+  }
+  
+  /**
+   * Adds a scaled multiple of a Vector to this
+   * 
+   * @param scale the input scale
+   * @param vector the input vector
+   */
+  public void scaleAdd(double scale, Vector vector) {
+    this.x += scale * vector.x;
+    this.y += scale * vector.y;
+    this.z += scale * vector.z;
+  }
+  
 
   @Override
   public String toString() {

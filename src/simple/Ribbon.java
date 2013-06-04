@@ -11,6 +11,7 @@ import pcm.geom.Vector;
 public class Ribbon extends Surface {
   public double rx, ry, nx, ny, b;
   public double c; // Tangent distance from origin
+  public Vector[] corners=new Vector[2];
 
   /**
    * This is the basic constructor
@@ -28,6 +29,8 @@ public class Ribbon extends Surface {
     this.nx = dy / b;
     this.ny = -dx / b;
     c = rx * nx + ry * ny;
+    
+    corners[0]=new Vector(x1,y1);corners[1]=new Vector(x2,y2);
   }
 
   /**

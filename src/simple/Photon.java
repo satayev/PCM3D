@@ -16,6 +16,8 @@ public class Photon {
   public Statistic stat = new Statistic();
 
   public Photon() {
+    r = new Vector();
+    n = new Vector();
     reset();
   }
 
