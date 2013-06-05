@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+
+<TabPane id="TabPane" focusTraversable="false" prefHeight="720.0" prefWidth="1280.0" tabClosingPolicy="UNAVAILABLE" xmlns:fx="http://javafx.com/fxml" fx:controller="pcm.gui.UIMockupController">
+  <tabs>
+    <Tab closable="false" text="Pattern">
+      <content>
+        <AnchorPane>
+          <children>
+            <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <menus>
+                <Menu mnemonicParsing="false" text="Open" />
+                <Menu mnemonicParsing="false" text="Save...">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Save" />
+                    <MenuItem mnemonicParsing="false" text="Save As..." />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Clear" />
+                <Menu mnemonicParsing="false" text="Preview" />
+              </menus>
+            </MenuBar>
+            <VBox prefWidth="240.0" style="-fx-background-color:silver;" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0">
+              <children>
+                <HBox alignment="CENTER">
+                  <children>
+                    <Label text="Stamp Scale">
+                      <HBox.margin>
+                        <Insets fx:id="x5" />
+                      </HBox.margin>
+                    </Label>
+                    <TextField prefWidth="80.0">
+                      <HBox.margin>
+                        <Insets left="10.0" right="10.0" />
+                      </HBox.margin>
+                    </TextField>
+                    <Label text="micrometers" HBox.margin="$x5" />
+                  </children>
+                </HBox>
+                <Accordion VBox.vgrow="ALWAYS">
+                  <expandedPane>
+                    <TitledPane fx:id="x2" animated="false" text="Functions">
+                      <content>
+                        <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER">
+                          <content>
+                            <VBox id="VBox" alignment="TOP_CENTER">
+                              <children>
+                                <VBox>
+                                  <children>
+                                    <HBox>
+                                      <children>
+                                        <Label text="f1(x)" HBox.hgrow="NEVER" />
+                                        <TextField HBox.hgrow="ALWAYS" />
+                                      </children>
+                                    </HBox>
+                                    <HBox>
+                                      <children>
+                                        <Label text="Interval" />
+                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS">
+                                          <HBox.margin>
+                                            <Insets fx:id="x6" />
+                                          </HBox.margin>
+                                        </TextField>
+                                        <Label text="," />
+                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
+                                      </children>
+                                    </HBox>
+                                    <Separator>
+                                      <VBox.margin>
+                                        <Insets bottom="5.0" top="5.0" />
+                                      </VBox.margin>
+                                    </Separator>
+                                  </children>
+                                  <VBox.margin>
+                                    <Insets fx:id="x7" />
+                                  </VBox.margin>
+                                </VBox>
+                                <VBox>
+                                  <children>
+                                    <HBox>
+                                      <children>
+                                        <Label text="f2(x)" HBox.hgrow="NEVER" />
+                                        <TextField HBox.hgrow="ALWAYS" />
+                                      </children>
+                                    </HBox>
+                                    <HBox>
+                                      <children>
+                                        <Label text="Interval" />
+                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS">
+                                          <HBox.margin>
+                                            <Insets fx:id="x8" />
+                                          </HBox.margin>
+                                        </TextField>
+                                        <Label text="," />
+                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
+                                      </children>
+                                    </HBox>
+                                    <Separator>
+                                      <VBox.margin>
+                                        <Insets bottom="5.0" top="5.0" />
+                                      </VBox.margin>
+                                    </Separator>
+                                  </children>
+                                </VBox>
+                                <VBox>
+                                  <children>
+                                    <HBox>
+                                      <children>
+                                        <Label text="f3(x)" HBox.hgrow="NEVER" />
+                                        <TextField HBox.hgrow="ALWAYS" />
+                                      </children>
+                                    </HBox>
+                                    <HBox>
+                                      <children>
+                                        <Label text="Interval" />
+                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
+                                        <Label text="," />
+                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
+                                      </children>
+                                    </HBox>
+                                    <Separator>
+                                      <VBox.margin>
+                                        <Insets bottom="5.0" top="5.0" />
+                                      </VBox.margin>
+                                    </Separator>
+                                  </children>
+                                </VBox>
+                                <VBox>
+                                  <children>
+                                    <HBox>
+                                      <children>
+                                        <Label text="f4(x)" HBox.hgrow="NEVER" />
+                                        <TextField HBox.hgrow="ALWAYS" />
+                                      </children>
+                                    </HBox>
+                                    <HBox>
+                                      <children>
+                                        <Label text="Interval" />
+                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
+                                        <Label text="," />
+                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
+                                      </children>
+                                    </HBox>
+                                    <Separator>
+                                      <VBox.margin>
+                                        <Insets bottom="5.0" top="5.0" />
+                                      </VBox.margin>
+                                    </Separator>
+                                  </children>
+                                </VBox>
+                                <VBox>
+                                  <children>
+                                    <HBox>
+                                      <children>
+                                        <Label text="f5(x)" HBox.hgrow="NEVER" />
+                                        <TextField HBox.hgrow="ALWAYS" />
+                                      </children>
+                                    </HBox>
+                                    <HBox>
+                                      <children>
+                                        <Label text="Interval" />
+                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
+                                        <Label text="," />
+                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
+                                      </children>
+                                    </HBox>
+                                    <Separator>
+                                      <VBox.margin>
+                                        <Insets bottom="5.0" top="5.0" />
+                                      </VBox.margin>
+                                    </Separator>
+                                  </children>
+                                </VBox>
+                              </children>
+                            </VBox>
+                          </content>
+                        </ScrollPane>
+                      </content>
+                    </TitledPane>
+                  </expandedPane>
+                  <panes>
+                    <TitledPane fx:id="x1" animated="false" text="Shapes">
+                      <content>
+                        <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER">
+                          <content>
+                            <FlowPane alignment="TOP_CENTER" columnHalignment="CENTER" hgap="10.0" vgap="10.0">
+                              <children>
+                                <Rectangle height="100.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="100.0">
+                                  <fill>
+                                    <Color blue="0.375" green="0.375" red="0.375" fx:id="x4" />
+                                  </fill>
+                                  <FlowPane.margin>
+                                    <Insets top="10.0" />
+                                  </FlowPane.margin>
+                                </Rectangle>
+                                <Circle fill="$x4" radius="50.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                                <Rectangle fill="$x4" height="100.0" rotate="45.0" scaleX="0.70710678118655" scaleY="0.70710678118655" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="100.0">
+                                  <rotationAxis>
+                                    <Point3D z="10.0" />
+                                  </rotationAxis>
+                                </Rectangle>
+                                <Polygon fill="$x4" smooth="false" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
+                                  <points>
+                                    <Double fx:value="-50.0" />
+                                    <Double fx:value="40.0" />
+                                    <Double fx:value="50.0" />
+                                    <Double fx:value="40.0" />
+                                    <Double fx:value="0.0" />
+                                    <Double fx:value="-60.0" />
+                                  </points>
+                                </Polygon>
+                              </children>
+                            </FlowPane>
+                          </content>
+                        </ScrollPane>
+                      </content>
+                    </TitledPane>
+                    <fx:reference source="x2" />
+                  </panes>
+                </Accordion>
+              </children>
+            </VBox>
+            <Label alignment="CENTER" contentDisplay="CENTER" text="[2D Canvas goes here]" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="240.0" AnchorPane.topAnchor="24.0" />
+          </children>
+        </AnchorPane>
+      </content>
+    </Tab>
+    <Tab closable="false" text="Simulation">
+      <content>
+        <AnchorPane>
+          <children>
+            <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <menus>
+                <Menu mnemonicParsing="false" text="Open TLE" />
+                <Menu mnemonicParsing="false" text="View mode...">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Absorption" />
+                    <MenuItem mnemonicParsing="false" text="Nth hit" />
+                    <MenuItem mnemonicParsing="false" text="etc...." />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="665.0" prefWidth="1040.0" text="[Processing surface goes here]" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0" />
+            <VBox prefWidth="240.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0">
+              <children>
+                <Accordion VBox.vgrow="ALWAYS">
+                  <expandedPane>
+                    <TitledPane fx:id="x3" animated="false" text="Configuration">
+                      <content>
+                        <ScrollPane id="ScrollPane" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER">
+                          <content>
+                            <AnchorPane id="AnchorPane" prefHeight="41.0" prefWidth="234.0">
+                              <children>
+                                <VBox id="VBox" alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                  <children>
+                                    <Label alignment="CENTER" contentDisplay="CENTER" text="[Options go here]" />
+                                  </children>
+                                </VBox>
+                                <Button alignment="CENTER" mnemonicParsing="false" prefHeight="40.0" text="Begin Simulation" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                              </children>
+                            </AnchorPane>
+                          </content>
+                        </ScrollPane>
+                      </content>
+                    </TitledPane>
+                  </expandedPane>
+                  <panes>
+                    <fx:reference source="x3" />
+                  </panes>
+                </Accordion>
+              </children>
+            </VBox>
+          </children>
+        </AnchorPane>
+      </content>
+    </Tab>
+    <Tab closable="false" text="Data">
+      <AnchorPane id="AnchorPane" prefWidth="1280.0">
+        <children>
+          <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <menus>
+              <Menu mnemonicParsing="false" text="Graph" />
+              <Menu mnemonicParsing="false" text="Chart" />
+            </menus>
+          </MenuBar>
+          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="665.0" prefWidth="1040.0" text="[Chart/graph goes here]" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0" />
+        </children>
+      </AnchorPane>
+    </Tab>
+  </tabs>
+</TabPane>
