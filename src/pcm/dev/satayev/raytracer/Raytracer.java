@@ -154,23 +154,23 @@ public class Raytracer extends JPanel {
 
   private Vector refraction(Photon photon, Hit hit) {
     // refract once for simplicity
-    if (photon.Ã > 1)
+    if (photon.A > 1)
       return new Vector();
     photon.travel(hit.time);
     photon.v.refract(hit.surface.normal(photon.p), refractionCoef);
     if (photon.v.x == Double.NaN)
       return new Vector();
-    photon.Ã++;
+    photon.A++;
     return color(photon);
   }
 
   private Vector reflection(Photon photon, Hit hit) {
     // reflect once for simplicity
-    if (photon.Ã > 1)
+    if (photon.A > 1)
       return new Vector();
     photon.travel(hit.time);
     photon.v.reflect(hit.surface.normal(photon.p));
-    photon.Ã++;
+    photon.A++;
     return color(photon);
   }
 

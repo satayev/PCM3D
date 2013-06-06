@@ -23,7 +23,7 @@ public class Photon {
   public Vector q;
   // TODO(satayev): counts how many times this photon reflected in the system;
   //                add phase/wave-length for the wave properties.
-  public int Ã = 0;
+  public int A = 0;
 
   /////////////////////////////////////////////////////////////////////////////
   // Constructors
@@ -58,7 +58,7 @@ public class Photon {
 
   public Photon clone() {
     Photon photon = new Photon(this.p.clone(), this.v.clone());
-    photon.Ã = Ã;
+    photon.A = A;
     return photon;
   }
 
