@@ -1,8 +1,8 @@
 package pcm.model.shape;
 
+import pcm.geom.V;
 import pcm.geom.Vector;
 import pcm.model.Photon;
-import pcm.util.V;
 
 /**
  * Represents a convex plane polygon in 3D.

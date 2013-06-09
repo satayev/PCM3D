@@ -1,18 +1,11 @@
 package graphics;
 
-import processing.core.*;
-import java.nio.*;
-import processing.opengl.*;
-//import javax.media.opengl.*; 
-//import javax.media.opengl.glu.*; 
-import java.util.ArrayList;
-
-import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
-import simple.*;
-import pcm.geom.*;
-import pcm.util.*;
+import pcm.geom.V;
+import processing.core.PApplet;
+import processing.core.PImage;
+import processing.opengl.PGraphicsOpenGL;
 
 /**
  * Entry point for Processing v2.0b9 applet, usage of OpenGL, for simulation of CNT ribbon tower and any number of photons.

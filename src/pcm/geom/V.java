@@ -1,6 +1,7 @@
-package pcm.util;
+package pcm.geom;
 
-import pcm.geom.Vector;
+import java.util.List;
+
 
 /**
  * Static methods to work with {@code Vector}.
@@ -43,10 +44,10 @@ public final class V {
    * @param a vector.
    * @return a new vector.
    */
-  public static Vector mul(double k, Vector a) {
+  public static Vector mult(double k, Vector a) {
     return new Vector(k * a.x, k * a.y, k * a.z);
   }
-  
+
   /**
    * Creates a new vector by adding one to a scaled multiple of another
    * 
@@ -56,7 +57,7 @@ public final class V {
   public static Vector scaleAdd(Vector a, double scale, Vector b) {
     return new Vector(a.x + scale * b.x, a.y + scale * b.y, a.z + scale * b.z);
   }
-  
+
   /**
    * Creates a new vector by adding a multiple of one to a multiple of another
    * 
@@ -66,7 +67,7 @@ public final class V {
   public static Vector scaleAdd(double scale1, Vector a, double scale2, Vector b) {
     return new Vector(scale1 * a.x + scale2 * b.x, scale1 * a.y + scale2 * b.y, scale1 * a.z + scale2 * b.z);
   }
-  
+
   /** @return returns a dot product of two vectors. */
   public static double dot(Vector a, Vector b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
@@ -143,5 +144,18 @@ public final class V {
       result.z /= dist;
     }
     return result;
+  }
+
+  /**
+   * Determines the mean of a list of vectors
+   * 
+   * @param list The list of vectors
+   * @return The mean vector of the list
+   */
+  public static Vector mean(List<Vector> list) {
+    Vector mean = new Vector(0, 0, 0);
+    for (int i = 0; i < list.size(); i++)
+      mean.add(list.get(i));
+    return mean.multiple(1. / list.size());
   }
 }

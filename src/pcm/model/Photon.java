@@ -1,7 +1,7 @@
 package pcm.model;
 
+import pcm.geom.V;
 import pcm.geom.Vector;
-import pcm.util.V;
 
 /**
  * Represents a (currently) particle-like photon in the system.

@@ -1,9 +1,8 @@
 package graphics;
 
-import pcm.geom.*;
-import pcm.util.*;
-
-import processing.core.*;
+import pcm.geom.V;
+import pcm.geom.Vector;
+import processing.core.PApplet;
 
 /**
  * Processing applet tools class for ease of drawing text, lines, colors, and rotation.

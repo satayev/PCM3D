@@ -11,12 +11,12 @@ import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import pcm.geom.V;
 import pcm.geom.Vector;
 import pcm.model.Photon;
 import pcm.model.shape.Polygon;
 import pcm.model.shape.Sphere;
 import pcm.model.shape.Surface;
-import pcm.util.V;
 
 /**
  * Simple ray tracer, takes into account reflections, refractions, and transparency.
@@ -200,6 +200,6 @@ public class Raytracer extends JPanel {
         }
       }
     }
-    return V.mul(sunlight, surfaceColors.get(hit.surface));
+    return V.mult(sunlight, surfaceColors.get(hit.surface));
   }
 }
