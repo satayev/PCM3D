@@ -48,6 +48,20 @@ public final class V {
     return new Vector(k * a.x, k * a.y, k * a.z);
   }
 
+<<<<<<< HEAD:src/pcm/geom/V.java
+=======
+  /**
+   * Finds a cross product of two vectors
+   * 
+   * @param a first vector.
+   * @param b second vector.
+   * @return dot product of this and the requested vector.
+   */
+  public static Vector cross(Vector a, Vector b) {
+    return new Vector(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+  }
+
+>>>>>>> Model:src/pcm/util/V.java
   /**
    * Creates a new vector by adding one to a scaled multiple of another
    * 

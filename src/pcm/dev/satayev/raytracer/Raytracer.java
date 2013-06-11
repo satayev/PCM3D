@@ -44,7 +44,7 @@ public class Raytracer extends JPanel {
   private final static int size = 500;
   // used to color surfaces
   private final static Color[] colors = { Color.red, Color.blue, Color.green, Color.yellow, Color.cyan, Color.magenta,
-      Color.pink, Color.white };
+      Color.pink, Color.white, Color.orange };
 
   public static void main(String[] args) {
     Raytracer rt = new Raytracer();
@@ -52,7 +52,20 @@ public class Raytracer extends JPanel {
     // add lights
     rt.lights.add(new Vector(eyeZ, eyeZ, eyeZ));
     rt.lights.add(new Vector(-eyeZ / 5, 0, 0));
-    rt.lights.add(new Vector(0, eyeZ, eyeZ));
+    rt.lights.add(new Vector(0, 0, eyeZ));
+
+    double C0 = Math.sqrt(2) / 4 * 250;
+    Vector[] vert = new Vector[] {
+        new Vector(0, 2 * C0, C0),
+        new Vector(C0, 0, C0),
+        new Vector(-C0, 0, C0),
+        new Vector(0, C0, 2 * C0)
+    };
+
+    rt.surfaces.add(new Polygon(new Vector[] { vert[1], vert[2], vert[0] }));
+    rt.surfaces.add(new Polygon(new Vector[] { vert[3], vert[2], vert[0] }));
+    rt.surfaces.add(new Polygon(new Vector[] { vert[1], vert[3], vert[0] }));
+    rt.surfaces.add(new Polygon(new Vector[] { vert[2], vert[3], vert[1] }));
 
     // add surfaces
     rt.surfaces.add(new Sphere(new Vector(100, 55, 0), 25));
@@ -60,14 +73,14 @@ public class Raytracer extends JPanel {
     rt.surfaces.add(new Sphere(new Vector(175, 100, 100), 25));
     rt.surfaces.add(new Sphere(new Vector(0, 0, 0), 100));
 
-    // add a rectangle
+    //     add a rectangle
     Polygon rect = new Polygon(new Vector[] {
-        new Vector(-200, 100, 0), new Vector(200, 100, 0),
-        new Vector(200, -150, 0), new Vector(-200, -150, 0)
+        new Vector(-200, 100, -150), new Vector(200, 95, -150),
+        new Vector(200, -150, 150), new Vector(-200, -150, 150)
     });
     rt.surfaces.add(rect);
 
-    // assign distinct colors to surfaces
+    // assign different colors to the surfaces
     for (int i = 0; i < rt.surfaces.size(); i++) {
       Color c = colors[i];
       Vector v = new Vector(c.getRed(), c.getGreen(), c.getBlue());

@@ -54,7 +54,12 @@ public abstract class Surface {
   public abstract double travelTime(Photon photon);
 
   // ///////////////////////////////////////////////////////////////////////////
-  // Getters and Setters
+  // Helpers
   // ///////////////////////////////////////////////////////////////////////////
+
+  @Override
+  public String toString() {
+    return "Surface{p=" + p + ", n=" + n + "}";
+  }
 
 }

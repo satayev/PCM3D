@@ -11,7 +11,7 @@ import pcm.model.Photon;
  */
 public class Polygon extends Plane {
 
-  private int size;
+  private int size, axis;
   private Vector[] polygon;
 
   /**
@@ -21,9 +21,20 @@ public class Polygon extends Plane {
    * @param polygon the vertices of polygon in clockwise order.
    */
   public Polygon(Vector[] polygon) {
-    super(polygon[0], V.sub(polygon[2], polygon[0]).cross(V.sub(polygon[1], polygon[0])));
+    super(polygon[0], V.cross(V.sub(polygon[2], polygon[0]), V.sub(polygon[1], polygon[0])));
     this.size = polygon.length;
     this.polygon = polygon;
+
+    // TODO(satayev): change to Ray/Triangle Intersection to speed up and allow more complex shapes.
+    if (Math.abs(n.x) > Math.abs(n.y))
+      if (Math.abs(n.x) > Math.abs(n.z))
+        axis = 0;
+      else
+        axis = 2;
+    else if (Math.abs(n.y) > Math.abs(n.z))
+      axis = 1;
+    else
+      axis = 2;
   }
 
   @Override
@@ -31,36 +42,94 @@ public class Polygon extends Plane {
     double t = super.travelTime(photon);
     if (t > V.EPS && t < Double.POSITIVE_INFINITY) {
       Vector at = V.travel(photon.p, photon.v, t);
-      if (!pointInPolygon(at))
+      //      System.out.println(at);
+      //      double d = n.x * polygon[0].x + n.y * polygon[0].y + n.z * polygon[0].z;
+      //      System.out.println(Math.abs(n.x * at.x + n.y * at.y + n.z * at.z - d) < V.EPS);
+      if ((axis == 0 && !pointInPolygonX(at)) || (axis == 1 && !pointInPolygonY(at)) || (axis == 2 && !pointInPolygonZ(at)))
         t = Double.POSITIVE_INFINITY;
     }
     return t;
   }
 
-  // TODO(satayev): if slow, recode with 2D polygon and rotations.
-  private boolean pointInPolygon(Vector q) {
-    double len1, len2;
-    double totalAngle = 0, cos;
-    Vector p1 = new Vector(), p2 = new Vector();
-    p2.x = polygon[size - 1].x - q.x;
-    p2.y = polygon[size - 1].y - q.y;
-    p2.z = polygon[size - 1].z - q.z;
+  // Projection of the point and polygon on YZ-plane
+  private boolean pointInPolygonX(Vector q) {
+    boolean inside = false;
+    double x1, y1, x2, y2;
+    Vector prev = polygon[size - 1], curr = null;
     for (int i = 0; i < size; i++) {
-      p1.set(p2);
-      p2.x = polygon[i].x - q.x;
-      p2.y = polygon[i].y - q.y;
-      p2.z = polygon[i].z - q.z;
-
-      len1 = p1.length();
-      len2 = p2.length();
-      if (len1 < V.EPS || len2 < V.EPS)
-        return true; // point is on a vertex
-      else
-        cos = V.dot(p1, p2) / (len1 * len2);
-
-      totalAngle += Math.acos(cos);
+      curr = polygon[i];
+      if (prev.z + V.EPS < curr.z) {
+        x1 = prev.z;
+        x2 = curr.z;
+        y1 = prev.y;
+        y2 = curr.y;
+      }
+      else {
+        x2 = prev.z;
+        x1 = curr.z;
+        y2 = prev.y;
+        y1 = curr.y;
+      }
+      if ((curr.z + V.EPS < q.z) == (q.z < prev.z + V.EPS))
+        if ((q.y - y1) * (x2 - x1) < (y2 - y1) * (q.z - x1) + V.EPS)
+          inside = !inside;
+      prev = curr;
     }
-    // TODO(satayev): !!!FIXME!!! double precision error is way to big
-    return Math.abs(totalAngle - Math.PI * 2) < V.EPS ? true : false;
+    return inside;
   }
+
+  // Projection of the point and polygon on XZ-plane
+  private boolean pointInPolygonY(Vector q) {
+    boolean inside = false;
+    double x1, y1, x2, y2;
+    Vector prev = polygon[size - 1], curr = null;
+    for (int i = 0; i < size; i++) {
+      curr = polygon[i];
+      if (prev.x + V.EPS < curr.x) {
+        x1 = prev.x;
+        x2 = curr.x;
+        y1 = prev.z;
+        y2 = curr.z;
+      }
+      else {
+        x2 = prev.x;
+        x1 = curr.x;
+        y2 = prev.z;
+        y1 = curr.z;
+      }
+      if ((curr.x + V.EPS < q.x) == (q.x < prev.x + V.EPS))
+        if ((q.z - y1) * (x2 - x1) < (y2 - y1) * (q.x - x1) + V.EPS)
+          inside = !inside;
+      prev = curr;
+    }
+    return inside;
+  }
+
+  // Projection of the point and polygon on XY-plane
+  private boolean pointInPolygonZ(Vector q) {
+    boolean inside = false;
+    double x1, y1, x2, y2;
+    Vector prev = polygon[size - 1], curr = null;
+    for (int i = 0; i < size; i++) {
+      curr = polygon[i];
+      if (prev.x + V.EPS < curr.x) {
+        x1 = prev.x;
+        x2 = curr.x;
+        y1 = prev.y;
+        y2 = curr.y;
+      }
+      else {
+        x2 = prev.x;
+        x1 = curr.x;
+        y2 = prev.y;
+        y1 = curr.y;
+      }
+      if ((curr.x + V.EPS < q.x) == (q.x < prev.x + V.EPS))
+        if ((q.y - y1) * (x2 - x1) < (y2 - y1) * (q.x - x1) + V.EPS)
+          inside = !inside;
+      prev = curr;
+    }
+    return inside;
+  }
+
 }

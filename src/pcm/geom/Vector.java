@@ -26,7 +26,7 @@ public class Vector {
     this.y = y;
     this.z = 0;
   }
-  
+
   /**
    * Creates a vector in 3D space.
    * 
@@ -39,8 +39,6 @@ public class Vector {
     this.y = y;
     this.z = z;
   }
-  
-
 
   /**
    * Adds a vector to the current vector.
@@ -80,7 +78,7 @@ public class Vector {
     this.y -= v.y;
     this.z -= v.z;
   }
-  
+
   /**
    * Finds a distance to another point.
    * 
@@ -129,28 +127,6 @@ public class Vector {
    */
   public double dot(Vector that) {
     return this.x * that.x + this.y * that.y + this.z * that.z;
-  }
-
-  /**
-   * Finds a cross product of this and requested vector.
-   * 
-   * @param x x coordinate of the vector.
-   * @param y y coordinate of the vector.
-   * @param z z coordinate of the vector.
-   * @return cross product of this and the requested vector.
-   */
-  public Vector cross(double x, double y, double z) {
-    return new Vector(this.y * z - this.z * y, this.z * x - this.x * z, this.x * y - this.y * x);
-  }
-
-  /**
-   * Finds a cross product of this and requested vector.
-   * 
-   * @param that requested vector.
-   * @return dot product of this and the requested vector.
-   */
-  public Vector cross(Vector that) {
-    return new Vector(this.y * that.z - this.z * that.y, this.z * that.x - this.x * that.z, this.x * that.y - this.y * that.x);
   }
 
   /** @return Length of the vector. */
@@ -213,13 +189,6 @@ public class Vector {
   }
 
   /**
-   * @return a copy of this vector
-   */
-  public Vector clone() {
-    return new Vector(x, y, z);
-  }
-
-  /**
    * Redefines coordinates of vector
    * 
    * @param x new x coordinate of the vector.
@@ -231,7 +200,7 @@ public class Vector {
     this.y = y;
     this.z = z;
   }
-  
+
   /**
    * Sets the current vector to equal the values in r
    * 
@@ -249,13 +218,12 @@ public class Vector {
    * @param d The scalar to multiply by
    * @return The current vector
    */
-  public Vector mul(double d) {
+  public void mul(double d) {
     x = d * x;
     y = d * y;
     z = d * z;
-    return this;
   }
-  
+
   /**
    * Creates a vector of vector multiplied by a scalar
    * 
@@ -264,7 +232,7 @@ public class Vector {
   public Vector multiple(double scale) {
     return new Vector(this.x * scale, this.y * scale, this.z * scale);
   }
-  
+
   /**
    * Adds a scaled multiple of a Vector to this
    * 
@@ -276,7 +244,13 @@ public class Vector {
     this.y += scale * vector.y;
     this.z += scale * vector.z;
   }
-  
+
+  /**
+   * @return a copy of this vector
+   */
+  public Vector clone() {
+    return new Vector(x, y, z);
+  }
 
   @Override
   public String toString() {
