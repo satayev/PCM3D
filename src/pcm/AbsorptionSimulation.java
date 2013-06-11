@@ -23,11 +23,13 @@ public class AbsorptionSimulation {
   //                Implement PhotonFactory to efficiently reuse resources??
   private Photon resetPhoton() {
     Vector velocity = new Vector();
-    double theta = Math.PI / 2 * (PCM3D.rnd.nextDouble() + 1), phi = Math.PI * 2 * PCM3D.rnd.nextDouble();
+    double theta = Math.PI * 3 / 4 * (PCM3D.rnd.nextDouble() / 4 + 1), phi = Math.PI * 2 * PCM3D.rnd.nextDouble();
+//    theta = Math.PI / 2 + Math.PI / 4;
+//    phi = Math.PI / 4;
     velocity.x = Math.sin(theta) * Math.cos(phi);
     velocity.y = Math.cos(theta);
     velocity.z = Math.sin(theta) * Math.sin(phi);
-    return new Photon(new Vector(0, size * 2 - 1, 0), velocity);
+    return new Photon(new Vector(size * (PCM3D.rnd.nextDouble() - 0.5), size * 2 - 1, size * (PCM3D.rnd.nextDouble() - 0.5)), velocity);
   }
 
   public void run(int n) throws Exception {
@@ -35,6 +37,8 @@ public class AbsorptionSimulation {
 
     while (n-- > 0) {
       photon = resetPhoton();
+      //      if (n < 2035)
+      //        System.out.println(n + " " + photon.v);
 
       boolean done = false;
       while (!done) {

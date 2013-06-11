@@ -14,7 +14,15 @@ public class Statistics {
   }
 
   public String toString() {
-    return "# of photons:\t\t\t" + photonTotalCounter + "\n# of absorbed photons:\t\t" + photonAbsorbedCounter + "\nAverage reflections:\t\t"
-        + (double) reflectionsTotalCounter / photonTotalCounter;
+    StringBuilder sb = new StringBuilder();
+    sb.append("# of photons:\t\t\t");
+    sb.append(photonTotalCounter);
+    sb.append("\n# of absorbed photons:\t\t");
+    sb.append(photonAbsorbedCounter);
+    sb.append("\nAverage reflections:\t\t");
+    sb.append((double) reflectionsTotalCounter / photonTotalCounter);
+    sb.append("\n% of aborbed photons:\t\t");
+    sb.append((double) photonAbsorbedCounter / photonTotalCounter);
+    return sb.toString();
   }
 }
