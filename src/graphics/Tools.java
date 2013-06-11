@@ -1,7 +1,7 @@
 package graphics;
 
-import pcm.geom.V;
-import pcm.geom.Vector;
+import pcm.util.V;
+import pcm.util.Vector;
 import processing.core.PApplet;
 
 /**

@@ -1,7 +1,7 @@
 package graphics;
 
-import pcm.geom.V;
-import pcm.geom.Vector;
+import pcm.util.V;
+import pcm.util.Vector;
 
 /**
  * Class utilized by Applet class to to adjust 3D camera view.

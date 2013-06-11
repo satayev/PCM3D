@@ -2,7 +2,7 @@ package graphics;
 
 import javax.media.opengl.GL2;
 
-import pcm.geom.V;
+import pcm.util.V;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.opengl.PGraphicsOpenGL;
@@ -19,11 +19,11 @@ public class Applet extends PApplet {
 
   int width = 600, height = 600; // screen size
   boolean runAnim = false;
-  
+
   Tools tools;
   AppletView view;
   AppletModel model;
-  
+
   // Buttons
   PImage resetButton, playButton, pauseButton, nextButton;
 
@@ -84,9 +84,9 @@ public class Applet extends PApplet {
       if (key == CODED) {
         // Zooming in and out
         if (keyCode == UP)
-          view.E.mul(.99);// E.scaleAdd(-10.0,K);
+          view.E.mult(.99);// E.scaleAdd(-10.0,K);
         else if (keyCode == DOWN)
-          view.E.mul(1.01);// E.scaleAdd(10.0,K);
+          view.E.mult(1.01);// E.scaleAdd(10.0,K);
         // Altering speed of photon animation
         else if (keyCode == LEFT)
           model.speed -= .01;
@@ -96,8 +96,7 @@ public class Applet extends PApplet {
       if (key == ' ') {
         view.initView();
       }
-    }
-    else if (mousePressed) {
+    } else if (mousePressed) {
       // Camera looking around
       view.F.add(V.scaleAdd(-(mouseX - pmouseX), view.I, -(mouseY - pmouseY), view.J));
     }
@@ -126,8 +125,7 @@ public class Applet extends PApplet {
       image(playButton, 50, 5);
     image(nextButton, 100, 5);
 
-    tools.scribe("click to look around\nr and click to rotate\nup and down arrows to zoom\nspacebar to reset view", 5,
-        playButton.height + 20);
+    tools.scribe("click to look around\nr and click to rotate\nup and down arrows to zoom\nspacebar to reset view", 5, playButton.height + 20);
 
     hint(ENABLE_DEPTH_TEST);
   }

@@ -1,7 +1,6 @@
 package pcm.model;
 
-import pcm.geom.V;
-import pcm.geom.Vector;
+import pcm.util.Vector;
 
 /**
  * Represents a (currently) particle-like photon in the system.
@@ -18,12 +17,9 @@ public class Photon {
   /** Velocity of the photon (unit vector) */
   // TODO(satayev): perhaps change this to spherical coordinates.
   public Vector v;
-  /** A point on the ray in the direction of velocity */
-  // used for speed-ups in the computations
-  public Vector q;
-  // TODO(satayev): counts how many times this photon reflected in the system;
-  //                add phase/wave-length for the wave properties.
-  public int A = 0;
+  // TODO(satayev): add phase/wave-length for the wave properties.
+  public int reflectionCounter = 0;
+  public boolean absorbed = false;
 
   /////////////////////////////////////////////////////////////////////////////
   // Constructors
@@ -37,12 +33,15 @@ public class Photon {
   public Photon(Vector position, Vector velocity) {
     this.p = position;
     this.v = velocity;
-    this.q = V.add(position, velocity);
-    this.v.normalize();
+    if (v != null)
+      this.v.normalize();
+
+    this.reflectionCounter = 0;
+    this.absorbed = false;
   }
 
   /////////////////////////////////////////////////////////////////////////////
-  // Methods
+  // Main methods
   /////////////////////////////////////////////////////////////////////////////
 
   /**
@@ -56,14 +55,20 @@ public class Photon {
     this.p.z += time * this.v.z;
   }
 
-  public Photon clone() {
-    Photon photon = new Photon(this.p.clone(), this.v.clone());
-    photon.A = A;
-    return photon;
+  public void bounce(Vector normal) {
+    this.reflectionCounter++;
+    this.v.reflect(normal);
   }
 
   /////////////////////////////////////////////////////////////////////////////
-  // Getters and Setters
+  // Helper methods
   /////////////////////////////////////////////////////////////////////////////
+
+  public Photon clone() {
+    Photon photon = new Photon(this.p.clone(), this.v.clone());
+    photon.reflectionCounter = reflectionCounter;
+    photon.absorbed = absorbed;
+    return photon;
+  }
 
 }
