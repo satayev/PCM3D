@@ -5,13 +5,16 @@ import pcm.util.V;
 import pcm.util.Vector;
 
 /**
- * Represents a flat polygon in 3D.
+ * A closed, two-dimensional region on XY-plane.
+ * Polygon comprises of a list of (x,y) coordinate pairs, where each pair defines a vertex of the polygon, and two successive
+ * pairs are the endpoints of a side of the polygon. The first and last vertices are joined by a line a segment that closes the
+ * polygon.
  * 
  * @author Satayev
  */
-public class Polygon extends Plane {
+public class Polygon extends Base {
 
-  private int size, axis;
+  private int size;
   private Vector[] polygon;
 
   /**
@@ -21,93 +24,65 @@ public class Polygon extends Plane {
    * @param polygon the vertices of polygon in counter-clockwise order.
    */
   public Polygon(Vector[] polygon) {
-    super(polygon[0], V.cross(V.sub(polygon[2], polygon[0]), V.sub(polygon[1], polygon[0])));
     this.size = polygon.length;
     this.polygon = polygon;
-
-    // TODO(satayev): change to Ray/Triangle Intersection to speed up and allow more complex shapes.
-    if (Math.abs(n.x) > Math.abs(n.y))
-      if (Math.abs(n.x) > Math.abs(n.z))
-        axis = 0;
-      else
-        axis = 2;
-    else if (Math.abs(n.y) > Math.abs(n.z))
-      axis = 1;
-    else
-      axis = 2;
   }
 
   @Override
-  public double travelTime(Photon photon) {
-    double t = super.travelTime(photon);
-    if (t > V.EPS && t < Double.POSITIVE_INFINITY) {
-      Vector at = V.travel(photon.p, photon.v, t);
-      if ((axis == 0 && !pointInPolygonX(at)) || (axis == 1 && !pointInPolygonY(at)) || (axis == 2 && !pointInPolygonZ(at)))
-        t = Double.POSITIVE_INFINITY;
-    }
-    return t;
+  public Vector normalAt(Hit hit) {
+    Vector a = polygon[hit.i];
+    Vector b = polygon[(hit.i + 1) % size];
+    double dx = b.x - a.x;
+    double dy = b.y - a.y;
+    return new Vector(-dy, dx);
   }
 
-  // Projection of the point and polygon on YZ-plane
-  private boolean pointInPolygonX(Vector q) {
-    boolean inside = false;
-    double x1, y1, x2, y2;
-    Vector prev = polygon[size - 1], curr = null;
+  @Override
+  public Hit getHit(Photon photon, boolean computePosition) {
+    Vector prev, curr = polygon[size - 1];
+    double distance = Double.POSITIVE_INFINITY;
+    int position = -1;
+
     for (int i = 0; i < size; i++) {
-      curr = polygon[i];
-      if (prev.z + V.EPS < curr.z) {
-        x1 = prev.z;
-        x2 = curr.z;
-        y1 = prev.y;
-        y2 = curr.y;
-      } else {
-        x2 = prev.z;
-        x1 = curr.z;
-        y2 = prev.y;
-        y1 = curr.y;
-      }
-      if ((curr.z + V.EPS < q.z) == (q.z < prev.z + V.EPS))
-        if ((q.y - y1) * (x2 - x1) < (y2 - y1) * (q.z - x1) + V.EPS)
-          inside = !inside;
       prev = curr;
-    }
-    return inside;
-  }
-
-  // Projection of the point and polygon on XZ-plane
-  private boolean pointInPolygonY(Vector q) {
-    boolean inside = false;
-    double x1, y1, x2, y2;
-    Vector prev = polygon[size - 1], curr = null;
-    for (int i = 0; i < size; i++) {
       curr = polygon[i];
-      if (prev.x + V.EPS < curr.x) {
-        x1 = prev.x;
-        x2 = curr.x;
-        y1 = prev.z;
-        y2 = curr.z;
-      } else {
-        x2 = prev.x;
-        x1 = curr.x;
-        y2 = prev.z;
-        y1 = curr.z;
+      double d = distanceToLineSegment(photon, prev, curr);
+      if (d < distance) {
+        position = i;
+        distance = d;
       }
-      if ((curr.x + V.EPS < q.x) == (q.x < prev.x + V.EPS))
-        if ((q.z - y1) * (x2 - x1) < (y2 - y1) * (q.x - x1) + V.EPS)
-          inside = !inside;
-      prev = curr;
     }
-    return inside;
+
+    return position == -1 ? null : new Hit(distance, null, position);
   }
 
-  // Projection of the point and polygon on XY-plane
-  private boolean pointInPolygonZ(Vector q) {
+  private double distanceToLineSegment(Photon photon, Vector a, Vector b) {
+    double dx = a.x - photon.p.x;
+    double dy = a.y - photon.p.y;
+    double bax = b.x - a.x;
+    double bay = b.y - a.y;
+    double det = bax * photon.v.y - bay * photon.v.x;
+    if (Math.abs(det) < V.EPS)
+      // lines do not intersect
+      return Double.POSITIVE_INFINITY;
+
+    double u = (dy * bax - dx * bay) / det;
+    double v = (dy * photon.v.x - dx * photon.v.y) / det;
+
+    if (u > -V.EPS && v > -V.EPS && v < 1 + V.EPS)
+      return u;
+    else
+      return Double.POSITIVE_INFINITY;
+  }
+
+  @Override
+  public boolean inside(Vector p) {
     boolean inside = false;
     double x1, y1, x2, y2;
     Vector prev = polygon[size - 1], curr = null;
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < polygon.length; i++) {
       curr = polygon[i];
-      if (prev.x + V.EPS < curr.x) {
+      if (prev.x < curr.x) {
         x1 = prev.x;
         x2 = curr.x;
         y1 = prev.y;
@@ -118,8 +93,8 @@ public class Polygon extends Plane {
         y2 = prev.y;
         y1 = curr.y;
       }
-      if ((curr.x + V.EPS < q.x) == (q.x < prev.x + V.EPS))
-        if ((q.y - y1) * (x2 - x1) < (y2 - y1) * (q.x - x1) + V.EPS)
+      if (curr.x < p.x == (p.x < prev.x || Math.abs(p.x - prev.x) < V.EPS))
+        if ((p.y - y1) * (x2 - x1) < (y2 - y1) * (p.x - x1))
           inside = !inside;
       prev = curr;
     }

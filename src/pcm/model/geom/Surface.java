@@ -44,7 +44,7 @@ public abstract class Surface {
    * @param at point on the surface.
    * @return a unit normal vector.
    */
-  public abstract Vector normal(Vector at);
+  public abstract Vector normalAt(Hit hit);
 
   /**
    * Computes time required by particle-like photon to travel until collision with the surface.
@@ -55,7 +55,7 @@ public abstract class Surface {
    * @param p the photon.
    * @return time until collision.
    */
-  public abstract double travelTime(Photon photon);
+  public abstract Hit getHit(Photon photon, boolean computePosition);
 
   /**
    * Perform absorption of the photon.

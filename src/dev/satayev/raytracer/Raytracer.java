@@ -12,7 +12,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import pcm.model.Photon;
+import pcm.model.geom.Hit;
 import pcm.model.geom.Polygon;
+import pcm.model.geom.Prism;
 import pcm.model.geom.Sphere;
 import pcm.model.geom.Surface;
 import pcm.util.V;
@@ -51,27 +53,19 @@ public class Raytracer extends JPanel {
 
     // add lights
     rt.lights.add(new Vector(eyeZ, eyeZ, eyeZ));
-    rt.lights.add(new Vector(-eyeZ / 5, 0, 0));
-    rt.lights.add(new Vector(0, 0, eyeZ));
+    //    rt.lights.add(new Vector(-eyeZ / 5, 0, 0));
+    rt.lights.add(new Vector(0, eyeZ, 0));
+    //    rt.lights.add(new Vector(0, 0, -eyeZ));
 
-    double C0 = Math.sqrt(2) / 4 * 250;
-    Vector[] vert = new Vector[] { new Vector(0, 2 * C0, C0), new Vector(C0, 0, C0), new Vector(-C0, 0, C0), new Vector(0, C0, 2 * C0) };
-
-    rt.surfaces.add(new Polygon(new Vector[] { vert[1], vert[2], vert[0] }));
-    rt.surfaces.add(new Polygon(new Vector[] { vert[3], vert[2], vert[0] }));
-    rt.surfaces.add(new Polygon(new Vector[] { vert[1], vert[3], vert[0] }));
-    rt.surfaces.add(new Polygon(new Vector[] { vert[2], vert[3], vert[1] }));
-
-    // add surfaces
+    // add spheres
     rt.surfaces.add(new Sphere(new Vector(100, 55, 0), 25));
     rt.surfaces.add(new Sphere(new Vector(100, 100, 100), 50));
     rt.surfaces.add(new Sphere(new Vector(175, 100, 100), 25));
     rt.surfaces.add(new Sphere(new Vector(0, 0, 0), 100));
 
-    //     add a rectangle
-    Polygon rect = new Polygon(new Vector[] { new Vector(-200, 100, -150), new Vector(200, 95, -150), new Vector(200, -150, 150),
-        new Vector(-200, -150, 150) });
-    rt.surfaces.add(rect);
+    // add a prism
+    Polygon rect = new Polygon(new Vector[] { new Vector(0, 20, 0), new Vector(20, 0, 0), new Vector(0, -20, 0), new Vector(-20, 0, 0) });
+    rt.surfaces.add(new Prism(new Vector(), 100, rect));
 
     // assign different colors to the surfaces
     for (int i = 0; i < rt.surfaces.size(); i++) {
@@ -93,12 +87,13 @@ public class Raytracer extends JPanel {
   public void paintComponent(Graphics g) {
     BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
     for (int x = 0; x < size; x++)
-      for (int y = 0; y < size; y++) {
-        Photon photon = new Photon(new Vector(x - size / 2, y - size / 2, eyeZ), new Vector(0, 0, -1));
+      for (int z = 0; z < size; z++) {
+        Photon photon = new Photon(new Vector(x - size / 2, eyeZ, z - size / 2), new Vector(0, -1, 0));
+        //Photon photon = new Photon(new Vector(x - size / 2, z - size / 2, eyeZ), new Vector(0, 0, -1));
         Vector clr = this.color(photon);
         int rgb = new Color((float) clr.x, (float) clr.y, (float) clr.z).getRGB();
         // swap y-coordinate to match OpenGL
-        img.setRGB(x, size - 1 - y, rgb);
+        img.setRGB(x, size - 1 - z, rgb);
       }
     g.drawImage(img, 0, 0, size, size, null);
   }
@@ -114,35 +109,22 @@ public class Raytracer extends JPanel {
   // surface colors
   private Map<Surface, Vector> surfaceColors = new HashMap<Surface, Vector>();
 
-  private class Hit {
-    Surface surface;
-    double time;
-
-    Hit(Surface surface, double time) {
-      this.surface = surface;
-      this.time = time;
-    }
-  }
-
   /* Given a maximum distance photon can travel, determine the closest surface that it collides with. */
   private Hit trace(Photon photon, double maxDistance) {
-    double time = Double.POSITIVE_INFINITY;
-    Surface surface = null;
+    Hit closest = null;
     for (Surface s : surfaces) {
-      double t = s.travelTime(photon);
-      System.out.println(t + " " + s);
-      if (t < time && t < maxDistance && t > 0) {
-        time = t;
-        surface = s;
-      }
+      Hit h = s.getHit(photon, true);
+      if (h != null && h.distance < maxDistance && h.distance > 0)
+        if (closest == null || closest.distance > h.distance)
+          closest = h;
     }
-    return new Hit(surface, time);
+    return closest;
   }
 
   /* Determine color for a pixel defined by a photon */
   private Vector color(Photon photon) {
     Hit hit = trace(photon, Double.POSITIVE_INFINITY);
-    if (hit.surface == null || hit.time == Double.POSITIVE_INFINITY)
+    if (hit == null || hit.distance == Double.POSITIVE_INFINITY)
       // return black
       return new Vector();
 
@@ -164,8 +146,8 @@ public class Raytracer extends JPanel {
     // refract once for simplicity
     if (photon.reflectionCounter > 1)
       return new Vector();
-    photon.travel(hit.time);
-    photon.v.refract(hit.surface.normal(photon.p), refractionCoef);
+    photon.travel(hit.distance);
+    photon.v.refract(hit.surface.normalAt(hit), refractionCoef);
     if (photon.v.x == Double.NaN)
       return new Vector();
     photon.reflectionCounter++;
@@ -176,15 +158,15 @@ public class Raytracer extends JPanel {
     // reflect once for simplicity
     if (photon.reflectionCounter > 1)
       return new Vector();
-    photon.travel(hit.time);
-    photon.v.reflect(hit.surface.normal(photon.p));
+    photon.travel(hit.distance);
+    photon.v.reflect(hit.surface.normalAt(hit));
     photon.reflectionCounter++;
     return color(photon);
   }
 
   private Vector diffuse(Photon photon, Hit hit) {
     double sunlight = 0;
-    photon.travel(hit.time);
+    photon.travel(hit.distance);
 
     for (Vector light : lights) {
       Vector dir = V.sub(light, photon.p);
@@ -192,8 +174,8 @@ public class Raytracer extends JPanel {
       dir.normalize();
       Photon p = new Photon(photon.p, dir);
       Hit test = trace(p, dist - V.EPS);
-      if (test.surface == null || test.time == Double.POSITIVE_INFINITY) {
-        Vector normal = hit.surface.normal(photon.p);
+      if (test == null || test.distance == Double.POSITIVE_INFINITY) {
+        Vector normal = hit.surface.normalAt(hit);
         // point is not in the shadow
         if (phong > 0) {
           Vector lr = V.reflect(dir, normal);

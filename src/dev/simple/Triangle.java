@@ -58,7 +58,7 @@ public class Triangle extends Surface {
     double d = (c - V.dot(p.r, norm)) / k;
     if (k > 0 || d < 0)
       return Double.POSITIVE_INFINITY;
-    Vector r = V.travel(p.r, p.n, d);
+    Vector r = V.scaleAdd(p.r, d, p.n);
     double x = V.dot(r, n1), y = V.dot(r, n2);
     if (y * ny0 > 0 || x * nx1 + y * ny1 > 0 || (x - rx2) * nx2 + y * ny2 > 0)
       return Double.POSITIVE_INFINITY;

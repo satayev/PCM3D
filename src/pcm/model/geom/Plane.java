@@ -19,28 +19,33 @@ public class Plane extends Surface {
   }
 
   @Override
-  public Vector normal(Vector at) {
+  public Vector normalAt(Hit hit) {
     return this.n;
   }
 
   @Override
-  public double travelTime(Photon photon) {
+  public Hit getHit(Photon photon, boolean computePosition) {
     Vector v = photon.v;
     double vn = V.dot(v, n);
     if (Math.abs(vn) < V.EPS)
       // parallel case
-      return V.INFINITY;
+      return null;
 
     Vector from = photon.p;
-    double t = (dot - V.dot(from, n)) / vn;
-    if (t < V.EPS)
-      return V.INFINITY;
+    double distance = (dot - V.dot(from, n)) / vn;
+    if (distance < V.EPS)
+      return null;
 
-    return t;
+    double z = photon.p.z + distance * photon.v.z;
+    if (z < -V.EPS)
+      return null;
+
+    return new Hit(distance, this, computePosition ? V.scaleAdd(photon.p, distance, photon.v) : null);
   }
-  
+
   @Override
   public String toString() {
     return "Plane{p=" + p + ", n=" + n + "}";
   }
+
 }

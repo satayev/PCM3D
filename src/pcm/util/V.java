@@ -2,8 +2,6 @@ package pcm.util;
 
 import java.util.List;
 
-import pcm.model.Photon;
-
 /**
  * Static methods to work with {@code Vector}.
  * 
@@ -83,17 +81,6 @@ public final class V {
   /** @return returns a dot product of two vectors. */
   public static double dot(Vector a, Vector b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
-  }
-
-  /**
-   * Static version of {@link Photon.travel}.
-   */
-  public static Vector travel(Vector from, Vector velocity, double time) {
-    Vector result = new Vector();
-    result.x = from.x + time * velocity.x;
-    result.y = from.y + time * velocity.y;
-    result.z = from.z + time * velocity.z;
-    return result;
   }
 
   /**

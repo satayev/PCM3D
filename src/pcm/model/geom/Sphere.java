@@ -25,41 +25,40 @@ public class Sphere extends Surface {
   }
 
   @Override
-  public Vector normal(Vector at) {
+  public Vector normalAt(Hit hit) {
     Vector normal = new Vector();
-    normal.x = invR * (at.x - p.x);
-    normal.y = invR * (at.y - p.y);
-    normal.z = invR * (at.z - p.z);
+    normal.x = invR * (hit.v.x - p.x);
+    normal.y = invR * (hit.v.y - p.y);
+    normal.z = invR * (hit.v.z - p.z);
     normal.normalize();
     return normal;
   }
 
-  /**
-   * Assumes photon is always outside of the sphere.
-   */
   @Override
-  public double travelTime(Photon photon) {
-    Vector A = photon.p;
-    Vector AC = V.sub(this.p, A);
-    Vector v = photon.v;
+  public Hit getHit(Photon photon, boolean computePosition) {
+    // vector from sphere center to photon's position
+    Vector AC = V.sub(this.p, photon.p);
 
-    double acv = V.dot(AC, v);
+    double acv = V.dot(AC, photon.v);
     if (acv < V.EPS)
       // photon is moving in opposite direction
-      return V.INFINITY;
+      return null;
 
     double len = AC.sqrlength();
     double D = acv * acv - len + sqrR;
     if (D < V.EPS)
       // line never intersects sphere
-      return V.INFINITY;
+      return null;
     double sqrtD = Math.sqrt(D);
-    double t = acv - sqrtD;
-    if (t < V.EPS)
-      t = acv + sqrtD;
-    if (t < V.EPS)
-      // intersections happen in the past
-      return V.INFINITY;
-    return t;
+    double distance = acv - sqrtD;
+
+    // check if intersections happen in the past
+    if (distance < V.EPS)
+      distance = acv + sqrtD;
+    if (distance < V.EPS)
+      return null;
+
+    return new Hit(distance, this, computePosition ? V.scaleAdd(photon.p, distance, photon.v) : null);
   }
+
 }
