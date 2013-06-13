@@ -15,6 +15,7 @@ import pcm.model.Photon;
 import pcm.model.geom.Curve;
 import pcm.model.geom.Hit;
 import pcm.model.geom.Polygon;
+import pcm.model.geom.Polygon3D;
 import pcm.model.geom.Prism;
 import pcm.model.geom.Sphere;
 import pcm.model.geom.Surface;
@@ -54,9 +55,17 @@ public class Raytracer extends JPanel {
 
     // add lights
     rt.lights.add(new Vector(eyeZ, eyeZ, eyeZ));
-    //    rt.lights.add(new Vector(-eyeZ / 5, 0, 0));
+    rt.lights.add(new Vector(-eyeZ / 5, 0, 0));
     rt.lights.add(new Vector(0, eyeZ, 0));
-    //    rt.lights.add(new Vector(0, 0, -eyeZ));
+    rt.lights.add(new Vector(0, 0, -eyeZ));
+
+    // add tetrahedron
+    double C0 = Math.sqrt(2) / 4 * 250;
+    Vector[] vert = new Vector[] { new Vector(0, 2 * C0, C0), new Vector(C0, 0, C0), new Vector(-C0, 0, C0), new Vector(0, C0, 2 * C0) };
+    rt.surfaces.add(new Polygon3D(new Vector[] { vert[1], vert[2], vert[0] }));
+    rt.surfaces.add(new Polygon3D(new Vector[] { vert[3], vert[2], vert[0] }));
+    rt.surfaces.add(new Polygon3D(new Vector[] { vert[1], vert[3], vert[0] }));
+    rt.surfaces.add(new Polygon3D(new Vector[] { vert[2], vert[3], vert[1] }));
 
     // add spheres
     rt.surfaces.add(new Sphere(new Vector(100, 55, 0), 25));

@@ -18,7 +18,7 @@ public final class PCM3D {
   public static void main(String[] args) throws Exception {
     long start = System.currentTimeMillis();
     AbsorptionSimulation simulation = new AbsorptionSimulation();
-    simulation.run(1000000);
+    simulation.run(1000);
     System.err.println(System.currentTimeMillis() - start);
 
     simulation.printStats();
