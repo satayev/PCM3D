@@ -1,8 +1,11 @@
 package graphics;
 
+import java.awt.event.*;
+
 import javax.media.opengl.GL2;
 
 import pcm.geom.V;
+import pcm.geom.Vector;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.opengl.PGraphicsOpenGL;
@@ -17,49 +20,78 @@ public class Applet extends PApplet {
   GL2 gl;
   PGraphicsOpenGL pgl;
 
-  int width = 600, height = 600; // screen size
+  int width, height; // screen size
   boolean runAnim = false;
-  
-  Tools tools;
+  int windowsNum, window; // number of applets using the same model
+
   AppletView view;
   AppletModel model;
-  
+
+  public PImage CNTimg; // carbon nanotube texture
   // Buttons
   PImage resetButton, playButton, pauseButton, nextButton;
+
+  public Applet() {
+    width = 600;
+    height = 600;
+    this.windowsNum = 1;
+    this.window = 0;
+
+    view = new AppletView(this);
+    model = new AppletModel(windowsNum);
+
+  }
+
+  public Applet(int w, int h, int windowsNum, int window, Vector F, Vector E, Vector U, Vector I, Vector J, Vector K,
+      AppletModel model) {
+    width = w;
+    height = h;
+    this.windowsNum = windowsNum;
+    this.window = window;
+
+    view = new AppletView(this, F, E, U, I, J, K);
+    this.model = model;
+
+  }
 
   // Called upon running this applet
   public void setup() {
     size(width, height, OPENGL);
+
     gl = ((PGraphicsOpenGL) g).beginPGL().gl.getGL2();
 
-    tools = new Tools(this);
-    model = new AppletModel(this, tools);
-    view = new AppletView(this, tools);
-
-    view.initView(); // declares the local frames for 3D GUI
-
+    CNTimg = loadImage("cnt.jpg");
     playButton = loadImage("play.jpg");
     pauseButton = loadImage("pause.jpg");
     nextButton = loadImage("next.jpg");
     resetButton = loadImage("reset.jpg");
+
+    addMouseWheelListener(new MouseWheelListener() {
+      public void mouseWheelMoved(MouseWheelEvent mwe) {
+        mouseWheel(mwe.getWheelRotation());
+      }
+    });
+
   }
 
   // Drawing function called every frame
   public void draw() {
-    background(tools.white);
+    background(Tools.white);
 
     view.camera();
 
-    model.drawFloorGrid();
+    model.drawFloorGrid(this);
 
     view.castLights();
 
-    model.drawPhotons();
-    model.drawSurfaces();
-    model.drawTrajectory();
+    model.drawPhotons(this);
+    model.drawSurfaces(this);
 
-    userInput();
-    userPanel();
+    // subject to change, temporary
+    if (window == 0) {
+      userInput();
+      userPanel();
+    }
 
   }
 
@@ -67,51 +99,61 @@ public class Applet extends PApplet {
   void userInput() {
     if (keyPressed) {
       if (key == 'p') {
-        tools.printVec("Eye", view.E);
-        tools.printVec("Focus", view.F);
-        tools.printVec("Up", view.U);
-        tools.printVec("Q", view.Q);
-        tools.printVec("I", view.I);
-        tools.printVec("J", view.J);
-        tools.printVec("K", view.K);
+        view.printVecs();
       }
       if (key == 'r' && mousePressed) {
         // Rotating
-        view.E = tools.rotate(view.E, PI * (float) (mouseX - pmouseX) / width, view.I, view.K, view.F);
-        view.E = tools.rotate(view.E, -PI * (float) (mouseY - pmouseY) / width, view.J, view.K, view.F);
+        view.rotate(pmouseX, pmouseY, mouseX, mouseY);
       }
 
       if (key == CODED) {
         // Zooming in and out
         if (keyCode == UP)
-          view.E.mul(.99);// E.scaleAdd(-10.0,K);
+          view.zoomIn();
         else if (keyCode == DOWN)
-          view.E.mul(1.01);// E.scaleAdd(10.0,K);
+          view.zoomOut();
         // Altering speed of photon animation
         else if (keyCode == LEFT)
-          model.speed -= .01;
+          model.speed *= .99;
         else if (keyCode == RIGHT)
-          model.speed += .01;
+          model.speed *= 1.01;
       }
       if (key == ' ') {
         view.initView();
       }
     }
     else if (mousePressed) {
-      // Camera looking around
-      view.F.add(V.scaleAdd(-(mouseX - pmouseX), view.I, -(mouseY - pmouseY), view.J));
+
+      if (mouseButton == LEFT) {
+        // Camera looking around
+        view.lookAround(pmouseX, pmouseY, mouseX, mouseY);
+        view.setFrame();
+      }
+      else if (mouseButton == RIGHT) {
+        view.rotate(pmouseX, pmouseY, mouseX, mouseY);
+      }
     }
 
   }
 
+  void mouseWheel(int delta) {
+    if (delta < 0)
+      view.zoomIn();
+    else
+      view.zoomOut();
+  }
+
   // Button listener
   public void mouseClicked() {
-    if (mouseX < 50 && mouseY < 50)
-      model.reset();
-    if (mouseX > 50 && mouseX < 100 && mouseY < 50)
-      runAnim = !runAnim;
-    if (mouseX > 100 && mouseX < 150 && mouseY < 50)
-      model.addPhoton();
+    if (mouseButton == LEFT) {
+      if (mouseX < 50 && mouseY < 50)
+        model.reset();
+      if (mouseX > 50 && mouseX < 100 && mouseY < 50)
+        runAnim = !runAnim;
+      if (mouseX > 100 && mouseX < 150 && mouseY < 50)
+        model.addPhoton();
+    }
+
   }
 
   // Showing buttons and instructions
@@ -126,7 +168,7 @@ public class Applet extends PApplet {
       image(playButton, 50, 5);
     image(nextButton, 100, 5);
 
-    tools.scribe("click to look around\nr and click to rotate\nup and down arrows to zoom\nspacebar to reset view", 5,
+    Tools.scribe(this, "click to look around\nr and click to rotate\nup and down arrows to zoom\nspacebar to reset view", 5,
         playButton.height + 20);
 
     hint(ENABLE_DEPTH_TEST);
