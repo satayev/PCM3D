@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import pcm.model.Photon;
+import pcm.model.geom.Curve;
 import pcm.model.geom.Hit;
 import pcm.model.geom.Polygon;
 import pcm.model.geom.Prism;
@@ -65,7 +66,7 @@ public class Raytracer extends JPanel {
 
     // add a prism
     Polygon rect = new Polygon(new Vector[] { new Vector(0, 20, 0), new Vector(20, 0, 0), new Vector(0, -20, 0), new Vector(-20, 0, 0) });
-    rt.surfaces.add(new Prism(new Vector(), 100, rect));
+    rt.surfaces.add(new Prism(new Vector(), 100, new Curve(20)));
 
     // assign different colors to the surfaces
     for (int i = 0; i < rt.surfaces.size(); i++) {
@@ -89,7 +90,7 @@ public class Raytracer extends JPanel {
     for (int x = 0; x < size; x++)
       for (int z = 0; z < size; z++) {
         Photon photon = new Photon(new Vector(x - size / 2, eyeZ, z - size / 2), new Vector(0, -1, 0));
-        //Photon photon = new Photon(new Vector(x - size / 2, z - size / 2, eyeZ), new Vector(0, 0, -1));
+        //        Photon photon = new Photon(new Vector(x - size / 2, z - size / 2, eyeZ), new Vector(0, 0, -1));
         Vector clr = this.color(photon);
         int rgb = new Color((float) clr.x, (float) clr.y, (float) clr.z).getRGB();
         // swap y-coordinate to match OpenGL

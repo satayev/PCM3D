@@ -24,8 +24,8 @@ public class SimpleModel {
     surfaces = new ArrayList<Surface>();
     //    surfaces.add(new Sphere(new Vector(0, 0, 0), height / 3));
 
-    surfaces.add(new Prism(new Vector(), 100, new Polygon(new Vector[] { new Vector(-25, -25, 0), new Vector(-25, 25, 0), new Vector(25, 25, 0),
-        new Vector(25, -25, 0) })));
+    //    surfaces.add(new Prism(new Vector(), 100, new Polygon(new Vector[] { new Vector(-25, -25, 0), new Vector(-25, 25, 0), new Vector(25, 25, 0),
+    //        new Vector(25, -25, 0) })));
 
     floor = new Plane(new Vector(0, 0, 0), new Vector(0, 0, 1));
     surfaces.add(floor);

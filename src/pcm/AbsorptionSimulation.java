@@ -32,18 +32,11 @@ public class AbsorptionSimulation {
     return new Photon(new Vector(size * (PCM3D.rnd.nextDouble() - 0.5), size * (PCM3D.rnd.nextDouble() - 0.5), size * 2 - 1), velocity);
   }
 
+  @Deprecated
   public void run(int n) throws Exception {
     Photon photon = new Photon(new Vector(), new Vector());
-    int xxx = -1000;
-    int yyy = 1000;
     while (n-- > 0) {
       photon = resetPhoton();
-      if (n % yyy == 0) {
-        System.out.println(n);
-        System.out.println(stats);
-      }
-      if (n == xxx)
-        System.out.println(photon.p + " " + photon.v);
 
       boolean done = false;
       while (!done) {
@@ -52,15 +45,10 @@ public class AbsorptionSimulation {
         // find the closest surface
         for (Surface s : model.surfaces) {
           Hit hit = s.getHit(photon, true);
-          if (n <= xxx)
-            System.out.println(s + " " + (hit == null ? "xxx" : hit.distance + " " + (hit.distance < V.EPS)));
           if (hit != null && hit.distance > V.EPS && hit.distance < Double.POSITIVE_INFINITY)
             if (closest == null || hit.distance < closest.distance)
               closest = hit;
         }
-
-        if (n <= xxx)
-          System.out.println("a " + closest.surface + " " + photon.p + " " + closest.distance);
 
         if ((photon.p.z > size && photon.v.z > V.EPS) || closest == null || closest.distance == Double.POSITIVE_INFINITY)
           done = true;
@@ -77,14 +65,6 @@ public class AbsorptionSimulation {
               photon.bounce(closest.surface.normalAt(closest));
           }
         }
-
-        if (n <= xxx) {
-          n--;
-          System.out.println("b " + closest.surface + " " + photon.p + " " + closest.distance);
-        }
-        if (n == xxx - 10)
-          System.exit(0);
-
       }
 
       stats.update(photon);
