@@ -12,13 +12,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import pcm.model.Photon;
-import pcm.model.geom.Curve;
 import pcm.model.geom.Hit;
-import pcm.model.geom.Polygon;
 import pcm.model.geom.Polygon3D;
-import pcm.model.geom.Prism;
-import pcm.model.geom.Sphere;
 import pcm.model.geom.Surface;
+import pcm.model.geom.solids.Cylinder;
+import pcm.model.geom.solids.Sphere;
 import pcm.util.V;
 import pcm.util.Vector;
 
@@ -27,7 +25,7 @@ import pcm.util.Vector;
  * 
  * @author Satayev
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 public class Raytracer extends JPanel {
 
   /////////////////////////////////////////////////////////////////////////////
@@ -48,7 +46,7 @@ public class Raytracer extends JPanel {
   private final static int size = 500;
   // used to color surfaces
   private final static Color[] colors = { Color.red, Color.blue, Color.green, Color.yellow, Color.cyan, Color.magenta, Color.pink, Color.white,
-      Color.orange };
+      Color.orange, Color.gray };
 
   public static void main(String[] args) {
     Raytracer rt = new Raytracer();
@@ -57,7 +55,6 @@ public class Raytracer extends JPanel {
     rt.lights.add(new Vector(eyeZ, eyeZ, eyeZ));
     rt.lights.add(new Vector(-eyeZ / 5, 0, 0));
     rt.lights.add(new Vector(0, eyeZ, 0));
-    rt.lights.add(new Vector(0, 0, -eyeZ));
 
     // add tetrahedron
     double C0 = Math.sqrt(2) / 4 * 250;
@@ -66,16 +63,18 @@ public class Raytracer extends JPanel {
     rt.surfaces.add(new Polygon3D(new Vector[] { vert[3], vert[2], vert[0] }));
     rt.surfaces.add(new Polygon3D(new Vector[] { vert[1], vert[3], vert[0] }));
     rt.surfaces.add(new Polygon3D(new Vector[] { vert[2], vert[3], vert[1] }));
-
     // add spheres
     rt.surfaces.add(new Sphere(new Vector(100, 55, 0), 25));
     rt.surfaces.add(new Sphere(new Vector(100, 100, 100), 50));
     rt.surfaces.add(new Sphere(new Vector(175, 100, 100), 25));
-    rt.surfaces.add(new Sphere(new Vector(0, 0, 0), 100));
+    rt.surfaces.add(new Sphere(new Vector(0, 0, 0), 75));
+    //  add a prism
+    //    int C1 = 50;
+    //    Polygon rect = new Polygon(new Vector[] { new Vector(0, C1, 0), new Vector(C1, 0, 0), new Vector(0, -C1, 0), new Vector(-C1, 0, 0) });
+    //    rt.surfaces.add(new Prism(new Vector(), rect));
 
-    // add a prism
-    Polygon rect = new Polygon(new Vector[] { new Vector(0, 20, 0), new Vector(20, 0, 0), new Vector(0, -20, 0), new Vector(-20, 0, 0) });
-    rt.surfaces.add(new Prism(new Vector(), 100, new Curve(20)));
+    rt.surfaces.add(new Cylinder(new Vector(), 50));
+    //    rt.surfaces.add(new Prism(new Vector(), new Circle(50)));
 
     // assign different colors to the surfaces
     for (int i = 0; i < rt.surfaces.size(); i++) {
@@ -99,7 +98,6 @@ public class Raytracer extends JPanel {
     for (int x = 0; x < size; x++)
       for (int z = 0; z < size; z++) {
         Photon photon = new Photon(new Vector(x - size / 2, eyeZ, z - size / 2), new Vector(0, -1, 0));
-        //        Photon photon = new Photon(new Vector(x - size / 2, z - size / 2, eyeZ), new Vector(0, 0, -1));
         Vector clr = this.color(photon);
         int rgb = new Color((float) clr.x, (float) clr.y, (float) clr.z).getRGB();
         // swap y-coordinate to match OpenGL
@@ -123,7 +121,7 @@ public class Raytracer extends JPanel {
   private Hit trace(Photon photon, double maxDistance) {
     Hit closest = null;
     for (Surface s : surfaces) {
-      Hit h = s.getHit(photon, true);
+      Hit h = s.getHit(photon);
       if (h != null && h.distance < maxDistance && h.distance > 0)
         if (closest == null || closest.distance > h.distance)
           closest = h;
@@ -183,7 +181,7 @@ public class Raytracer extends JPanel {
       double dist = dir.length();
       dir.normalize();
       Photon p = new Photon(photon.p, dir);
-      Hit test = trace(p, dist - V.EPS);
+      Hit test = trace(p, dist);
       if (test == null || test.distance == Double.POSITIVE_INFINITY) {
         Vector normal = hit.surface.normalAt(hit);
         // point is not in the shadow

@@ -17,7 +17,7 @@ public class Photon {
   /** Velocity of the photon (unit vector) */
   // TODO(satayev): perhaps change this to spherical coordinates.
   public Vector v;
-  // TODO(satayev): add phase/wave-length for the wave properties.
+
   public int reflectionCounter = 0;
   public boolean absorbed = false;
 
@@ -69,6 +69,11 @@ public class Photon {
     photon.reflectionCounter = reflectionCounter;
     photon.absorbed = absorbed;
     return photon;
+  }
+
+  @Override
+  public String toString() {
+    return "Photon(" + p + ", " + v + ")";
   }
 
 }

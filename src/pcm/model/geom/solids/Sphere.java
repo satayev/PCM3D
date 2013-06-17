@@ -1,6 +1,7 @@
-package pcm.model.geom;
+package pcm.model.geom.solids;
 
 import pcm.model.Photon;
+import pcm.model.geom.Hit;
 import pcm.util.V;
 import pcm.util.Vector;
 
@@ -9,16 +10,16 @@ import pcm.util.Vector;
  * 
  * @author Satayev
  */
-public class Sphere extends Surface {
+public class Sphere extends Solid {
 
   /** Radius of the sphere */
   public double r;
 
-  /** Caches square and inverse of the radius */
+  /** Cached square and inverse of the radius */
   private double sqrR, invR;
 
   public Sphere(Vector center, double r) {
-    super(center, null);
+    super(center);
     this.r = r;
     this.sqrR = r * r;
     this.invR = 1 / r;
@@ -35,7 +36,7 @@ public class Sphere extends Surface {
   }
 
   @Override
-  public Hit getHit(Photon photon, boolean computePosition) {
+  public Hit getHit(Photon photon) {
     // vector from sphere center to photon's position
     Vector AC = V.sub(this.p, photon.p);
 
@@ -58,7 +59,11 @@ public class Sphere extends Surface {
     if (distance < V.EPS)
       return null;
 
-    return new Hit(distance, this, computePosition ? V.scaleAdd(photon.p, distance, photon.v) : null);
+    return new Hit(distance, this, V.scaleAdd(photon.p, distance, photon.v));
   }
 
+  @Override
+  public boolean contains(Vector p) {
+    return p.sqrlength() < sqrR + V.EPS;
+  }
 }

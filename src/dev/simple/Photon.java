@@ -25,13 +25,13 @@ public class Photon {
    * The photon starts at the top with a downward trajectory
    */
   public void reset() {
+    double theta = Math.PI / 2 * (PCM3D.rnd.nextDouble() + 1), phi = Math.PI * 2 * PCM3D.rnd.nextDouble();
+    n.x = Math.sin(theta) * Math.cos(phi);
+    n.y = Math.sin(theta) * Math.sin(phi);
+    n.z = Math.cos(theta);
     r.x = X * PCM3D.rnd.nextDouble();
     r.y = Y * PCM3D.rnd.nextDouble();
     r.z = Z;
-    double theta = 2 * Math.PI * PCM3D.rnd.nextDouble(), phi = Math.PI / 2 * PCM3D.rnd.nextDouble();
-    n.x = Math.cos(theta) * Math.cos(phi);
-    n.y = Math.sin(theta) * Math.cos(phi);
-    n.z = -Math.sin(phi);
     stat.newPhoton(r);
   }
 

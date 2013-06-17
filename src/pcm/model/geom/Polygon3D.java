@@ -4,8 +4,10 @@ import pcm.model.Photon;
 import pcm.util.V;
 import pcm.util.Vector;
 
+@Deprecated
 public class Polygon3D extends Plane {
-  private int size, axis;
+
+  public int size, axis;
   private Vector[] polygon;
 
   /**
@@ -29,6 +31,17 @@ public class Polygon3D extends Plane {
       axis = 1;
     else
       axis = 2;
+  }
+
+  @Override
+  public Hit getHit(Photon photon) {
+    Hit hit = super.getHit(photon);
+    if (hit != null && hit.distance < Double.POSITIVE_INFINITY) {
+      hit.v = V.scaleAdd(photon.p, hit.distance, photon.v);
+      if ((axis == 0 && !pointInPolygonX(hit.v)) || (axis == 1 && !pointInPolygonY(hit.v)) || (axis == 2 && !pointInPolygonZ(hit.v)))
+        return null;
+    }
+    return hit;
   }
 
   // Projection of the point and polygon on YZ-plane
@@ -84,7 +97,7 @@ public class Polygon3D extends Plane {
   }
 
   // Projection of the point and polygon on XY-plane
-  private boolean pointInPolygonZ(Vector q) {
+  public boolean pointInPolygonZ(Vector q) {
     boolean inside = false;
     double x1, y1, x2, y2;
     Vector prev = polygon[size - 1], curr = null;
@@ -107,18 +120,6 @@ public class Polygon3D extends Plane {
       prev = curr;
     }
     return inside;
-  }
-
-  @Override
-  public Hit getHit(Photon photon, boolean computePosition) {
-    Hit hit = super.getHit(photon, true);
-
-    if (hit != null && hit.distance > V.EPS && hit.distance < Double.POSITIVE_INFINITY) {
-      if ((axis == 0 && !pointInPolygonX(hit.v)) || (axis == 1 && !pointInPolygonY(hit.v)) || (axis == 2 && !pointInPolygonZ(hit.v)))
-        return null;
-    }
-
-    return hit;
   }
 
 }

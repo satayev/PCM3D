@@ -10,7 +10,7 @@ import java.util.List;
 public final class V {
 
   /** Used for double comparison */
-  public static final double EPS = 1e-5;
+  public static final double EPS = 1e-7;
 
   public static final double INFINITY = Double.POSITIVE_INFINITY;
 

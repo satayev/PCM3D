@@ -4,6 +4,8 @@ import pcm.model.Photon;
 import pcm.util.Vector;
 
 /**
+ * Walls define a boundary of the tile.
+ * 
  * @author Satayev
  */
 public class Wall extends Plane {

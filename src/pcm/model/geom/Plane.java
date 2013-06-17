@@ -11,11 +11,18 @@ import pcm.util.Vector;
  */
 public class Plane extends Surface {
 
+  /** Unit normal vector */
+  public Vector n;
+  // cached dot product of the normal and position vectors
   private double dot;
 
   public Plane(Vector position, Vector normal) {
-    super(position, normal);
-    this.dot = V.dot(p, n);
+    super(position);
+    this.n = normal;
+    if (this.n != null) {
+      this.n.normalize();
+      this.dot = V.dot(p, n);
+    }
   }
 
   @Override
@@ -24,7 +31,7 @@ public class Plane extends Surface {
   }
 
   @Override
-  public Hit getHit(Photon photon, boolean computePosition) {
+  public Hit getHit(Photon photon) {
     Vector v = photon.v;
     double vn = V.dot(v, n);
     if (Math.abs(vn) < V.EPS)
@@ -33,19 +40,15 @@ public class Plane extends Surface {
 
     Vector from = photon.p;
     double distance = (dot - V.dot(from, n)) / vn;
-    if (distance < V.EPS)
+    if (distance > V.EPS)
+      return new Hit(distance, this, null);
+    else
       return null;
-
-    double z = photon.p.z + distance * photon.v.z;
-    if (z < -V.EPS)
-      return null;
-
-    return new Hit(distance, this, computePosition ? V.scaleAdd(photon.p, distance, photon.v) : null);
   }
 
   @Override
   public String toString() {
-    return "Plane{p=" + p + ", n=" + n + "}";
+    return Plane.class.getSimpleName() + "(p=" + p + ", n=" + n + ")";
   }
 
 }
