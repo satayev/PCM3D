@@ -36,7 +36,7 @@ public class Tower {
    */
   public boolean isInside(Photon p) {
     boolean inside = false;
-    for (int i = 0; i < LS.size() - 1; i++)
+    for (int i = 0; i < LS.size(); i++)
       inside = inside ^ LS.get(i).checkRight(p);
     return inside;
   }

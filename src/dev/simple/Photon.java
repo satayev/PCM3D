@@ -73,7 +73,7 @@ public class Photon {
    * @return true if absorbed
    */
   public boolean absorpsionChance() {
-    return (PCM3D.rnd.nextDouble() < .2);
+    return (PCM3D.rnd.nextDouble() < .002);
   }
 
   /**
