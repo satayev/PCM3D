@@ -2,7 +2,7 @@ package pcm;
 
 import java.util.Random;
 
-import pcm.model.SimpleModel;
+import pcm.model.RectangularPrismModel;
 
 /**
  * Entry-point class for the 3D Photovoltaic Computer Modeling program.
@@ -12,17 +12,16 @@ import pcm.model.SimpleModel;
  */
 public final class PCM3D {
 
-  public static Random rnd = new Random(42);
+  public static Random rnd = new Random(40);
 
   /**
    * @param args currently ignored
    */
   public static void main(String[] args) throws Exception {
     long start = System.currentTimeMillis();
-    AbsorptionSimulation simulation = new AbsorptionSimulation(new SimpleModel(100, 100, 100));
+    AbsorptionSimulation simulation = new AbsorptionSimulation(new RectangularPrismModel(100, 100, 100));
     simulation.run(1000000);
     simulation.printStats();
     System.err.println(System.currentTimeMillis() - start);
   }
-
 }

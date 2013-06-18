@@ -13,9 +13,8 @@ import javax.swing.JPanel;
 
 import pcm.model.Photon;
 import pcm.model.geom.Hit;
-import pcm.model.geom.Polygon3D;
 import pcm.model.geom.Surface;
-import pcm.model.geom.solids.Cylinder;
+import pcm.model.geom.solids.PolygonMesh;
 import pcm.model.geom.solids.Sphere;
 import pcm.util.V;
 import pcm.util.Vector;
@@ -56,24 +55,31 @@ public class Raytracer extends JPanel {
     rt.lights.add(new Vector(-eyeZ / 5, 0, 0));
     rt.lights.add(new Vector(0, eyeZ, 0));
 
+    // add parallelepiped
+    double C0 = 25;
+    Vector[] rectV = new Vector[] { new Vector(-C0, -C0, 0), new Vector(-C0, C0, 0), new Vector(C0, C0, 0), new Vector(C0, -C0, 0),
+        new Vector(-C0, -C0, 100), new Vector(-C0, C0, 100), new Vector(C0, C0, 100), new Vector(C0, -C0, 100) };
+    rt.surfaces.add(new PolygonMesh(new Vector(), rectV, new int[][] { new int[] { 4, 5, 6, 7 }, new int[] { 4, 7, 3, 0 }, new int[] { 5, 1, 2, 6 },
+        new int[] { 4, 0, 1, 5 }, new int[] { 7, 6, 2, 3 } }));
+
     // add tetrahedron
-    double C0 = Math.sqrt(2) / 4 * 250;
-    Vector[] vert = new Vector[] { new Vector(0, 2 * C0, C0), new Vector(C0, 0, C0), new Vector(-C0, 0, C0), new Vector(0, C0, 2 * C0) };
-    rt.surfaces.add(new Polygon3D(new Vector[] { vert[1], vert[2], vert[0] }));
-    rt.surfaces.add(new Polygon3D(new Vector[] { vert[3], vert[2], vert[0] }));
-    rt.surfaces.add(new Polygon3D(new Vector[] { vert[1], vert[3], vert[0] }));
-    rt.surfaces.add(new Polygon3D(new Vector[] { vert[2], vert[3], vert[1] }));
+    double C1 = Math.sqrt(2) / 4 * 250;
+    Vector[] tetrV = new Vector[] { new Vector(0, 2 * C1, C1), new Vector(C1, 0, C1), new Vector(-C1, 0, C1), new Vector(0, C1, 2 * C1) };
+    rt.surfaces.add(new PolygonMesh(new Vector(), tetrV, new int[][] { new int[] { 1, 2, 0 }, new int[] { 3, 2, 0 }, new int[] { 1, 3, 0 },
+        new int[] { 2, 3, 1 }, }));
+
     // add spheres
     rt.surfaces.add(new Sphere(new Vector(100, 55, 0), 25));
     rt.surfaces.add(new Sphere(new Vector(100, 100, 100), 50));
     rt.surfaces.add(new Sphere(new Vector(175, 100, 100), 25));
     rt.surfaces.add(new Sphere(new Vector(0, 0, 0), 75));
+
     //  add a prism
-    //    int C1 = 50;
-    //    Polygon rect = new Polygon(new Vector[] { new Vector(0, C1, 0), new Vector(C1, 0, 0), new Vector(0, -C1, 0), new Vector(-C1, 0, 0) });
+    //    int C2 = 50;
+    //    Polygon rect = new Polygon(new Vector[] { new Vector(0, C2, 0), new Vector(C2, 0, 0), new Vector(0, -C2, 0), new Vector(-C2, 0, 0) });
     //    rt.surfaces.add(new Prism(new Vector(), rect));
 
-    rt.surfaces.add(new Cylinder(new Vector(), 50));
+    //    rt.surfaces.add(new Cylinder(new Vector(), 50));
     //    rt.surfaces.add(new Prism(new Vector(), new Circle(50)));
 
     // assign different colors to the surfaces

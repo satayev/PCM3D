@@ -87,7 +87,7 @@ public class Circle extends Curve {
   }
 
   @Override
-  public boolean isInside(Vector p) {
+  public boolean contains(Vector p) {
     //    double theta = Math.atan2(p.y, p.x);
     return p.x * p.x + p.y * p.y < r * r + V.EPS;
   }

@@ -14,6 +14,8 @@ public final class V {
 
   public static final double INFINITY = Double.POSITIVE_INFINITY;
 
+  public static final Vector I = new Vector(1, 0, 0), J = new Vector(0, 1, 0), K = new Vector(0, 0, 1);
+
   /**
    * Adds two vectors and returns a new vector.
    * 

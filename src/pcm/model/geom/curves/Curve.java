@@ -34,6 +34,6 @@ public abstract class Curve {
    * @param p the point
    * @return true, if inside or on the boundary.
    */
-  public abstract boolean isInside(Vector p);
+  public abstract boolean contains(Vector p);
 
 }

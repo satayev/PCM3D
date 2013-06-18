@@ -37,6 +37,6 @@ public class Prism extends Solid {
 
   @Override
   public boolean contains(Vector p) {
-    return base.isInside(p);
+    return base.contains(p);
   }
 }

@@ -21,7 +21,7 @@ public class Statistics {
     sb.append(photonAbsorbedCounter);
     sb.append("\nAverage reflections:\t\t");
     sb.append((double) reflectionsTotalCounter / photonTotalCounter);
-    sb.append("\n% of aborbed photons:\t\t");
+    sb.append("\n% of absorbed photons:\t\t");
     sb.append((double) photonAbsorbedCounter / photonTotalCounter);
     return sb.toString();
   }

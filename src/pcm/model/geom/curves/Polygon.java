@@ -59,20 +59,6 @@ public class Polygon extends Curve {
 
   // TODO(satayev): replace with Ribbon's method after fixing it
   private double distanceToLineSegment(Photon photon, Vector a, Vector b) {
-//    double dx = b.x - a.x;
-//    double dy = b.y - a.y;
-//    double nx = -dy;
-//    double ny = dx;
-//    double c = nx * a.x + ny * a.y;
-//    // nx * (p.rx + d*p.nx) + ny * (p.ry + d*p.ny) = c
-//    double k = nx * photon.v.x + ny * photon.v.y;
-//    double d = (c - nx * photon.p.x - ny * photon.p.y) / k;
-//    if (d < V.EPS || k > V.EPS)
-//      return Double.POSITIVE_INFINITY;
-//    if (Line2D.ptSegDist(a.x, a.y, b.x, b.y, photon.p.x + d * photon.v.x, photon.p.y + d * photon.v.y) > V.EPS)
-//      return Double.POSITIVE_INFINITY;
-//    return d;
-
     double bax = b.x - a.x;
     double bay = b.y - a.y;
     double det = bax * photon.v.y - bay * photon.v.x;
@@ -89,11 +75,11 @@ public class Polygon extends Curve {
     if (u > V.EPS && v > -V.EPS && v < 1)
       return u;
     else
-       return Double.POSITIVE_INFINITY;
+      return Double.POSITIVE_INFINITY;
   }
 
   @Override
-  public boolean isInside(Vector p) {
+  public boolean contains(Vector p) {
     boolean inside = false;
     double x1, y1, x2, y2;
     Vector prev = polygon[size - 1], curr = null;

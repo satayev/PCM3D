@@ -1,20 +1,21 @@
 package pcm;
 
+import pcm.model.Model;
 import pcm.model.Photon;
-import pcm.model.SimpleModel;
 import pcm.model.Statistics;
 import pcm.model.geom.Hit;
 import pcm.model.geom.Surface;
 import pcm.model.geom.Wall;
 import pcm.model.geom.solids.Solid;
+import pcm.util.V;
 import pcm.util.Vector;
 
 public class AbsorptionSimulation {
 
-  public final SimpleModel model;
+  public final Model model;
   public final Statistics stats;
 
-  public AbsorptionSimulation(SimpleModel model) {
+  public AbsorptionSimulation(Model model) {
     // TODO(satayev): implement Threads here
     this.model = model;
     this.stats = new Statistics();
@@ -39,13 +40,13 @@ public class AbsorptionSimulation {
       boolean done = false;
       for (Solid s : model.cnts)
         if (s.contains(photon.p)) {
+          photon.bounce(V.K);
           s.absorb(photon);
           done = true;
         }
 
       while (!done) {
         Hit closest = null;
-
         // find the closest boundary
         for (Surface s : model.bounds) {
           Hit hit = s.getHit(photon);
@@ -53,7 +54,6 @@ public class AbsorptionSimulation {
             if (closest == null || hit.distance < closest.distance)
               closest = hit;
         }
-
         // find the closest CNT
         for (Surface s : model.cnts) {
           Hit hit = s.getHit(photon);
@@ -70,9 +70,8 @@ public class AbsorptionSimulation {
           if (closest.surface instanceof Wall)
             ((Wall) closest.surface).wrap(photon);
           else {
+            photon.bounce(closest.surface.normalAt(closest));
             done = closest.surface.absorb(photon);
-            if (!photon.absorbed)
-              photon.bounce(closest.surface.normalAt(closest));
           }
         }
       }
