@@ -22,8 +22,8 @@ public class Photon {
 	 * The photon starts at the top with a downward trajectory
 	 */
 	public void reset() {
-		r.x = X * Math.random();
-		r.y = Y * Math.random();
+		r.x = .2 * Math.random();
+		r.y = .2 * Math.random();
 		r.z = Z;
 		double theta = 2*Math.PI*Math.random(), phi = Math.PI/2*Math.random();
 		n.x = Math.cos(theta)*Math.cos(phi);
@@ -71,7 +71,7 @@ public class Photon {
 	}
 
 	/**
-	 * This method handles absorbtion of the photon
+	 * This method handles absorption of the photon
 	 */
 	public void absorb() {
 		stat.addPath(r);

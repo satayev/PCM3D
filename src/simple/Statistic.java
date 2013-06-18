@@ -7,9 +7,9 @@ import pcm.geom.Vector;
 
 public class Statistic {
 	
-	// The cooridinates for the photon's collisions
+	// The coordinates for the photon's collisions
 	public List<List<List<Vector>>> rv = new ArrayList<List<List<Vector>>>(); 
-	// The cooridinates for the photon's absorbsions
+	// The coordinates for the photon's absorptions
 	public List<Vector> xv = new ArrayList<Vector>(); 
 	public int n, N = 1, x, X = 1;
 	

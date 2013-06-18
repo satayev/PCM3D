@@ -2,13 +2,15 @@ package graphics;
 
 import java.awt.event.*;
 
-import javax.media.opengl.GL2;
+import javax.media.opengl.GL;
+
 
 import pcm.geom.V;
 import pcm.geom.Vector;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.opengl.PGraphicsOpenGL;
+import simple.Tower;
 
 /**
  * Entry point for Processing v2.0b9 applet, usage of OpenGL, for simulation of CNT ribbon tower and any number of photons.
@@ -17,14 +19,14 @@ import processing.opengl.PGraphicsOpenGL;
  */
 public class Applet extends PApplet {
 
-  GL2 gl;
+  //GL2 gl;
+  GL gl;
   PGraphicsOpenGL pgl;
 
   int width, height; // screen size
-  boolean runAnim = false;
-  int windowsNum, window; // number of applets using the same model
+  boolean runAnim;
 
-  AppletView view;
+  AppletView viewMain,viewTop,viewFront;
   AppletModel model;
 
   public PImage CNTimg; // carbon nanotube texture
@@ -32,24 +34,48 @@ public class Applet extends PApplet {
   PImage resetButton, playButton, pauseButton, nextButton;
 
   public Applet() {
-    width = 600;
-    height = 600;
-    this.windowsNum = 1;
-    this.window = 0;
-
-    view = new AppletView(this);
-    model = new AppletModel(windowsNum);
-
+    this(600,600);
   }
+  
+  public Applet(int w, int h) {
+    width = w;
+    height = h;
 
+    model = new AppletModel();
+    
+    viewMain = new AppletView(this, 
+        //new Vector(45, -30, 50),new Vector(348, 494, 282),new Vector(0.0, 0.0, -1.0),
+        //new Vector(1, 0, 0),new Vector(0, 1,0),new Vector(0, 0, 1)
+        new Vector(-243.45067112147808, -116.6750026345253, 191.81623530387878),
+        new Vector(592.614533088183, 467.5012779562986, 440.5564127864783),
+        new Vector(0.0, 0.0, -1.0),
+        new Vector(0.5727584958076477, -0.8197242021560669, 0.0),
+        new Vector(-0.19422075152397156, -0.1357061117887497, 0.9715256690979004),
+        new Vector(0.7963831424713135, 0.5564495921134949, 0.23693425953388214)
+    );
+    viewTop = new AppletView(this, 
+        new Vector(125, 125, 50),
+        new Vector(125, 125, 500),
+        new Vector(0.0, 1.0, 0.0),
+        new Vector(1, 0, 0),
+        new Vector(0, -1, 0),
+        new Vector(0, 0, 1)
+        );
+    viewFront = new AppletView(this, new Vector(235, 125, 110),new Vector(-275, 125, 135),new Vector(0.0, 0.0, -1.0),new Vector(0, 1, 0),new Vector(0, 0, 1), new Vector(-1, 0, 0));
+    
+    int viewMainHeight = 1/2 * height;
+    //viewMain.lookAround(0, -(height-viewMainHeight)/2);
+    viewMain.lookAround(100, 100);
+    //viewMain.zoomOut(100);
+  
+  }
+  
   public Applet(int w, int h, int windowsNum, int window, Vector F, Vector E, Vector U, Vector I, Vector J, Vector K,
       AppletModel model) {
     width = w;
     height = h;
-    this.windowsNum = windowsNum;
-    this.window = window;
 
-    view = new AppletView(this, F, E, U, I, J, K);
+    viewMain = new AppletView(this, F, E, U, I, J, K);
     this.model = model;
 
   }
@@ -57,9 +83,8 @@ public class Applet extends PApplet {
   // Called upon running this applet
   public void setup() {
     size(width, height, OPENGL);
-
-    gl = ((PGraphicsOpenGL) g).beginPGL().gl.getGL2();
-
+    frameRate(60);
+    
     CNTimg = loadImage("cnt.jpg");
     playButton = loadImage("play.jpg");
     pauseButton = loadImage("pause.jpg");
@@ -71,32 +96,70 @@ public class Applet extends PApplet {
         mouseWheel(mwe.getWheelRotation());
       }
     });
+model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();
+model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();
+model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();
+model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();
+model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();
+model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();
+model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();
+model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();
+model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();
+model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();model.addPhoton();
 
+    runAnim = true;
+    model.drawPhotons(this,true);
+    runAnim = false;
   }
 
   // Drawing function called every frame
   public void draw() {
-    background(Tools.white);
+    //println(frameRate);
+    background(Tools.llgray);
+    
+    
+    // Top port - main view
+    gl = ((PGraphicsOpenGL)g).beginGL();
+    gl.glViewport (0, height/2, width, height);  
+    ((PGraphicsOpenGL)g).endGL();
+    renderScene(viewMain, true);
+    userInput(viewMain);
+    ((PGraphicsOpenGL)g).endGL();
+    
 
-    view.camera();
+    // Bottom left port - top view
+    gl = ((PGraphicsOpenGL)g).beginGL();
+    gl.glViewport (0, 0,  width/2, height/2);  
+    ((PGraphicsOpenGL)g).endGL();
+    renderScene(viewTop, false);
+    ((PGraphicsOpenGL)g).endGL();
+    
+    
+    // Bottom right port - front, either side, or back view
+    gl = ((PGraphicsOpenGL)g).beginGL();
+    gl.glViewport (width/2, 0, width/2, height/2);  
+    ((PGraphicsOpenGL)g).endGL();
+    renderScene(viewFront,false);
+    ((PGraphicsOpenGL)g).endGL();  
 
-    model.drawFloorGrid(this);
-
-    view.castLights();
-
-    model.drawPhotons(this);
-    model.drawSurfaces(this);
-
-    // subject to change, temporary
-    if (window == 0) {
-      userInput();
-      userPanel();
-    }
-
+    gl = ((PGraphicsOpenGL)g).beginGL();
+    gl.glViewport (0, 0, width, height);  
+    ((PGraphicsOpenGL)g).endGL();
+    userPanel();
+    ((PGraphicsOpenGL)g).endGL();  
   }
 
+  void renderScene(AppletView view, boolean updatePhotons) {
+    view.camera();
+    view.castLights();
+    model.drawFloorGrid(this);
+    model.drawPhotons(this, updatePhotons);
+    model.drawSurfaces(this);
+  }
+  
+  
   // Keyboard input and mouse press
-  void userInput() {
+  void userInput(AppletView view) {
     if (keyPressed) {
       if (key == 'p') {
         view.printVecs();
@@ -138,9 +201,9 @@ public class Applet extends PApplet {
 
   void mouseWheel(int delta) {
     if (delta < 0)
-      view.zoomIn();
+      viewMain.zoomIn();
     else
-      view.zoomOut();
+      viewMain.zoomOut();
   }
 
   // Button listener
@@ -148,9 +211,9 @@ public class Applet extends PApplet {
     if (mouseButton == LEFT) {
       if (mouseX < 50 && mouseY < 50)
         model.reset();
-      if (mouseX > 50 && mouseX < 100 && mouseY < 50)
+      if (mouseX > 50 && mouseX < 100 && mouseY <50)
         runAnim = !runAnim;
-      if (mouseX > 100 && mouseX < 150 && mouseY < 50)
+      if (mouseX > 100 && mouseX < 150 && mouseY <50)
         model.addPhoton();
     }
 
@@ -168,8 +231,7 @@ public class Applet extends PApplet {
       image(playButton, 50, 5);
     image(nextButton, 100, 5);
 
-    Tools.scribe(this, "click to look around\nr and click to rotate\nup and down arrows to zoom\nspacebar to reset view", 5,
-        playButton.height + 20);
+    //Tools.scribe(this, "click to look around\nr and click to rotate\nup and down arrows to zoom\nspacebar to reset view", 5,playButton.height + 20);
 
     hint(ENABLE_DEPTH_TEST);
   }

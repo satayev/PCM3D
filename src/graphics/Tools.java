@@ -17,9 +17,9 @@ public class Tools {
   private static PApplet applet = new PApplet();
 
   // Colors
-  public static int red = applet.color(250, 0, 0), yellow = applet.color(250, 250, 0), white = applet.color(255, 255, 255),
-      black = applet.color(0, 0, 0), lgray = applet.color(215, 215, 215), gray = applet.color(100, 100, 100), dgray = applet
-          .color(150, 150, 250);
+  public static int red = applet.color(250, 0, 0), lyellow = applet.color(255, 102, 0), yellow = applet.color(250, 250, 0), white = applet.color(255, 255, 255),
+      black = applet.color(0, 0, 0), lllgray = applet.color(225, 225, 225), llgray = applet.color(215, 215, 215), lgray = applet.color(195, 195, 195), gray = applet.color(180, 180, 180), dgray = applet
+          .color(150, 150, 150), orange = applet.color(255, 130, 0), gold = applet.color(204, 204, 0);
 
   // Writes on screen at (x,y) with current fill color
   public static void scribe(Applet applet, String S, int x, int y) {
@@ -29,7 +29,8 @@ public class Tools {
   }
 
   public static void printVec(Applet applet, String name, Vector v) {
-    System.out.println(name + ": (" + v.x + ", " + v.y + ", " + v.z + ")");
+    //System.out.println(name + ": (" + v.x + ", " + v.y + ", " + v.z + ")");
+    System.out.println("new Vector(" + v.x + ", " + v.y + ", " + v.z + "),");
   }
 
   // O + xI + yJ
@@ -47,10 +48,15 @@ public class Tools {
   public static void drawLine(Applet applet, Vector P, Vector Q) {
     applet.line((float) Q.x, (float) Q.y, (float) Q.z, (float) P.x, (float) P.y, (float) P.z);
   };
+  
+  public static void drawLine(Applet applet, Vector P, Vector Q, float magnif) {
+    applet.line((float) Q.x * magnif, (float) Q.y * magnif, (float) Q.z * magnif, (float) P.x * magnif, (float) P.y * magnif, (float) P.z * magnif);
+  };
 
-  public static void drawPhoton(Applet applet, Vector p, float magnif, float photonRadius) {
+  public static void drawPhoton(Applet applet, Vector p, float photonRadius, float magnif, int detail) {
     applet.pushMatrix();
     applet.translate((float) p.x * magnif, (float) p.y * magnif, (float) p.z * magnif);
+    applet.sphereDetail(2); // 360/params = __ degrees of rotation in sphere mesh
     applet.sphere(photonRadius);
     applet.popMatrix();
   }

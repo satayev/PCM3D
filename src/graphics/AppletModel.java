@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import pcm.geom.Vector;
+import pcm.geom.*;
+
 import processing.core.PApplet;
 import processing.core.PImage;
 import simple.Photon;
@@ -23,14 +24,13 @@ import simple.Tower;
  */
 public class AppletModel {
 
-  int windowsNum, windowsDrawn;
-
   // Macroscale (applet) parameters from model:
   // photonRadius and spacing in microscopic scaling with magnification
   // applied to them,
   // x-y-zBounds (magnified) and speed of photon used in applet view
   public float photonRadius, xBounds, yBounds, zBounds, magnif;
-  public double spacing, speed;
+  public double spacing, speed, maxTimeTillSystem, timeTillSystem; // time till photons travel into CNT system
+  public Vector sunlightDirection, sunPosition;
 
   // Variables for interfacing with the statistic class
   public List<List<List<Vector>>> paths;
@@ -45,10 +45,7 @@ public class AppletModel {
   // The surfaces to render
   private List<Surface> surfaces;
 
-  public AppletModel(int windowsNum) {
-
-    this.windowsNum = windowsNum;
-    windowsDrawn = 0;
+  public AppletModel() {
 
     // Setup of applet view from model
     magnif = 250;
@@ -58,6 +55,8 @@ public class AppletModel {
     yBounds = (float) (Photon.Y * magnif);
     zBounds = (float) (Photon.Z);
     speed = .01;
+    maxTimeTillSystem = 200;
+    timeTillSystem = maxTimeTillSystem;
 
     LT = new ArrayList<Tower>();
     List<Double> Lx = Arrays.asList(.3, .8, .7, .2);
@@ -73,6 +72,10 @@ public class AppletModel {
 
     surfaces = SM.LS;
     paths = SM.p.stat.rv;
+    
+    
+    sunlightDirection = SM.p.n;
+    //sunPosition
 
   }
 
@@ -90,28 +93,49 @@ public class AppletModel {
     currentDistance.clear();
   }
 
-  public void drawPhotons(Applet applet) {
+  public void drawPhotons(Applet applet, boolean updatePhotons) {
 
-    applet.fill(Tools.yellow);
-    applet.stroke(Tools.red);
-    applet.strokeWeight(2);
     for (int i = 0; i < currentBranch.size(); i++) {
+      
+      applet.fill(Tools.yellow);
+      applet.stroke(Tools.yellow);
+      applet.strokeWeight(2);
+      
       int branch = currentBranch.get(i);
       int line = currentLine.get(i);
       double distance = currentDistance.get(i);
       List<List<Vector>> branchList = paths.get(i);
       List<Vector> lineList;
+      
+      /*
+       * TODO: have photons start traveling further from model
+       */
+//      if (timeTillSystem > 0) {
+//        lineList = branchList.get(0);
+//
+//        Vector initialPoint = lineList.get(line).clone(), finalPoint = lineList.get(line).clone(), direction = lineList.get(line+1).clone();
+//        direction.add(finalPoint.multiple(-1));
+//        direction.normalize();
+//        finalPoint.add(direction.multiple(-1 * timeTillSystem));
+//        initialPoint.add(direction.multiple(-1 * maxTimeTillSystem));
+//        
+//        Tools.drawLine(applet, initialPoint, finalPoint, magnif);
+//        Tools.drawPhoton(applet, finalPoint, photonRadius, magnif);
+//        if (windowsDrawn == windowsNum - 1 && (applet.keyPressed && applet.key == 'q' || applet.runAnim))
+//          timeTillSystem--;
+//        continue;
+//      }
+      
       for (int j = 0; j < branch; j++) {
         lineList = branchList.get(j);
-        for (int k = 0; k < lineList.size() - 1; k++)
-          Tools.drawLine(applet, lineList.get(k).multiple(magnif), lineList
-              .get(k + 1).multiple(magnif));
+        for (int k = 0; k < lineList.size() - 1; k++) {
+          Tools.drawLine(applet, lineList.get(k), lineList.get(k + 1), magnif);
+        }
       }
       if (branch < branchList.size()) {
         lineList = branchList.get(branch);
         for (int k = 0; k < line; k++) {
-          Tools.drawLine(applet, lineList.get(k).multiple(magnif), lineList
-              .get(k + 1).multiple(magnif));
+          Tools.drawLine(applet, lineList.get(k), lineList.get(k + 1), magnif);
         }
         Vector finalPoint = lineList.get(line).clone(), direction = lineList
             .get(line + 1).clone();
@@ -120,24 +144,30 @@ public class AppletModel {
         direction.normalize();
         finalPoint.add(direction.multiple(distance));
 
-        Tools.drawLine(applet, lineList.get(line).multiple(magnif),
-            finalPoint.multiple(magnif));
-        applet.stroke(Tools.red, 15);
-        Tools.drawPhoton(applet, finalPoint, magnif, photonRadius);
+        Tools.drawLine(applet, lineList.get(line), finalPoint, magnif);
+        
+        applet.fill(Tools.gold);applet.stroke(Tools.gold);
+        Tools.drawPhoton(applet, finalPoint, photonRadius, magnif, 10);
 
-        if (windowsDrawn == windowsNum - 1 && (applet.keyPressed && applet.key == 'q' || applet.runAnim))
+        /*
+         * TODO: Photons glow or leave trail behind them, alternative to trajectories 
+         * or have trajectories of old photons fade out to make way for new photons
+         */
+        // Photon trail
+//        for (double fraction = .20;fraction>.01;fraction*=.6){
+//          //System.out.println(fraction);
+//          Tools.drawPhoton(applet, V.sub(finalPoint,direction.multiple(fraction)), photonRadius*(float)(.5-fraction*2), magnif, 10);
+//        }
+
+        if (updatePhotons && (applet.keyPressed && applet.key == 'q' || applet.runAnim))
           advancePhotons(i, branch, line, distance, lineList, distRemaining);
 
       }
     }
 
-    windowsDrawn++;
-    if (windowsDrawn == windowsNum)
-      windowsDrawn = 0;
   }
 
   public void advancePhotons(int i, int branch, int line, double distance, List<Vector> lineList, double distRemaining) {
-
     distance += speed;
     if (distance >= distRemaining) {
       distance -= distRemaining;
@@ -155,7 +185,7 @@ public class AppletModel {
 
   public void drawSurfaces(Applet applet) {
     applet.noStroke();
-    applet.textureWrap(applet.REPEAT);
+    //applet.textureWrap(applet.REPEAT);
     applet.textureMode(applet.NORMAL);
     for (Surface s : surfaces) {
       if (s instanceof Ribbon) {
@@ -213,14 +243,15 @@ public class AppletModel {
    */
   public void drawFloorGrid(Applet applet) {
 
-    // Floor extending bounds
+    // Floor beyond small cell
     applet.strokeWeight(2);
-    applet.stroke(Tools.lgray);
-    for (float col = -xBounds; col <= xBounds * 2; col += spacing) {
-      applet.line(col, -yBounds, 0, col, yBounds * 2, 0);
+    applet.stroke(Tools.gray);
+    float size = 5;
+    for (float col = -xBounds * (size - 1); col <= xBounds * size; col += spacing) {
+      applet.line(col, -yBounds * (size - 1), 0, col, yBounds * size, 0);
     }
-    for (float row = -yBounds; row <= yBounds * 2; row += spacing) {
-      applet.line(-xBounds, row, 0, xBounds * 2, row, 0);
+    for (float row = -yBounds * (size - 1); row <= yBounds * size; row += spacing) {
+      applet.line(-xBounds * (size - 1), row, 0, xBounds * size, row, 0);
     }
 
     // Bounds inside of which photons spawn
