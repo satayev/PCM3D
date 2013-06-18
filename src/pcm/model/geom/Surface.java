@@ -5,18 +5,38 @@ import pcm.model.Photon;
 import pcm.util.Vector;
 
 /**
- * Abstract Surface which can absorb a photon and provide information to properly reflect from it.
+ * {@code Surface} represent <i>walls</i> of the towers.
+ * In 2D case, Surface is a face of the polyhedra.
+ * In 3D case, Surface is a plane on which 3D structure resides.
  * 
  * @author Satayev
  */
 public abstract class Surface {
 
+  // ///////////////////////////////////////////////////////////////////////////
+  // Fields
+  // ///////////////////////////////////////////////////////////////////////////
   /** Position vector */
   public Vector p;
+  /** Unit normal vector */
+  public Vector n;
 
-  public Surface(Vector position) {
-    this.p = position;
+  // ///////////////////////////////////////////////////////////////////////////
+  // Constructors
+  // ///////////////////////////////////////////////////////////////////////////
+  public Surface() {
   }
+
+  public Surface(Vector position, Vector normal) {
+    this.p = position;
+    this.n = normal;
+    if (this.n != null)
+      this.n.normalize();
+  }
+
+  // ///////////////////////////////////////////////////////////////////////////
+  // Methods
+  // ///////////////////////////////////////////////////////////////////////////
 
   /**
    * Finds a unit normal vector at some point on the surface.
@@ -27,12 +47,15 @@ public abstract class Surface {
   public abstract Vector normalAt(Hit hit);
 
   /**
-   * Returns collision of the photon and this surface.
+   * Computes time required by particle-like photon to travel until collision with the surface.
+   * Result is Double.POSITIVE_INFINITY if surface and photon never collide.
+   * 
+   * Collision point equals to {@code Photon.currentPosition + travelTime * Photon.velocity}.
    * 
    * @param p the photon.
-   * @return null, if no collision.
+   * @return time until collision.
    */
-  public abstract Hit getHit(Photon photon);
+  public abstract Hit getHit(Photon photon, boolean computePosition);
 
   /**
    * Perform absorption of the photon.
@@ -43,13 +66,17 @@ public abstract class Surface {
   public boolean absorb(Photon photon) {
     // TODO(satayev): generate heat-maps
     if (PCM3D.rnd.nextDouble() < 0.2)
-      return photon.absorbed = true;
-    return photon.absorbed = false;
+      return true;
+    return false;
   }
+
+  // ///////////////////////////////////////////////////////////////////////////
+  // Helpers
+  // ///////////////////////////////////////////////////////////////////////////
 
   @Override
   public String toString() {
-    return this.getClass().getSimpleName() + p;
+    return "Surface{p=" + p + ", n=" + n + "}";
   }
 
 }

@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pcm.model.geom.Plane;
+import pcm.model.geom.Polygon;
+import pcm.model.geom.Prism;
+import pcm.model.geom.Sphere;
+import pcm.model.geom.Surface;
 import pcm.model.geom.Wall;
-import pcm.model.geom.curves.Polygon;
-import pcm.model.geom.solids.Prism;
-import pcm.model.geom.solids.Solid;
+import pcm.util.V;
 import pcm.util.Vector;
 
 /**
@@ -15,39 +17,33 @@ import pcm.util.Vector;
  */
 public class SimpleModel {
 
-  // Size of the bounding box 
-  public int height, width, length;
+  public Surface floor;
+  public List<Wall> walls;
+  public List<Surface> surfaces;
 
-  public Plane floor, ceiling;
-  // defines boundaries for the tile: walls, floor, and ceiling
-  public List<Plane> bounds;
-  // includes all CNTs in the tile
-  public List<Solid> cnts;
-
-  public SimpleModel(int height, int width, int length) {
-    this.height = height;
-    this.width = width;
-    this.length = length;
-
-    cnts = new ArrayList<Solid>();
-
-    cnts.add(new Prism(new Vector(), new Polygon(new Vector[] { new Vector(-25, -25, 0), new Vector(-25, 25, 0), new Vector(25, 25, 0),
-        new Vector(25, -25, 0) })));
-
-    // TODO(satayev): fix Circle curve;
-    //    cnts.add(new Sphere(new Vector(0, 0, 0), height / 3));
-    //    cnts.add(new Prism(new Vector(), new Circle(50)));
-    //    cnts.add(new Cylinder(new Vector(), 50));
-
-    bounds = new ArrayList<Plane>(6);
-    bounds.add(new Wall(new Vector(length / 2, 0, 0), new Vector(-1, 0, 0), new Vector(-length, 0, 0)));
-    bounds.add(new Wall(new Vector(-length / 2, 0, 0), new Vector(1, 0, 0), new Vector(length, 0, 0)));
-    bounds.add(new Wall(new Vector(0, width / 2, 0), new Vector(0, -1, 0), new Vector(0, -width, 0)));
-    bounds.add(new Wall(new Vector(0, -width / 2, 0), new Vector(0, 1, 0), new Vector(0, width, 0)));
+  public SimpleModel(List<Surface> s, Vector[] r) {
+    surfaces = new ArrayList<Surface>();
 
     floor = new Plane(new Vector(0, 0, 0), new Vector(0, 0, 1));
-    bounds.add(floor);
-    ceiling = new Plane(new Vector(0, 0, height), new Vector(0, 0, -1));
-    bounds.add(ceiling);
+    surfaces.add(floor);
+
+    walls = new ArrayList<Wall>(2*r.length);
+    Vector sum = new Vector();
+    for (int i = 0; i < r.length; i++) sum.add(r[i]);
+    sum.mult(.5);
+    
+    for (int i = r.length-1; i >= 0; i--) {
+      Vector adj = r[i];
+      Vector normal = new Vector(adj.y,-adj.x,0);
+      normal.normalize();
+      Vector position = V.mult(-V.dot(sum,normal),normal);
+      walls.add(new Wall(sum, normal, V.add(V.mult(-2, sum),adj)));
+      walls.add(new Wall(V.mult(-1,sum), V.mult(-1,normal), V.add(V.mult(2, sum),V.mult(-1,adj))));
+      sum.add(V.mult(-1,adj));
+      // TODO(john): not sure if this works
+    }
+    surfaces.addAll(walls);
+    surfaces.addAll(s);
+
   }
 }

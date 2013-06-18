@@ -1,19 +1,18 @@
-package pcm.model.geom.curves;
+package pcm.model.geom;
 
 import pcm.model.Photon;
-import pcm.model.geom.Hit;
 import pcm.util.V;
 import pcm.util.Vector;
 
 /**
- * Polygon comprises of a list of (x,y) coordinate pairs ordered <b>counter-clockwise</b>, where each pair defines a vertex of
- * the
- * polygon, and two successive pairs are the endpoints of a side of the polygon. The first and last vertices are joined by a
- * line a segment that closes the polygon.
+ * A closed, two-dimensional region on XY-plane.
+ * Polygon comprises of a list of (x,y) coordinate pairs, where each pair defines a vertex of the polygon, and two successive
+ * pairs are the endpoints of a side of the polygon. The first and last vertices are joined by a line a segment that closes the
+ * polygon.
  * 
  * @author Satayev
  */
-public class Polygon extends Curve {
+public class Polygon extends Base {
 
   private int size;
   private Vector[] polygon;
@@ -31,20 +30,19 @@ public class Polygon extends Curve {
 
   @Override
   public Vector normalAt(Hit hit) {
-    Vector a = polygon[(hit.i - 1 + size) % size];
-    Vector b = polygon[hit.i];
+    Vector a = polygon[hit.i];
+    Vector b = polygon[(hit.i + 1) % size];
     double dx = b.x - a.x;
     double dy = b.y - a.y;
-    Vector result = new Vector(-dy, dx);
-    result.normalize();
-    return result;
+    return new Vector(-dy, dx);
   }
 
   @Override
-  public Hit getHit(Photon photon) {
-    int position = -1;
-    double distance = Double.POSITIVE_INFINITY;
+  public Hit getHit(Photon photon, boolean computePosition) {
     Vector prev, curr = polygon[size - 1];
+    double distance = Double.POSITIVE_INFINITY;
+    int position = -1;
+
     for (int i = 0; i < size; i++) {
       prev = curr;
       curr = polygon[i];
@@ -54,25 +52,13 @@ public class Polygon extends Curve {
         distance = d;
       }
     }
+
     return position == -1 ? null : new Hit(distance, null, position);
   }
 
-  // TODO(satayev): replace with Ribbon's method after fixing it
   private double distanceToLineSegment(Photon photon, Vector a, Vector b) {
-//    double dx = b.x - a.x;
-//    double dy = b.y - a.y;
-//    double nx = -dy;
-//    double ny = dx;
-//    double c = nx * a.x + ny * a.y;
-//    // nx * (p.rx + d*p.nx) + ny * (p.ry + d*p.ny) = c
-//    double k = nx * photon.v.x + ny * photon.v.y;
-//    double d = (c - nx * photon.p.x - ny * photon.p.y) / k;
-//    if (d < V.EPS || k > V.EPS)
-//      return Double.POSITIVE_INFINITY;
-//    if (Line2D.ptSegDist(a.x, a.y, b.x, b.y, photon.p.x + d * photon.v.x, photon.p.y + d * photon.v.y) > V.EPS)
-//      return Double.POSITIVE_INFINITY;
-//    return d;
-
+    double dx = a.x - photon.p.x;
+    double dy = a.y - photon.p.y;
     double bax = b.x - a.x;
     double bay = b.y - a.y;
     double det = bax * photon.v.y - bay * photon.v.x;
@@ -80,20 +66,17 @@ public class Polygon extends Curve {
       // lines do not intersect
       return Double.POSITIVE_INFINITY;
 
-    double dx = a.x - photon.p.x;
-    double dy = a.y - photon.p.y;
     double u = (dy * bax - dx * bay) / det;
     double v = (dy * photon.v.x - dx * photon.v.y) / det;
 
-    // TODO(satayev): add tangent check if needed?
-    if (u > V.EPS && v > -V.EPS && v < 1)
+    if (u > -V.EPS && v > -V.EPS && v < 1 + V.EPS)
       return u;
     else
-       return Double.POSITIVE_INFINITY;
+      return Double.POSITIVE_INFINITY;
   }
 
   @Override
-  public boolean isInside(Vector p) {
+  public boolean inside(Vector p) {
     boolean inside = false;
     double x1, y1, x2, y2;
     Vector prev = polygon[size - 1], curr = null;
@@ -110,8 +93,8 @@ public class Polygon extends Curve {
         y2 = prev.y;
         y1 = curr.y;
       }
-      if (curr.x < p.x == (p.x < prev.x + V.EPS))
-        if ((p.y - y1) * (x2 - x1) < (y2 - y1) * (p.x - x1) + V.EPS)
+      if (curr.x < p.x == (p.x < prev.x || Math.abs(p.x - prev.x) < V.EPS))
+        if ((p.y - y1) * (x2 - x1) < (y2 - y1) * (p.x - x1))
           inside = !inside;
       prev = curr;
     }

@@ -1,47 +1,34 @@
-package pcm.model.geom.curves;
+package pcm.model.geom;
 
 import pcm.model.Photon;
-import pcm.model.geom.Hit;
 import pcm.util.V;
 import pcm.util.Vector;
 
 /**
  * @author Satayev
+ * 
  */
-@Deprecated
-public class Circle extends Curve {
+public class Curve extends Base {
 
   public double r;
 
-  public Circle(double r) {
+  public Curve(double r) {
     this.r = r;
     // TODO(satayev): demo of a circle curve
     // x = rcos(theta)
     // y = rsin(theta)
   }
 
-  private double x(double t) {
-    return r * Math.cos(t);
-  }
-
-  private double y(double t) {
-    return r * Math.sin(t);
-  }
-
   @Override
   public Vector normalAt(Hit hit) {
-    double x = x(hit.d);
-    double y = y(hit.d);
-    Vector result = new Vector(x, y);
-    result.normalize();
-    return result;
+    double x = r * Math.cos(hit.d);
+    double y = r * Math.sin(hit.d);
+    return new Vector(-y, x);
   }
 
   @Override
-  public Hit getHit(Photon photon) {
-    if (Math.abs(photon.v.x) < V.EPS) {
-      if (Math.abs(photon.p.x) + V.EPS > r)
-        return null;
+  public Hit getHit(Photon photon, boolean computePosition) {
+    if (photon.v.x == 0) {
       double u = Math.acos(photon.p.x / r);
       double v = (r * Math.sin(u) - photon.p.y) / photon.v.y;
       if (v < V.EPS) {
@@ -87,8 +74,7 @@ public class Circle extends Curve {
   }
 
   @Override
-  public boolean isInside(Vector p) {
-    //    double theta = Math.atan2(p.y, p.x);
+  public boolean inside(Vector p) {
     return p.x * p.x + p.y * p.y < r * r + V.EPS;
   }
 
