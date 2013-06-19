@@ -1,11 +1,11 @@
 package graphics;
 
-import javax.media.opengl.*;
-import javax.media.opengl.glu.*;
+import javax.media.opengl.GL;
+import javax.media.opengl.glu.GLU;
 
-import processing.opengl.*;
-
-import pcm.geom.*;
+import pcm.model.geom.V;
+import pcm.model.geom.Vector;
+import processing.opengl.PGraphicsOpenGL;
 
 /**
  * Class utilized by Applet class to to adjust 3D camera view.

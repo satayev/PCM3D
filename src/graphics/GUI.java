@@ -1,9 +1,8 @@
 package graphics;
 
-import java.awt.BorderLayout;
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
-import pcm.geom.Vector;
 import processing.core.PApplet;
 
 public class GUI extends JFrame {
