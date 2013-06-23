@@ -15,7 +15,7 @@ public class Statistic {
 
   public void newPhoton(Vector v) {
     n++;
-    if (n <= N) {
+    if (rv.size() < N) {
       rv.add(new ArrayList<List<Vector>>());
       newBranch(v);
       addPath(v);
@@ -23,20 +23,22 @@ public class Statistic {
   }
 
   public void newBranch(Vector v) {
-    if (n <= N) {
+    if (rv.size() > 0 && rv.size() <= N) {
       rv.get(rv.size() - 1).add(new ArrayList<Vector>());
       addPath(v);
     }
   }
 
   public void addPath(Vector v) {
-    if (n <= N)
-      rv.get(rv.size() - 1).get(rv.get(rv.size() - 1).size() - 1).add(v.clone());
+    if (rv.size() > 0 && rv.size() <= N) {
+      List<List<Vector>> rv1 = rv.get(rv.size() - 1);
+      rv1.get(rv1.size() - 1).add(v.clone());
+    }
   }
 
   public void absorb(Vector v) {
     x++;
-    if (x <= X) {
+    if (xv.size() > 0 && xv.size() < X) {
       xv.add(v.clone());
     }
   }

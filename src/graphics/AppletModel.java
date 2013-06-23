@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import pcm.PCM3D;
 import pcm.model.geom.V;
 import pcm.model.geom.Vector;
+import dev.simple.FixedPhoton;
 import dev.simple.Photon;
 import dev.simple.Ribbon;
 import dev.simple.SimpleModel;
@@ -31,7 +33,6 @@ public class AppletModel {
   public Vector sunlightDirection, sunPosition;
 
   // Variables for interfacing with the statistic class
-  public List<List<List<Vector>>> paths;
   public List<Integer> currentBranch = new ArrayList<Integer>(), currentLine = new ArrayList<Integer>();
   public List<Double> currentDistance = new ArrayList<Double>();
 
@@ -41,6 +42,12 @@ public class AppletModel {
 
   // The surfaces to render
   private List<Surface> surfaces;
+  // The start time for the simulation
+  public long startTime;
+  public long lastTime = 0;
+  
+  // The size of the repeated drawing
+  int modSize = 0;
 
   public AppletModel() {
 
@@ -56,27 +63,28 @@ public class AppletModel {
     timeTillSystem = maxTimeTillSystem;
 
     LT = new ArrayList<Tower>();
-    List<Double> Lx = Arrays.asList(.3, .8, .7, .2);
-    List<Double> Ly = Arrays.asList(.2, .3, .8, .7);
+    List<Double> Lx = Arrays.asList(.5, .75, .5, .25);
+    List<Double> Ly = Arrays.asList(.25, .5, .75, .5);
     LT.add(new Tower(Lx, Ly));
-    SM = new SimpleModel(LT, new Photon());
-    SM.p.stat.N = 100;
-    SM.p.stat.X = 100;
+    FixedPhoton photon = new FixedPhoton(new Vector(0,0,-1));
+    SM = new SimpleModel(LT, photon);
+    SM.p.stat.N = 0;
+    SM.p.stat.X = 0;
     SM.run(100000);
     SM.p.stat.print();
 
-    addPhoton();
-
     surfaces = SM.LS;
-    paths = SM.p.stat.rv;
 
+    
     sunlightDirection = SM.p.n;
     //sunPosition
+
+    startTime = System.currentTimeMillis();
 
   }
 
   public void addPhoton() {
-    if (currentBranch.size() < SM.p.stat.N) {
+    if (currentBranch.size() < SM.p.stat.rv.size()) {
       currentBranch.add(0);
       currentLine.add(0);
       currentDistance.add((double) 0);
@@ -90,6 +98,17 @@ public class AppletModel {
   }
 
   public void drawPhotons(Applet applet, boolean updatePhotons) {
+    long time = System.currentTimeMillis()-startTime;
+    Vector entryVector = getEntryVector(time);
+    double prob = .001*-entryVector.z;
+    long timeDelay = time - lastTime;
+    if (prob*timeDelay > PCM3D.rnd.nextDouble()) {
+      SM.p.n0 = entryVector;
+      SM.p.stat.N++;
+      SM.run(1);
+      addPhoton();
+    }
+    lastTime = time;
 
     for (int i = 0; i < currentBranch.size(); i++) {
 
@@ -100,7 +119,7 @@ public class AppletModel {
       int branch = currentBranch.get(i);
       int line = currentLine.get(i);
       double distance = currentDistance.get(i);
-      List<List<Vector>> branchList = paths.get(i);
+      List<List<Vector>> branchList = SM.p.stat.rv.get(i);
       List<Vector> lineList;
 
       /*
@@ -122,28 +141,26 @@ public class AppletModel {
       //        continue;
       //      }
 
-      for (int j = 0; j < branch; j++) {
-        lineList = branchList.get(j);
-        for (int k = 0; k < lineList.size() - 1; k++) {
-          Tools.drawLine(applet, lineList.get(k), lineList.get(k + 1), magnif);
-        }
-      }
       if (branch < branchList.size()) {
+        for (int j = Math.max(branch-2,0); j < branch; j++) {
+          lineList = branchList.get(j);
+          for (int k = 0; k < lineList.size() - 1; k++) 
+            drawLine(applet, lineList.get(k), lineList.get(k + 1));
+        };
         lineList = branchList.get(branch);
-        for (int k = 0; k < line; k++) {
-          Tools.drawLine(applet, lineList.get(k), lineList.get(k + 1), magnif);
-        }
+        for (int k = 0; k < line; k++) 
+          drawLine(applet, lineList.get(k), lineList.get(k + 1));
         Vector finalPoint = lineList.get(line).clone(), direction = lineList.get(line + 1).clone();
-        direction.add(V.mult(-1, finalPoint));
+        direction.sub(finalPoint);
         double distRemaining = direction.length();
         direction.normalize();
         finalPoint.add(V.mult(distance, direction));
 
-        Tools.drawLine(applet, lineList.get(line), finalPoint, magnif);
+        drawLine(applet, lineList.get(line), finalPoint);
 
         applet.fill(Tools.gold);
         applet.stroke(Tools.gold);
-        Tools.drawPhoton(applet, finalPoint, photonRadius, magnif, 10);
+        drawPhoton(applet, finalPoint);
 
         /*
          * TODO: Photons glow or leave trail behind them, alternative to trajectories
@@ -157,10 +174,15 @@ public class AppletModel {
 
         if (updatePhotons && (applet.keyPressed && applet.key == 'q' || applet.runAnim))
           advancePhotons(i, branch, line, distance, lineList, distRemaining);
-
       }
+
     }
 
+  }
+
+  private Vector getEntryVector(long time) {
+    double theta = 7*Math.PI/8, phi = Math.PI*time/200000;
+    return new Vector(Math.cos(theta)*Math.cos(phi), Math.sin(theta)*Math.cos(phi), -Math.sin(phi));
   }
 
   public void advancePhotons(int i, int branch, int line, double distance, List<Vector> lineList, double distRemaining) {
@@ -186,23 +208,15 @@ public class AppletModel {
     for (Surface s : surfaces) {
       if (s instanceof Ribbon) {
         Ribbon r = (Ribbon) s;
-        float xMapping = 1, yMapping = (float) (xMapping * applet.CNTimg.width * zBounds / (r.b * applet.CNTimg.height));
-        applet.beginShape();
-        applet.texture(applet.CNTimg);
-        Tools.vertex(applet, V.mult(magnif, new Vector(r.rx, r.ry, 0)), 0, yMapping);
-        Tools.vertex(applet, V.mult(magnif, new Vector(r.x2, r.y2, 0)), xMapping, yMapping);
-        Tools.vertex(applet, V.mult(magnif, new Vector(r.x2, r.y2, zBounds)), xMapping, 0);
-        Tools.vertex(applet, V.mult(magnif, new Vector(r.rx, r.ry, zBounds)), 0, 0);
-        applet.endShape(applet.CLOSE);
+        drawRibbon(applet, new Vector(r.rx, r.ry, 0), new Vector(r.x2, r.y2, 0), 
+            new Vector(r.x2, r.y2, Photon.Z), new Vector(r.rx, r.ry, Photon.Z), r.b);
       }
     }
     for (Tower t : LT) {
-      applet.fill(Tools.black);
-      applet.beginShape();
+      List<Vector> bounds = new ArrayList<Vector>();
       for (int i = 0; i < t.Lx.size(); i++)
-        Tools.vertex(applet, V.mult(magnif, new Vector(t.Lx.get(i), t.Ly.get(i), zBounds)));
-
-      applet.endShape(applet.CLOSE);
+        bounds.add(new Vector(t.Lx.get(i), t.Ly.get(i), Photon.Z));
+      drawPolygon(applet, bounds);
     }
 
   }
@@ -237,7 +251,7 @@ public class AppletModel {
     // Floor beyond small cell
     applet.strokeWeight(2);
     applet.stroke(Tools.gray);
-    float size = 5;
+    float size = modSize+1;
     for (float col = -xBounds * (size - 1); col <= xBounds * size; col += spacing) {
       applet.line(col, -yBounds * (size - 1), 0, col, yBounds * size, 0);
     }
@@ -264,4 +278,47 @@ public class AppletModel {
 
   }
 
+  private void drawLine(Applet applet, Vector a, Vector b) {
+    for (int i = -modSize; i <= modSize; i++)
+      for (int j = -modSize; j <= modSize; j++) {
+        Vector mod = new Vector(i*Photon.X, j*Photon.Y, 0);
+        Tools.drawLine(applet, V.add(a,mod), V.add(b,mod), magnif);
+      }
+  }
+
+  private void drawPhoton(Applet applet, Vector a) {
+    for (int i = -modSize; i <= modSize; i++)
+      for (int j = -modSize; j <= modSize; j++) {
+        Vector mod = new Vector(i*Photon.X, j*Photon.Y, 0);
+        Tools.drawPhoton(applet, V.add(a,mod), photonRadius, magnif, 10);
+      }
+  }
+
+  private void drawRibbon(Applet applet, Vector a, Vector b, Vector c, Vector d, double e) {
+    float xMapping = 1, yMapping = (float) (xMapping * applet.CNTimg.width * zBounds / (e * applet.CNTimg.height));
+    for (int i = -modSize; i <= modSize; i++)
+      for (int j = -modSize; j <= modSize; j++) {
+        Vector mod = new Vector(i*Photon.X, j*Photon.Y, 0);
+        applet.beginShape();
+        applet.texture(applet.CNTimg);
+        Tools.vertex(applet, V.mult(magnif, V.add(a,mod)), 0, yMapping);
+        Tools.vertex(applet, V.mult(magnif, V.add(b,mod)), xMapping, yMapping);
+        Tools.vertex(applet, V.mult(magnif, V.add(c,mod)), xMapping, 0);
+        Tools.vertex(applet, V.mult(magnif, V.add(d,mod)), 0, 0);
+        applet.endShape(applet.CLOSE);
+      }
+  }
+
+  private void drawPolygon(Applet applet, List<Vector> bounds) {
+    for (int i = -modSize; i <= modSize; i++)
+      for (int j = -modSize; j <= modSize; j++) {
+        Vector mod = new Vector(i*Photon.X, j*Photon.Y, 0);
+        applet.fill(Tools.black);
+        applet.beginShape();
+        for (int k = 0; k < bounds.size(); k++)
+          Tools.vertex(applet, V.mult(magnif, V.add(bounds.get(k),mod)));
+        applet.endShape(applet.CLOSE);
+      }
+  }
+  
 }
