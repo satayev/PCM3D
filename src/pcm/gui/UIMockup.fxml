@@ -33,157 +33,84 @@
               <children>
                 <HBox alignment="CENTER">
                   <children>
-                    <Label text="Stamp Scale">
+                    <Label text="Scale">
                       <HBox.margin>
-                        <Insets fx:id="x5" />
+                        <Insets left="5.0" fx:id="x5" />
                       </HBox.margin>
                     </Label>
-                    <TextField prefWidth="80.0">
+                    <TextField prefWidth="80.0" HBox.hgrow="ALWAYS">
                       <HBox.margin>
-                        <Insets left="10.0" right="10.0" />
+                        <Insets left="23.0" right="5.0" />
                       </HBox.margin>
                     </TextField>
-                    <Label text="micrometers" HBox.margin="$x5" />
+                    <Label text="nm">
+                      <HBox.margin>
+                        <Insets left="5.0" right="10.0" fx:id="x2" />
+                      </HBox.margin>
+                    </Label>
+                  </children>
+                </HBox>
+                <HBox alignment="CENTER">
+                  <children>
+                    <Label text="Rotation">
+                      <HBox.margin>
+                        <Insets left="5.0" fx:id="x6" />
+                      </HBox.margin>
+                    </Label>
+                    <TextField prefWidth="80.0" HBox.hgrow="ALWAYS">
+                      <HBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                      </HBox.margin>
+                    </TextField>
+                    <Label text="nm">
+                      <HBox.margin>
+                        <Insets left="5.0" right="10.0" fx:id="x7" />
+                      </HBox.margin>
+                    </Label>
+                  </children>
+                </HBox>
+                <HBox alignment="CENTER">
+                  <children>
+                    <Label text="Height" HBox.margin="$x5" />
+                    <TextField prefWidth="80.0" HBox.hgrow="ALWAYS">
+                      <HBox.margin>
+                        <Insets left="15.0" right="5.0" />
+                      </HBox.margin>
+                    </TextField>
+                    <Label text="nm" HBox.margin="$x2" />
                   </children>
                 </HBox>
                 <Accordion VBox.vgrow="ALWAYS">
                   <expandedPane>
-                    <TitledPane fx:id="x2" animated="false" text="Functions">
+                    <TitledPane id="x1" fx:id="x9" animated="false" text="Create Shape">
                       <content>
-                        <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER">
-                          <content>
-                            <VBox id="VBox" alignment="TOP_CENTER">
+                        <AnchorPane id="AnchorPane" minHeight="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="200.0">
+                          <children>
+                            <HBox alignment="CENTER" AnchorPane.leftAnchor="9.0" AnchorPane.rightAnchor="9.0" AnchorPane.topAnchor="0.0">
                               <children>
-                                <VBox>
-                                  <children>
-                                    <HBox>
-                                      <children>
-                                        <Label text="f1(x)" HBox.hgrow="NEVER" />
-                                        <TextField HBox.hgrow="ALWAYS" />
-                                      </children>
-                                    </HBox>
-                                    <HBox>
-                                      <children>
-                                        <Label text="Interval" />
-                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS">
-                                          <HBox.margin>
-                                            <Insets fx:id="x6" />
-                                          </HBox.margin>
-                                        </TextField>
-                                        <Label text="," />
-                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
-                                      </children>
-                                    </HBox>
-                                    <Separator>
-                                      <VBox.margin>
-                                        <Insets bottom="5.0" top="5.0" />
-                                      </VBox.margin>
-                                    </Separator>
-                                  </children>
-                                  <VBox.margin>
-                                    <Insets fx:id="x7" />
-                                  </VBox.margin>
-                                </VBox>
-                                <VBox>
-                                  <children>
-                                    <HBox>
-                                      <children>
-                                        <Label text="f2(x)" HBox.hgrow="NEVER" />
-                                        <TextField HBox.hgrow="ALWAYS" />
-                                      </children>
-                                    </HBox>
-                                    <HBox>
-                                      <children>
-                                        <Label text="Interval" />
-                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS">
-                                          <HBox.margin>
-                                            <Insets fx:id="x8" />
-                                          </HBox.margin>
-                                        </TextField>
-                                        <Label text="," />
-                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
-                                      </children>
-                                    </HBox>
-                                    <Separator>
-                                      <VBox.margin>
-                                        <Insets bottom="5.0" top="5.0" />
-                                      </VBox.margin>
-                                    </Separator>
-                                  </children>
-                                </VBox>
-                                <VBox>
-                                  <children>
-                                    <HBox>
-                                      <children>
-                                        <Label text="f3(x)" HBox.hgrow="NEVER" />
-                                        <TextField HBox.hgrow="ALWAYS" />
-                                      </children>
-                                    </HBox>
-                                    <HBox>
-                                      <children>
-                                        <Label text="Interval" />
-                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
-                                        <Label text="," />
-                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
-                                      </children>
-                                    </HBox>
-                                    <Separator>
-                                      <VBox.margin>
-                                        <Insets bottom="5.0" top="5.0" />
-                                      </VBox.margin>
-                                    </Separator>
-                                  </children>
-                                </VBox>
-                                <VBox>
-                                  <children>
-                                    <HBox>
-                                      <children>
-                                        <Label text="f4(x)" HBox.hgrow="NEVER" />
-                                        <TextField HBox.hgrow="ALWAYS" />
-                                      </children>
-                                    </HBox>
-                                    <HBox>
-                                      <children>
-                                        <Label text="Interval" />
-                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
-                                        <Label text="," />
-                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
-                                      </children>
-                                    </HBox>
-                                    <Separator>
-                                      <VBox.margin>
-                                        <Insets bottom="5.0" top="5.0" />
-                                      </VBox.margin>
-                                    </Separator>
-                                  </children>
-                                </VBox>
-                                <VBox>
-                                  <children>
-                                    <HBox>
-                                      <children>
-                                        <Label text="f5(x)" HBox.hgrow="NEVER" />
-                                        <TextField HBox.hgrow="ALWAYS" />
-                                      </children>
-                                    </HBox>
-                                    <HBox>
-                                      <children>
-                                        <Label text="Interval" />
-                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
-                                        <Label text="," />
-                                        <TextField prefWidth="0.0" HBox.hgrow="ALWAYS" />
-                                      </children>
-                                    </HBox>
-                                    <Separator>
-                                      <VBox.margin>
-                                        <Insets bottom="5.0" top="5.0" />
-                                      </VBox.margin>
-                                    </Separator>
-                                  </children>
-                                </VBox>
+                                <Label text="Edge count">
+                                  <HBox.margin>
+                                    <Insets left="5.0" fx:id="x8" />
+                                  </HBox.margin>
+                                </Label>
+                                <TextField fx:id="csEdgeCount" prefWidth="80.0" text="4" HBox.hgrow="ALWAYS">
+                                  <HBox.margin>
+                                    <Insets left="5.0" right="5.0" />
+                                  </HBox.margin>
+                                </TextField>
+                                <Button fx:id="csReset" mnemonicParsing="false" text="Begin">
+                                  <HBox.margin>
+                                    <Insets right="5.0" />
+                                  </HBox.margin>
+                                </Button>
                               </children>
-                            </VBox>
-                          </content>
-                        </ScrollPane>
+                            </HBox>
+                            <Rectangle fill="WHITE" height="200.0" smooth="false" stroke="BLACK" strokeType="INSIDE" width="200.0" AnchorPane.leftAnchor="18.0" AnchorPane.rightAnchor="18.0" AnchorPane.topAnchor="30.0" />
+                            <AnchorPane fx:id="csCanvas" AnchorPane.leftAnchor="18.0" AnchorPane.rightAnchor="18.0" AnchorPane.topAnchor="30.0" />
+                            <ScrollPane prefHeight="206.0" prefWidth="200.0" AnchorPane.bottomAnchor="38.0" AnchorPane.leftAnchor="9.0" AnchorPane.rightAnchor="9.0" AnchorPane.topAnchor="239.0" />
+                            <Button alignment="CENTER" mnemonicParsing="false" prefWidth="200.0" text="Add shape" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="9.0" AnchorPane.rightAnchor="9.0" />
+                          </children>
+                        </AnchorPane>
                       </content>
                     </TitledPane>
                   </expandedPane>
@@ -203,11 +130,6 @@
                                   </FlowPane.margin>
                                 </Rectangle>
                                 <Circle fill="$x4" radius="50.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
-                                <Rectangle fill="$x4" height="100.0" rotate="45.0" scaleX="0.70710678118655" scaleY="0.70710678118655" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="100.0">
-                                  <rotationAxis>
-                                    <Point3D z="10.0" />
-                                  </rotationAxis>
-                                </Rectangle>
                                 <Polygon fill="$x4" smooth="false" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
                                   <points>
                                     <Double fx:value="-50.0" />
@@ -224,12 +146,11 @@
                         </ScrollPane>
                       </content>
                     </TitledPane>
-                    <fx:reference source="x2" />
+                    <fx:reference source="x9" />
                   </panes>
                 </Accordion>
               </children>
             </VBox>
-            <Label alignment="CENTER" contentDisplay="CENTER" text="[2D Canvas goes here]" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="240.0" AnchorPane.topAnchor="24.0" />
           </children>
         </AnchorPane>
       </content>
@@ -250,8 +171,7 @@
                 </Menu>
               </menus>
             </MenuBar>
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="665.0" prefWidth="1040.0" text="[Processing surface goes here]" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0" />
-            <VBox prefWidth="240.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0">
+            <VBox prefWidth="240.0" style="-fx-background-color:silver;" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0">
               <children>
                 <Accordion VBox.vgrow="ALWAYS">
                   <expandedPane>
@@ -261,12 +181,7 @@
                           <content>
                             <AnchorPane id="AnchorPane" prefHeight="41.0" prefWidth="234.0">
                               <children>
-                                <VBox id="VBox" alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                  <children>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" text="[Options go here]" />
-                                  </children>
-                                </VBox>
-                                <Button alignment="CENTER" mnemonicParsing="false" prefHeight="40.0" text="Begin Simulation" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                                <VBox id="VBox" alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                               </children>
                             </AnchorPane>
                           </content>
@@ -293,7 +208,6 @@
               <Menu mnemonicParsing="false" text="Chart" />
             </menus>
           </MenuBar>
-          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="665.0" prefWidth="1040.0" text="[Chart/graph goes here]" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0" />
         </children>
       </AnchorPane>
     </Tab>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fx:root
+    type="javafx.scene.shape.Circle"
+    xmlns:fx="http://javafx.com/fxml"
+    radius="4.0"
+    stroke="BLACK"
+    fill="DODGERBLUE"
+    strokeType="INSIDE" />

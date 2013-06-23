@@ -112,7 +112,9 @@ spotLight(v1, v2, v3, model.sunPosition.x, model.sunPosition.y, model.sunPositio
   }
 
   public void lookAround(float dx, float dy) {
-    F.add(V.scaleAdd(-(dx), I, -(dy), J));
+    Vector d = V.scaleAdd(-dx, I, dy, J);
+    F.add(d);
+    E.add(d);
   }
   
   public void zoomIn() {
