@@ -18,7 +18,6 @@ public class Statistic {
     if (rv.size() < N) {
       rv.add(new ArrayList<List<Vector>>());
       newBranch(v);
-      addPath(v);
     }
   }
 
