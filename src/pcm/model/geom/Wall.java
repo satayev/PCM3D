@@ -1,5 +1,7 @@
 package pcm.model.geom;
 
+import java.util.ArrayList;
+
 import pcm.model.Photon;
 
 /**
@@ -17,7 +19,7 @@ public class Wall extends Plane {
   }
 
   public void wrap(Photon photon) {
-    photon.p.add(differential);
+    photon.move(differential);
   }
 
 }

@@ -8,7 +8,7 @@ import pcm.model.geom.solids.Solid;
 public abstract class Model {
 
   // Size of the bounding box 
-  public int height, width, length;
+  public double X, Y, Z;
 
   public Plane floor, ceiling;
   // defines boundaries for the tile: walls, floor, and ceiling

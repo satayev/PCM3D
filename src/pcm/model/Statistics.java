@@ -1,16 +1,32 @@
 package pcm.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import pcm.model.geom.Vector;
+
 public class Statistics {
 
   public int photonTotalCounter = 0;
+  public int maxPhotonPaths = 0;
+  public List<List<List<Vector>>> photonPaths = new ArrayList<List<List<Vector>>>();
   public int photonAbsorbedCounter = 0;
+  public double photonPowerCounter = 0.;
+  public int maxPhotonAbsorptionPoints = 0;
+  public List<Vector> photonAbsorptionPoints = new ArrayList<Vector>();
   public int reflectionsTotalCounter = 0;
 
   public void update(Photon photon) {
     photonTotalCounter++;
     reflectionsTotalCounter += photon.reflectionCounter;
-    if (photon.absorbed)
+    if (photon.absorbed) {
       photonAbsorbedCounter++;
+      photonPowerCounter += -photon.v0.z;
+      if (photonAbsorptionPoints.size() < maxPhotonAbsorptionPoints) 
+        photonAbsorptionPoints.add(photon.p);
+    }
+    if (photonPaths.size() < maxPhotonPaths) 
+      photonPaths.add(photon.path);
   }
 
   public String toString() {

@@ -15,7 +15,11 @@ import pcm.model.geom.Vector;
  */
 public class Photon {
 
-  public static final double X = 1, Y = 1, Z = 1;
+  public static double X = 1;
+
+  public static double Y = 1;
+
+  public static double Z = 1;
 
   public Vector r = new Vector(), n = new Vector();
   public Vector r0 = new Vector(), n0 = new Vector();
