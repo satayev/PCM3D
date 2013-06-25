@@ -40,7 +40,7 @@ public class Sgp4Unit {
   private double rteosq = 0;
   private double s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0;
 
-  private ElementsetRecord satrec = new ElementsetRecord();
+  public ElementsetRecord satrec = new ElementsetRecord();
 
   private double sinio = 0;
   private double snodm = 0;
@@ -50,6 +50,10 @@ public class Sgp4Unit {
   private double z1 = 0, z2 = 0, z3 = 0, z11 = 0, z12 = 0, z13 = 0, z21 = 0, z22 = 0, z23 = 0, z31 = 0, z32 = 0, z33 = 0;
 
   public Sgp4Unit() {
+  }
+  
+  public Sgp4Unit(TLE tle) {
+    twoline2rv(tle.line1, tle.line2);
   }
 
   /** References : NORAD Spacetrack Report #3 */
@@ -662,13 +666,13 @@ public class Sgp4Unit {
     satrec.dsvalues.gsto = gstime(epoch + 2433281.5);
   }
 
-  private double julianday(int year, int mon, int inday, int hr, int min, double sec) {
+  protected double julianday(int year, int mon, int inday, int hr, int min, double sec) {
     double jd = 367.0 * year - (int) ((7 * (year + (int) ((mon + 9) / 12))) * 0.25) + (int) (275 * mon / 9) + inday + 1721013.5
         + ((sec / 60.0 + min) / 60.0 + hr) / 24.0; // ut in days
     return jd;
   }
 
-  private double modfunc(double x, double y) {
+  protected double modfunc(double x, double y) {
     if (y != 0)
       return x - (int) (x / y) * y;
     return 0;
@@ -741,7 +745,7 @@ public class Sgp4Unit {
       throw new RuntimeException("newton rhapson not converged");
   }
 
-  public Sgp4Data runSgp4(int startYear, double startDay) {
+  public Sgp4Data runSgp4(int startYear, double startDay, double delta) {
     if (startYear < 1900) {
       if (startYear < 50)
         startYear = startYear + 2000;
@@ -750,7 +754,7 @@ public class Sgp4Unit {
     }
 
     satrec.srtime = (startYear - 1950) * 365 + (startYear - 1949) / 4 + startDay;
-    satrec.nevalues.t = (satrec.srtime - satrec.eptime) * 1440.0;
+    satrec.nevalues.t = (satrec.srtime - satrec.eptime) * 1440.0 + delta;
 
     return sgp4();
   }

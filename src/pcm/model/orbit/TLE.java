@@ -12,7 +12,7 @@ public class TLE {
 
   // LINE 0
   /** Satellite name */
-  public String name;
+  public String name, line1, line2;
 
   // LINE 1
   /** SSC# [1, 99999] */
@@ -54,6 +54,8 @@ public class TLE {
 
   public TLE(TLE that) {
     this.name = that.name == null ? null : new String(that.name);
+    this.line1 = that.line1 == null ? null : new String(that.line1);
+    this.line2 = that.line2 == null ? null : new String(that.line2);
     this.argPerigee = that.argPerigee;
     this.bstar = that.bstar;
     this.eccentricity = that.eccentricity;
@@ -79,7 +81,9 @@ public class TLE {
 
   public TLE(String name, String line1, String line2) {
     this.name = name;
-
+    this.line1 = line1;
+    this.line2 = line2;
+    
     parseLine1(line1);
     parseLine2(line2);
 

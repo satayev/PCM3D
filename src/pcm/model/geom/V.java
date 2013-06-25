@@ -1,7 +1,7 @@
 package pcm.model.geom;
 
+import java.text.DecimalFormat;
 import java.util.List;
-
 
 /**
  * Static methods to work with {@code Vector}.
@@ -12,10 +12,9 @@ public final class V {
 
   /** Used for double comparison */
   public static final double EPS = 1e-7;
-
   public static final double INFINITY = Double.POSITIVE_INFINITY;
-
   public static final Vector I = new Vector(1, 0, 0), J = new Vector(0, 1, 0), K = new Vector(0, 0, 1);
+  public static final DecimalFormat DF = new DecimalFormat("#0.000000");
 
   /**
    * Adds two vectors and returns a new vector.
