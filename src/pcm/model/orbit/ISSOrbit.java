@@ -10,6 +10,21 @@ import pcm.model.geom.solids.Sphere;
 
 public class ISSOrbit {
 
+  public static Vector rotate(Vector p, Vector A, Vector dx, double theta) {
+    Vector q = new Vector(0, 0, 0);
+    dx.normalize();
+    double x = p.x, y = p.y, z = p.z;
+    double a = A.x, b = A.y, c = A.z;
+    double u = dx.x, v = dx.y, w = dx.z;
+    q.x = (a * (v * v + w * w) - u * (b * v + c * w - u * x - v * y - w * z)) * (1 - Math.cos(theta)) + x * Math.cos(theta)
+        + (-c * v + b * w - w * y + v * z) * Math.sin(theta);
+    q.y = (b * (u * u + w * w) - v * (a * u + c * w - u * x - v * y - w * z)) * (1 - Math.cos(theta)) + y * Math.cos(theta)
+        + (c * u - a * w + w * x - u * z) * Math.sin(theta);
+    q.z = (c * (u * u + v * v) - w * (a * u + b * v - u * x - v * y - w * z)) * (1 - Math.cos(theta)) + z * Math.cos(theta)
+        + (-b * u + a * v - v * x + u * y) * Math.sin(theta);
+    return q;
+  }
+
   public static void main(String[] args) {
     Sphere earth = new Sphere(new Vector(), 6378.135);
     int orbitTotalMinutes = 93;
@@ -21,14 +36,25 @@ public class ISSOrbit {
       Vector sun = getSunPosition(minutesSince + delta);
 
       Vector v = V.sub(iss, sun);
-      System.out.print(V.normalize(v));
+      //      System.out.print(V.normalize(v));
+
+      Vector n = V.normalize(iss);
+
+      Vector sunlight = rotate(v, new Vector(), new Vector(n.x, n.y, n.z + 1), Math.PI);
+
+      double r = v.length();
+      double theta = Math.acos(sunlight.z / r);
+      double phi = Math.atan2(sunlight.y, sunlight.x);
+      System.out.println(V.normalize(sunlight));
+      System.out.printf("%.5f %.5f %.5f ", r, theta * 180 / Math.PI, phi * 180 / Math.PI);
 
       Photon p = new Photon(sun, v);
       if (earth.getHit(p) != null) {
         System.out.println(" light");
         count++;
-      } else
+      } else {
         System.out.println(" shadow");
+      }
     }
     System.out.printf("%d out of %d minutes are in shadow.\n", orbitTotalMinutes - count, orbitTotalMinutes);
   }
@@ -90,7 +116,7 @@ public class ISSOrbit {
     double lambda = L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g);
 
     double R = 1.00014 - 0.01671 * Math.cos(g) - 0.00014 * Math.cos(2 * g);
-    R *= 149597870.700;
+    R *= 149597870.700 / 1000;
 
     double e = 23.439 - 0.0000004 * n;
 
