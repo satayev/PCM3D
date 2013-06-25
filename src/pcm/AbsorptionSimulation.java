@@ -23,25 +23,29 @@ public class AbsorptionSimulation {
 
   // TODO(satayev): ISSOrbit should be generating photons?
   //                Implement PhotonFactory to efficiently reuse resources??
-  private Photon resetPhoton() {
-    Vector velocity = new Vector();
-    double theta = Math.PI / 2 * (PCM3D.rnd.nextDouble() + 1), phi = Math.PI * 2 * PCM3D.rnd.nextDouble();
-    velocity.x = Math.sin(theta) * Math.cos(phi);
-    velocity.y = Math.sin(theta) * Math.sin(phi);
-    velocity.z = Math.cos(theta);
-    return new Photon(new Vector(model.length * (PCM3D.rnd.nextDouble() - 0.5), model.width * (PCM3D.rnd.nextDouble() - 0.5), model.height), velocity);
+  private Photon resetPhoton(Vector v0) {
+    Vector velocity = v0.clone();
+    if (velocity.dot(velocity) == 0) {
+      double theta = Math.PI / 2 * (PCM3D.rnd.nextDouble() + 1), phi = Math.PI * 2 * PCM3D.rnd.nextDouble();
+      velocity.x = Math.sin(theta) * Math.cos(phi);
+      velocity.y = Math.sin(theta) * Math.sin(phi);
+      velocity.z = Math.cos(theta);
+    }
+    return new Photon(new Vector(model.X * (PCM3D.rnd.nextDouble() - 0.5), model.Y * (PCM3D.rnd.nextDouble() - 0.5),
+        model.Z), velocity);
   }
 
-  public void run(int n) throws Exception {
+  public void run(int n, Vector v0) throws Exception {
     Photon photon = new Photon(new Vector(), new Vector());
     while (n-- > 0) {
-      photon = resetPhoton();
+      photon = resetPhoton(v0);
 
       boolean done = false;
       for (Solid s : model.cnts)
         if (s.contains(photon.p)) {
           photon.bounce(V.K);
           s.absorb(photon);
+          photon.path.get(photon.path.size()-1).add(photon.p);
           done = true;
         }
 
@@ -62,21 +66,25 @@ public class AbsorptionSimulation {
               closest = hit;
         }
 
-        if (closest.surface == model.ceiling)
-          done = true;
+        // travel to the surface
+        photon.travel(closest.distance);
+        if (closest.surface instanceof Wall)
+          ((Wall) closest.surface).wrap(photon);
         else {
-          // travel to the surface
-          photon.travel(closest.distance);
-          if (closest.surface instanceof Wall)
-            ((Wall) closest.surface).wrap(photon);
-          else {
-            photon.bounce(closest.surface.normalAt(closest));
+          photon.bounce(closest.surface.normalAt(closest));
+
+          if (closest.surface == model.ceiling)
+            done = true;
+          else
             done = closest.surface.absorb(photon);
-          }
         }
       }
       stats.update(photon);
     }
+  }
+
+  public void run(int n) throws Exception {
+    run(n, new Vector(0, 0, 0));
   }
 
   public void printStats() {
