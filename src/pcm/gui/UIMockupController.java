@@ -3,13 +3,16 @@ package pcm.gui;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 
-import graphics.Applet;
+import pcm.gui.graphics.*;
+
 import javafx.scene.Node;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -20,15 +23,22 @@ import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 public class UIMockupController implements Initializable {
 
+    boolean runAnim = false;
+    
     @FXML
     public Button csReset;
     public AnchorPane csCanvas;
     public TextField csEdgeCount;
     public Tab simulationTab;
     public AnchorPane simulationAnchorPane;
+    
+    public Button beginSimulation;
+    public Text output;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -37,7 +47,38 @@ public class UIMockupController implements Initializable {
         assert csReset != null : "fx:id=\"csReset\" was not injected: check your FXML file 'UIMockup.fxml'.";
         assert csCanvas != null : "fx:id=\"csCanvas\" was not injected: check your FXML file 'UIMockup.fxml'.";
         assert csEdgeCount != null : "fx:id=\"csEdgeCount\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        
+        
+        assert beginSimulation != null : "fx:id=\"beginSimulation\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        assert output != null : "fx:id=\"output\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        
+        
+        beginSimulation.setOnAction(new EventHandler<ActionEvent>() {
+          @Override public void handle(ActionEvent e) {
+            if (runAnim) 
+              beginSimulation.setText("Pause Simulation");
+            else 
+              beginSimulation.setText("Play Simulation");
+            // MainSwing.applet.runAnim //cannot call from a PApplet class for some reason
+            runAnim = !runAnim;
+            MainSwing.appletModel.runAnim = runAnim;
+          }
+        });
+        
+        Timeline fiveSecondsWonder = new Timeline(new KeyFrame(Duration.seconds(2), new EventHandler<ActionEvent>() {
 
+          @Override
+          public void handle(ActionEvent event) {
+            output.setText(MainSwing.appletModel.printOutput);
+          }
+        }));
+        fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
+        fiveSecondsWonder.play();
+          
+        
+        
+
+        
         csReset.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {

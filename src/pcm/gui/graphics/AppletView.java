@@ -1,11 +1,11 @@
-package graphics;
+package pcm.gui.graphics;
 
-import javax.media.opengl.GL;
-import javax.media.opengl.glu.GLU;
+import javax.media.opengl.*;
+import javax.media.opengl.glu.*;
 
-import pcm.model.geom.V;
-import pcm.model.geom.Vector;
-import processing.opengl.PGraphicsOpenGL;
+import processing.opengl.*;
+
+import pcm.model.geom.*;
 
 /**
  * Class utilized by Applet class to to adjust 3D camera view.
@@ -21,13 +21,13 @@ public class AppletView {
 
   // View parameters: focus, eye, and up vector, picked surface point Q and screen aligned vectors
   // {I,J,K} set when picked
-  public Vector F, E, U, Q, I, J, K, initF, initE, initU, initQ, initI, initJ, initK;
+  public Vector E, F, U, Q, I, J, K, initE, initF, initU, initQ, initI, initJ, initK;
 
   public AppletView(Applet p) {
     applet = p;
-
-    initF = new Vector(125, -50, 15); // (0, 0, 0) default
+    
     initE = new Vector(120, 440, 280); // (0, 0, 500) default
+    initF = new Vector(125, -50, 15); // (0, 0, 0) default
     initU = new Vector(0, 0, -1); // (0, 1, 0) default
     initI = new Vector(1, 0, 0);
     initJ = new Vector(0, .5, -.85); // (0, 1, 0) default
@@ -36,11 +36,11 @@ public class AppletView {
     initView(); // declares the local frames for 3D GUI
   }
 
-  public AppletView(Applet p, Vector F, Vector E, Vector U, Vector I, Vector J, Vector K) {
+  public AppletView(Applet p, Vector E, Vector F, Vector U, Vector I, Vector J, Vector K) {
     applet = p;
 
-    initF = F;
     initE = E;
+    initF = F;
     initU = U;
     initI = I;
     initJ = J;
@@ -56,8 +56,8 @@ public class AppletView {
 
   // Declares the local frames
   public void initView() {
-    F = initF.clone();
     E = initE.clone();
+    F = initF.clone();
     U = initU.clone();
     I = initI.clone();
     J = initJ.clone();
@@ -72,6 +72,8 @@ public class AppletView {
 
   GLU glu;
 
+  
+  
   // Sets I, J, K to be aligned with the screen (I right, J up, K towards the viewer)
   void setFrame() {
     glu = ((PGraphicsOpenGL) applet.g).glu;
@@ -92,18 +94,7 @@ public class AppletView {
     Vector Li = V.normalize(V.scaleAdd(V.sub(F, E), 0.1 * E.distance(F), J));
     applet.directionalLight(255, 255, 255, (float) Li.x, (float) Li.y, (float) Li.z);
     applet.specular(255, 255, 255);
-    applet.shininess(5);
-    
-    /*
-     * TODO: have lights come from sun using   
-
-pointLight(255, 255, 255, model.sunPosition.x, model.sunPosition.y, model.sunPosition.z)
-    
-angle = proportion of cone that is illuminated (2PI is whole scene, PI/4 is 1/8th of scene) I think
-concentration = 1 to 10000 bias of light focusing toward the center of that cone
-spotLight(v1, v2, v3, model.sunPosition.x, model.sunPosition.y, model.sunPosition.z, model.sunlightDirection.x, model.sunlightDirection.y, model.sunlightDirection.z, angle, concentration)
-     */
-    
+    applet.shininess(5); 
   }
 
   // Methods for changing camera angle and orientation
@@ -112,23 +103,30 @@ spotLight(v1, v2, v3, model.sunPosition.x, model.sunPosition.y, model.sunPositio
   }
 
   public void lookAround(float dx, float dy) {
+    // Looking around
+    //F.add(V.scaleAdd(-(dx), new Vector(1.0, -0.0, 0.0), -(dy), new Vector(0.0, -0.0, 1.0))); // I, J?
+    // vs
+    // Panning
     Vector d = V.scaleAdd(-dx, I, dy, J);
     F.add(d);
     E.add(d);
+    
   }
   
   public void zoomIn() {
-    E.scaleAdd(-15, K);
-
+    Vector v = V.sub(F, E);
+    v.normalize();
+    v.mult(15);
+    E.add(v);
   }
 
   public void zoomOut() {
-    E.scaleAdd(15, K);
+    Vector v = V.sub(F, E);
+    v.normalize();
+    v.mult(-15);
+    E.add(v);
   }
   
-  public void zoomOut(float x) {
-    E.scaleAdd(x, K);
-  }
 
   public void rotate(float pmouseX, float pmouseY, float mouseX, float mouseY) {
     E = Tools.rotate(applet, E, (float) Math.PI * (mouseX - pmouseX) / applet.width, I, K, F);
@@ -136,13 +134,14 @@ spotLight(v1, v2, v3, model.sunPosition.x, model.sunPosition.y, model.sunPositio
   }
 
   public void printVecs() {
-    Tools.printVec(applet, "Focus", F);
-    Tools.printVec(applet, "Eye", E);
-    Tools.printVec(applet, "Up", U);
-    // Tools.printVec(applet, "Q", Q); unnecessary for now
-    Tools.printVec(applet, "I", I);
-    Tools.printVec(applet, "J", J);
-    Tools.printVec(applet, "K", K);
+    Tools.printVec("Eye", E);
+    Tools.printVec("Focus", F);
+    Tools.printVec("Up", U);
+    // Tools.printVec("Q", Q); unnecessary for now
+    Tools.printVec("I", I);
+    Tools.printVec("J", J);
+    Tools.printVec( "K", K);
+    System.out.println();
   }
 
 }

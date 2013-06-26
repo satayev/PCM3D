@@ -1,7 +1,6 @@
 package pcm.gui;
 
-import graphics.Applet;
-import graphics.AppletModel;
+import pcm.gui.graphics.*;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -32,6 +31,10 @@ public class MainSwing extends JFrame {
 
   private JLayeredPane layeredPane;
 
+  public static int appletWidth = 750, appletHeight = 650;
+  public static AppletModel appletModel = new AppletModel();
+  public static PApplet applet = new Applet(appletWidth, appletWidth, appletModel);
+  
   public MainSwing() {
     super("Test");
 
@@ -47,15 +50,14 @@ public class MainSwing extends JFrame {
 
     init();
 
-    int offsetx = 0, offsety = 45, width = 750, height = 650;
+    int offsetx = 0, offsety = 45;
 
-    AppletModel model = new AppletModel();
+    //AppletModel model = new AppletModel();
 
     JPanel mainPanel = new JPanel();
     // Angled view
-    PApplet applet = new Applet(width, height);
     mainPanel.setOpaque(true);
-    mainPanel.setBounds(offsetx, offsety, width, height);
+    mainPanel.setBounds(offsetx, offsety, appletWidth, appletHeight);
     //mainPanel.setBounds(offsetx,offsety+height/2,width,height/2);
     mainPanel.add(applet);
     layeredPane.add(mainPanel, new Integer(5));

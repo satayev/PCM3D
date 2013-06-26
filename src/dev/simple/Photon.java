@@ -16,13 +16,15 @@ import pcm.model.geom.Vector;
 public class Photon {
 
   public static double X = 1;
-
   public static double Y = 1;
-
   public static double Z = 1;
 
   public Vector r = new Vector(), n = new Vector();
   public Vector r0 = new Vector(), n0 = new Vector();
+  
+  // Temporary orbit interfacing with AppletModel
+  public double degrees = -1;
+  //
   
   public double w, f, E;
   public static double deltaf = .001, maxf = 3;

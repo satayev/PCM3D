@@ -67,5 +67,9 @@ public class Statistic {
     System.out.println("Ratio:");
     System.out.printf("%d:%d | %1.2f | ", x, n, ((double) x) / n);
   }
+  
+  public String getRatio() {
+    return String.format("%1.2f", ((double) x) / n);
+  }
 
 }
