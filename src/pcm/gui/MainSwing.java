@@ -33,7 +33,7 @@ public class MainSwing extends JFrame {
 
   public static int appletWidth = 750, appletHeight = 650;
   public static AppletModel appletModel = new AppletModel();
-  public static PApplet applet = new Applet(appletWidth, appletWidth, appletModel);
+  public static PApplet applet = new Applet(appletWidth, appletHeight, appletModel);
   
   public MainSwing() {
     super("Test");

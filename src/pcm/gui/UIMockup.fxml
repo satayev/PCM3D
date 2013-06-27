@@ -174,28 +174,47 @@
             </MenuBar>
             <VBox prefWidth="240.0" style="-fx-background-color:silver;" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0">
               <children>
-                <Accordion VBox.vgrow="ALWAYS">
-                  <expandedPane>
-                    <TitledPane fx:id="x3" animated="false" text="Configuration">
-                      <content>
-                        <ScrollPane id="ScrollPane" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER">
+                <GridPane prefWidth="183.0">
+                  <children>
+                    <Label prefHeight="31.0" prefWidth="111.0" text="  Starting degrees &#10;  (to horizontal)" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <Label prefHeight="20.0" prefWidth="97.0" text="  Photons shown" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <Label text="  Solar cell size" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <Slider fx:id="degreesSlider" blockIncrement="2.5" majorTickUnit="45.0" max="177.5" min="2.5" minorTickCount="5" showTickLabels="false" showTickMarks="false" snapToTicks="true" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Slider fx:id="photonsSlider" blockIncrement="25.0" min="1.0" minorTickCount="1" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Slider fx:id="modelSizeSlider" blockIncrement="2.0" majorTickUnit="2.0" max="9.0" min="1.0" minorTickCount="2" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    <Label fx:id="degreesLabel" text="" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                    <Label fx:id="photonsLabel" text="" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                    <Label fx:id="modelSizeLabel" text="" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                  </children>
+                  <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="135.0" minWidth="10.0" prefWidth="106.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="133.0" minWidth="10.0" prefWidth="105.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="139.0" minWidth="10.0" prefWidth="33.0" />
+                  </columnConstraints>
+                  <rowConstraints>
+                    <RowConstraints maxHeight="38.0" minHeight="10.0" prefHeight="38.0" vgrow="SOMETIMES" />
+                    <RowConstraints maxHeight="43.0" minHeight="10.0" prefHeight="26.0" vgrow="SOMETIMES" />
+                    <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="26.0" vgrow="SOMETIMES" />
+                  </rowConstraints>
+                </GridPane>
+                <Button fx:id="animationButton" alignment="CENTER" mnemonicParsing="false" prefHeight="40.0" prefWidth="240.0" text="Begin Simulation" />
+                <TitledPane animated="false" text="Results">
+                  <content>
+                    <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="494.0" prefWidth="240.0">
+                      <children>
+                        <ScrollPane layoutX="0.0" layoutY="0.0" prefHeight="494.0" prefWidth="244.0">
                           <content>
-                            <AnchorPane id="AnchorPane" prefHeight="41.0" prefWidth="234.0">
+                            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="481.0" prefWidth="240.0">
                               <children>
-                                <VBox id="VBox" alignment="CENTER" prefHeight="583.0" prefWidth="235.0" spacing="5.0" AnchorPane.bottomAnchor="-3.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="40.0" />
-                                <Button fx:id="beginSimulation" alignment="CENTER" mnemonicParsing="false" prefHeight="40.0" text="Begin Simulation" AnchorPane.bottomAnchor="580.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-                                <Text fx:id="output" layoutX="10.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Output" />
+                                <Text fx:id="simulationResults" layoutX="14.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" />
                               </children>
                             </AnchorPane>
                           </content>
                         </ScrollPane>
-                      </content>
-                    </TitledPane>
-                  </expandedPane>
-                  <panes>
-                    <fx:reference source="x3" />
-                  </panes>
-                </Accordion>
+                      </children>
+                    </AnchorPane>
+                  </content>
+                </TitledPane>
               </children>
             </VBox>
           </children>

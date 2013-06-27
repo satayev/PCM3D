@@ -35,7 +35,7 @@ public class AppletModel {
   // x-y-zBounds (magnified) and speed of photon used in applet view
   public float photonRadius, xBounds, yBounds, zBounds, magnif;
   public double spacing, speed;
-  public Vector sunDir, sunPos;
+  public Vector sunDir = new Vector(), sunPos = new Vector();
   public double sunDistance, degrees, dt; // 90 minus degrees of zenith angle at which the sun starts, dt is change in degrees for moving sun
   
   // Variables for interfacing with the statistic class
@@ -63,11 +63,26 @@ public class AppletModel {
 
   // The size of the repeated drawing
   int modSize = 0;
+  int maxPhotons = 100; //*sizechange* added one to compensate for decreasing 1 everywhere else there is //*sizechange*
   
   public static String printOutput = "";
-  public static boolean runAnim;
+  public static boolean runAnim = false;
+  boolean paramsChanged = false;
+  
+  public void setParams(double degrees, int maxPhotons, int modSize) {
+	  	this.maxPhotons = maxPhotons + 1; //*sizechange*
+		this.modSize = modSize - 1;
+		this.degrees = degrees;	
+		paramsChanged = true;
+		run();
+	}
   
   public AppletModel() {
+	  this(2.5, 100, 1);
+  }
+  
+  
+  public AppletModel(double degrees, int maxPhotons, int modSize) {
 
     // Setup of applet view from model
     magnif = 250;
@@ -78,9 +93,10 @@ public class AppletModel {
     zBounds = (float) (Photon.Z);
     speed = .05;
     sunDistance = 2;
-    degrees = 10;
+    this.degrees = degrees;
     dt = 2.5;
-    printOutput = "Zenith Angle\t\tAbsorption\n";
+    this.maxPhotons = maxPhotons - 1; //*sizechange*
+    this.modSize = modSize - 1;
     
     if (runSimpleModel) {
       Photon.X = X;
@@ -91,12 +107,22 @@ public class AppletModel {
 //      List<Double> Lx = Arrays.asList(.5, .75, .5, .25);
 //      List<Double> Ly = Arrays.asList(.25, .5, .75, .5);
 //      LT.add(new Tower(Lx, Ly));
-      List<Double> Lx = Arrays.asList(.1, .3, .4, .2);
-      List<Double> Ly = Arrays.asList(.3, .2, .8, .7);
-      LT.add(new Tower(Lx, Ly));
+      
+      List<Double> Lx; 
+      List<Double> Ly; 
+//      Lx = Arrays.asList(.1, .3, .4, .2);
+//      Ly = Arrays.asList(.3, .2, .8, .7);
+//      LT.add(new Tower(Lx, Ly));
       Lx = Arrays.asList(.5, .8, .7, .7);
       Ly = Arrays.asList(.5, .6, .8, .9);
       LT.add(new Tower(Lx, Ly));
+      
+//    Lx = Arrays.asList(.6, .8, .6, .4);
+//    Ly = Arrays.asList(.4, .6, .9, .7);
+//    LT.add(new Tower(Lx, Ly));
+    Lx = Arrays.asList(.2, .4, .5, .4, .2, .1);
+    Ly = Arrays.asList(.1, .1, .3, .5, .5, .3);
+    LT.add(new Tower(Lx, Ly));
       
       FixedPhoton photon = new FixedPhoton(new Vector(0, 0, -1));
       SM = new SimpleModel(LT, photon);
@@ -105,7 +131,6 @@ public class AppletModel {
 
       paths = new ArrayList<List<List<Vector>>>();
 
-      run();
       
     } else {
       RPM.cnts.add(new Prism(new Vector(), new Polygon(new Vector[] { new Vector(0, -.25, 0), new Vector(.25, 0, 0),
@@ -118,25 +143,47 @@ public class AppletModel {
       LT.add(new Tower(Lx, Ly));
     }
 
+    printOutput = "Zenith Angle\t\t\tAbsorption\n\n";
     startTime = System.currentTimeMillis();
 
   }
 
   public void run() {
+    if (degrees <= 0 || degrees >= 180) {
+    	runAnim = false;
+    	degrees = 2.5;
+    	
+    }
     
-    SM.p.stat = new Statistic();
-    SM.p.stat.N = 100;
-    SM.p.stat.X = 100;
-
-    SM.p.degrees = degrees; // Photon class addition
-    SM.run(100);
-    printOutput += degrees + " degrees\t\t" + SM.p.stat.getRatio()+" %" + "\n";
-
-    //paths = SM.p.stat.rv;
-    paths.addAll(SM.p.stat.rv);
-    paths.remove(paths.size() -1);
-    //reset();
+    if (runSimpleModel) {
+	    SM.p.stat = new Statistic();
+	    SM.p.stat.N = maxPhotons;
+	    SM.p.stat.X = maxPhotons;
+	
+	    SM.p.degrees = degrees; // Photon class addition
+	    SM.run(1000);
+	    printOutput += degrees + " degrees\t\t\t" + SM.p.stat.getRatio()+" %" + "\n";
+	
+//	    if (paramsChanged)
+//	    	paths = new ArrayList<List<List<Vector>>>();
+	    paramsChanged = false;
+	    paths.addAll(SM.p.stat.rv);
+	    
+	    
+	    
+//*sizechange*
+// TODO bug for last photon in simple model? 
+	    paths.remove(paths.size() -1);
+	    //reset();
+    } else {
+    	try {
+		    AS.run(1000000);
+		    AS.printStats();
+    	} catch(Exception E) {
+    		E.printStackTrace();
+    	}
     
+    }
     // Position and direction of the sun set from Photon class's baseline values for spawned photons with sunDistance taken into account
     sunPos = new Vector(.5,1-degrees/180,Math.sin((1-degrees/180) * Math.PI));
     Vector tileCenter = new Vector(.5,.5,0);
@@ -184,8 +231,9 @@ public class AppletModel {
      * currentbranch is which number of times it has been wrapped to other side
      * line is which path line segment it is on in this branch
     */
-    
-for (int i = Math.max(0,currentBranch.size()-SM.p.stat.N/2); i < currentBranch.size(); i++) {
+	  
+//*sizechange*  "+ 1"
+for (int i = Math.max(0,currentBranch.size()-SM.p.stat.N + 1); i < currentBranch.size(); i++) {
 //for (int i = 0; i < currentBranch.size(); i++) {    
   
       applet.stroke(Tools.yellow);
@@ -202,13 +250,22 @@ for (int i = Math.max(0,currentBranch.size()-SM.p.stat.N/2); i < currentBranch.s
         branchList = AS.stats.photonPaths.get(i);
       
       List<Vector> lineList;
-      
+      //int absorptions = i%100;
+      double absorptions = 0;
+      for (int a = 0; a < branch;a++) {
+    	 absorptions += branchList.get(a).size();
+      }
+      absorptions -= (branch) * 2;
+      if (maxPhotons == 1 || maxPhotons == 2)
+    	  System.out.println("absorptions: "+absorptions);
+      absorptions = Math.log(absorptions);
+      absorptions /= 3;
       // Color for each absorption number and lower transparency for older photon paths
       applet.colorMode(applet.HSB, 100);
       if (currentBranch.size()<=SM.p.stat.N)
-        applet.stroke(i%100, 100, 100, (float)(255*(i+1.0)/(currentBranch.size())));
+        applet.stroke((float)absorptions*100, 100, 100, (float)(255*(i+1.0)/(currentBranch.size())));
       else
-        applet.stroke(i%100, 100, 100, (float)(255*(i+1.0-currentBranch.size()+SM.p.stat.N)/100));
+        applet.stroke((float)absorptions*100, 100, 100, (float)(255*(i+1.0-currentBranch.size()+SM.p.stat.N)/SM.p.stat.N));
 //      if (currentBranch.size()<=SM.p.stat.N/2)
 //        applet.stroke(Tools.yellow, (float)(255*(i+1.0)/(currentBranch.size())));
 //      else
@@ -516,5 +573,7 @@ for (int i = Math.max(0,currentBranch.size()-SM.p.stat.N/2); i < currentBranch.s
         applet.endShape(applet.CLOSE);
       }
   }
+
+
 
 }

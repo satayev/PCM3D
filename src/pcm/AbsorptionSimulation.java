@@ -21,6 +21,7 @@ public class AbsorptionSimulation {
     this.stats = new Statistics();
   }
 
+  
   // TODO(satayev): ISSOrbit should be generating photons?
   //                Implement PhotonFactory to efficiently reuse resources??
   private Photon resetPhoton(Vector v0) {

@@ -5,6 +5,8 @@ import java.util.ResourceBundle;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -16,9 +18,12 @@ import pcm.gui.graphics.*;
 import javafx.scene.Node;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+
+
 import processing.core.PApplet;
 
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -28,7 +33,7 @@ import javafx.util.Duration;
 
 public class UIMockupController implements Initializable {
 
-    boolean runAnim = false;
+    boolean runAnim = false, appletParamsChanged = false;
     
     @FXML
     public Button csReset;
@@ -37,9 +42,13 @@ public class UIMockupController implements Initializable {
     public Tab simulationTab;
     public AnchorPane simulationAnchorPane;
     
-    public Button beginSimulation;
-    public Text output;
+    public Button animationButton;
+    public Text simulationResults;
+    
+    public Slider degreesSlider, photonsSlider, modelSizeSlider;
+    public Label degreesLabel, photonsLabel, modelSizeLabel;
 
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         assert simulationTab != null : "fx:id=\"simulationTab\" was not injected: check your FXML file 'UIMockup.fxml'.";
@@ -49,27 +58,82 @@ public class UIMockupController implements Initializable {
         assert csEdgeCount != null : "fx:id=\"csEdgeCount\" was not injected: check your FXML file 'UIMockup.fxml'.";
         
         
-        assert beginSimulation != null : "fx:id=\"beginSimulation\" was not injected: check your FXML file 'UIMockup.fxml'.";
-        assert output != null : "fx:id=\"output\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        assert degreesSlider != null : "fx:id=\"degreesSlider\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        assert photonsSlider != null : "fx:id=\"photonsSlider\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        assert modelSizeSlider != null : "fx:id=\"modelSizeSlider\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        assert degreesLabel != null : "fx:id=\"degreesLabel\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        assert photonsLabel != null : "fx:id=\"photonsLabel\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        assert modelSizeLabel != null : "fx:id=\"modelSizeLabel\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        assert animationButton != null : "fx:id=\"animationButton\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        assert simulationResults != null : "fx:id=\"simulationResults\" was not injected: check your FXML file 'UIMockup.fxml'.";
         
         
-        beginSimulation.setOnAction(new EventHandler<ActionEvent>() {
-          @Override public void handle(ActionEvent e) {
-            if (runAnim) 
-              beginSimulation.setText("Pause Simulation");
-            else 
-              beginSimulation.setText("Play Simulation");
-            // MainSwing.applet.runAnim //cannot call from a PApplet class for some reason
-            runAnim = !runAnim;
-            MainSwing.appletModel.runAnim = runAnim;
+        degreesLabel.setText(Double.toString(degreesSlider.getValue()));
+        degreesSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov,
+                Number old_val, Number new_val) {
+            		appletParamsChanged = true;
+            		degreesLabel.setText(Double.toString(degreesSlider.getValue()));
+            }
+        });
+        photonsLabel.setText(Double.toString(photonsSlider.getValue()));
+        photonsSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov,
+                Number old_val, Number new_val) {
+            		appletParamsChanged = true;
+            		photonsLabel.setText(String.valueOf((int)photonsSlider.getValue()));
+            }
+        });
+        modelSizeLabel.setText(Double.toString(modelSizeSlider.getValue()));
+        modelSizeSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov,
+                Number old_val, Number new_val) {
+            		appletParamsChanged = true;
+            		modelSizeLabel.setText(String.valueOf(Math.pow((int)modelSizeSlider.getValue(), 2)));
+            }
+        });
+        
+        
+        animationButton.setOnAction(new EventHandler<ActionEvent>() {
+          @Override 
+          public void handle(ActionEvent e) {
+	          runAnim = !runAnim;
+	          MainSwing.appletModel.runAnim = runAnim; 
+            if (runAnim) {
+//            	if (appletParamsChanged) {
+//            		System.out.println("changed params");
+//            		MainSwing.appletModel = new AppletModel(degreesSlider.getValue(), (int)photonsSlider.getValue(), (int)modelSizeSlider.getValue());
+//            		//MainSwing.appletModel.setParams(degreesSlider.getValue(), (int)photonsSlider.getValue(), (int)modelSizeSlider.getValue());
+//            	}
+//          	  	appletParamsChanged = false;
+            	animationButton.setText("Pause Simulation");
+            }
+            else {
+            	if (appletParamsChanged) {
+            		//System.out.println("changed params");
+            		//MainSwing.appletModel = new AppletModel(degreesSlider.getValue(), (int)photonsSlider.getValue(), (int)modelSizeSlider.getValue());
+            		MainSwing.appletModel.setParams(degreesSlider.getValue(), (int)photonsSlider.getValue(), (int)modelSizeSlider.getValue());
+            	}
+            	appletParamsChanged = false;
+            	animationButton.setText("Play Simulation");
+            }
+           
           }
         });
         
-        Timeline fiveSecondsWonder = new Timeline(new KeyFrame(Duration.seconds(2), new EventHandler<ActionEvent>() {
+        Timeline fiveSecondsWonder = new Timeline(new KeyFrame(Duration.seconds(.1), new EventHandler<ActionEvent>() {
 
           @Override
           public void handle(ActionEvent event) {
-            output.setText(MainSwing.appletModel.printOutput);
+
+        	  if (!appletParamsChanged)
+        		  degreesSlider.setValue(MainSwing.appletModel.degrees);
+        	  simulationResults.setText(MainSwing.appletModel.printOutput);
+            
+            if (!MainSwing.appletModel.runAnim)
+            	animationButton.setText("Play Simulation");
+
+            
           }
         }));
         fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
@@ -110,35 +174,6 @@ public class UIMockupController implements Initializable {
                 }
             }
         });
-
-//      simulationTab.setOnSelectionChanged(new EventHandler<Event>() {
-//        @Override
-//        public void handle(Event t) {
-//            if (simulationTab.isSelected()) {
-//                
-//            }
-//        }
-//    });
-
-
-        /*      Node applet...
-         Node n = new Node();
-         SwingUtilities.invokeLater(new Runnable() {
-         @Override
-         public void run() {
-         JPanel panel = new JPanel();
-         PApplet applet = new Applet();
-         panel.add(applet);
-         applet.init();
-         simulationAnchorPane.
-         simulationAnchorPane.setTopAnchor(panel, 24.0);
-         simulationAnchorPane.setLeftAnchor(panel, 0.0);
-         simulationAnchorPane.setBottomAnchor(panel, 0.0);
-         simulationAnchorPane.setRightAnchor(panel, 240.0); // or prefWidth="1040.0"
-         simulationAnchorPane.getChildren().addAll(panel);
-      
-         }
-         }*/
 
     }
 }

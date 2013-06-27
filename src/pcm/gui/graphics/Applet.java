@@ -33,7 +33,7 @@ boolean test=true;
 
   public PImage CNTimg; // carbon nanotube texture
   // Buttons
-  PImage resetButton, playButton, pauseButton, nextButton;
+  PImage resetButton, playButton, pauseButton, nextButton, viewsButton;
 
   AppletView[] views=new AppletView[6]; // main, top, front, left, right, back
   int t;
@@ -89,7 +89,7 @@ boolean test=true;
 
     // Right side view
     views[4] = new AppletView(this, 
-        new Vector(.5*model.magnif, 5*model.magnif, .5*model.magnif),
+        new Vector(.5*model.magnif, 6*model.magnif, .5*model.magnif),
         new Vector(.5*model.magnif, .5*model.magnif, .5*model.magnif),
         new Vector(0.0, 0.0, -1.0),
         new Vector(0, 1, 0),new Vector(0, 0, 1), new Vector(-1, 0, 0)
@@ -97,7 +97,7 @@ boolean test=true;
     
     // Back view
     views[5] = new AppletView(this, 
-        new Vector(5*model.magnif, .5*model.magnif, .5*model.magnif),
+        new Vector(6*model.magnif, .5*model.magnif, .5*model.magnif),
         new Vector(.5*model.magnif, .5*model.magnif, .5*model.magnif),
         new Vector(0.0, 0.0, -1.0),
         new Vector(0, 1, 0),new Vector(0, 0, 1), new Vector(-1, 0, 0)
@@ -126,6 +126,7 @@ boolean test=true;
     pauseButton = loadImage("pause.jpg");
     nextButton = loadImage("next.jpg");
     resetButton = loadImage("reset.jpg");
+    viewsButton = loadImage("viewcontrols.jpg");
 
     addMouseWheelListener(new MouseWheelListener() {
       public void mouseWheelMoved(MouseWheelEvent mwe) {
@@ -142,7 +143,7 @@ boolean test=true;
     //background(Tools.black);
 
     t++;
-    if (t>=2 && model.runAnim) {
+    if (t>=(101-model.maxPhotons) && model.runAnim) {
       model.addPhoton();
       t=0;
     }
@@ -196,12 +197,12 @@ boolean test=true;
     
     perspective();
     
-    // Temporary user play controls
-//    gl = ((PGraphicsOpenGL)g).beginGL();
-//    gl.glViewport (0, 0, width, height);  
-//    ((PGraphicsOpenGL)g).endGL();
-//    userPanel();
-//    ((PGraphicsOpenGL)g).endGL();  
+    // User controls on applet
+    gl = ((PGraphicsOpenGL)g).beginGL();
+    gl.glViewport (0, 0, width, height);  
+    ((PGraphicsOpenGL)g).endGL();
+    userPanel();
+    ((PGraphicsOpenGL)g).endGL();  
 
     
   }
@@ -209,10 +210,6 @@ boolean test=true;
   void renderScene(AppletView view, boolean updatePhotons) {
     view.camera();
     
-/*
- * TODO: have user options for lights
- * 
- */
     //view.castLights();
     noLights();
     
@@ -220,7 +217,12 @@ boolean test=true;
     // angle = proportion of cone that is illuminated (2PI is whole scene, PI/4 is 1/8th of scene) I think
     // concentration = 1 to 10000 bias of light focusing toward the center of that cone
     colorMode(RGB); 
-    //spotLight(255, 255, 255, (float)model.sunPos.x*model.magnif, (float)model.sunPos.y*model.magnif, (float)model.sunPos.z*model.magnif, (float)model.sunDir.x, (float)model.sunDir.y, (float)model.sunDir.z, PI/15, 1);specular(255, 255, 255);
+    
+    /*
+     * TODO for some reason this works in another applet and not here
+     */
+    spotLight(255, 255, 255, (float)model.sunPos.x*model.magnif, (float)model.sunPos.y*model.magnif, (float)model.sunPos.z*model.magnif, (float)model.sunDir.x, (float)model.sunDir.y, (float)model.sunDir.z, PI/15, 1);
+    specular(255, 255, 255);
 
     model.drawFloorGrid(this);
     model.drawSurfaces(this);
@@ -312,25 +314,29 @@ boolean test=true;
   // Button listener
   public void mouseClicked() {
     
-//TODO: place arrows on viewport instead
-    if (key == 'z') {
-      z--;
-      if (z<2) z=5;
-    }
-    if (key == 'x') {
-      z++;
-      if (z>=6) z=2;
-    } 
     if (key == 't') {
       test=!test;
     } 
     if (mouseButton == LEFT) {
       if (mouseX < 50 && mouseY < 50)
         model.reset();
-      if (mouseX > 50 && mouseX < 100 && mouseY <50)
+      if (mouseX > 50 && mouseX < 100 && mouseY <50) {
         model.runAnim = !model.runAnim;
+        if (model.runAnim)
+        	println("Running animation");
+        else
+        	println("Stopped animation");
+      }
       if (mouseX > 100 && mouseX < 150 && mouseY <50)
         model.addPhoton();
+      if (mouseX > width - viewsButton.width - 5 && mouseX < width - viewsButton.width/2 - 5 && mouseY > height/2 + 5 && mouseY < height/2 + viewsButton.height + 5){
+          z--;
+          if (z<2) z=5;
+        }
+      else if (mouseX > width - viewsButton.width/2 - 5 && mouseX < width - 5 && mouseY > height/2 + 5 && mouseY < height/2 + viewsButton.height + 5){
+          z++;
+          if (z>=6) z=2;
+        }
     }
 
   }
@@ -340,12 +346,18 @@ boolean test=true;
     hint(DISABLE_DEPTH_TEST);
     camera();
     
-    image(resetButton, 5, 5);
-    if (model.runAnim)
-      image(pauseButton, 50, 5);
-    else
-      image(playButton, 50, 5);
-    image(nextButton, 100, 5);
+    stroke(Tools.black);
+    line(0, height/2, width, height/2);
+    line(width/2, height/2, width/2, height);
+    
+    image(viewsButton, width - viewsButton.width - 5, height/2 + 5);
+    
+//    image(resetButton, 5, 5);
+//    if (model.runAnim)
+//      image(pauseButton, 50, 5);
+//    else
+//      image(playButton, 50, 5);
+//    image(nextButton, 100, 5);
 
     //Tools.scribe(this, "click to look around\nr and click to rotate\nup and down arrows to zoom\nspacebar to reset view", 5,playButton.height + 20);
 
