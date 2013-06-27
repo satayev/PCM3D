@@ -81,7 +81,7 @@ public class Photon {
     double f1 = blackBody.get(p1), f2 = blackBody.get(p2);
     double f = f1+(p-p1)*(f2-f1)/(p2-p1); 
     // f = (f1*p2-f1*p1+p*f2-p*f1-p1*f2+p1*f1)/(p2-p1) = (f1*(p2-p)+f2*(p-p1))/(p2-p1) = (f1*p2-f2*p1+p*(f2-f1))/(p2-p1)
-    return f;
+    return f*1e15;
   }
 
   /**
