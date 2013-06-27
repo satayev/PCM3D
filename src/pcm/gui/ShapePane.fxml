@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Rectangle?>
+<fx:root
+        fx:id="shapePane"
+        type="AnchorPane"
+        prefHeight="100.0"
+        prefWidth="100.0"
+        xmlns:fx="http://javafx.com/fxml">
+    <Rectangle
+        smooth="false"
+        AnchorPane.leftAnchor="0.0"
+        AnchorPane.rightAnchor="0.0"
+        AnchorPane.topAnchor="0.0"
+        AnchorPane.bottomAnchor="0.0"/>
+</fx:root>

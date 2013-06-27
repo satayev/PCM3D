@@ -10,12 +10,13 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
+<?import pcm.gui.*?>
 
 <TabPane id="TabPane" focusTraversable="false" prefHeight="700.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE" xmlns:fx="http://javafx.com/fxml" fx:controller="pcm.gui.UIMockupController">
   <tabs>
     <Tab closable="false" text="Pattern">
       <content>
-        <AnchorPane>
+        <AnchorPane fx:id="shapeCanvas">
           <children>
             <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
               <menus>
@@ -106,10 +107,9 @@
                                 </Button>
                               </children>
                             </HBox>
-                            <Rectangle fill="WHITE" height="200.0" smooth="false" stroke="BLACK" strokeType="INSIDE" width="200.0" AnchorPane.leftAnchor="18.0" AnchorPane.rightAnchor="18.0" AnchorPane.topAnchor="30.0" />
-                            <AnchorPane fx:id="csCanvas" AnchorPane.leftAnchor="18.0" AnchorPane.rightAnchor="18.0" AnchorPane.topAnchor="30.0" />
+                            <ShapePane fx:id="csPane" fill="WHITE" prefHeight="200.0" AnchorPane.leftAnchor="18.0" AnchorPane.rightAnchor="18.0" AnchorPane.topAnchor="30.0" />
                             <ScrollPane prefHeight="206.0" prefWidth="200.0" AnchorPane.bottomAnchor="38.0" AnchorPane.leftAnchor="9.0" AnchorPane.rightAnchor="9.0" AnchorPane.topAnchor="239.0" />
-                            <Button alignment="CENTER" mnemonicParsing="false" prefWidth="200.0" text="Add shape" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="9.0" AnchorPane.rightAnchor="9.0" />
+                            <Button fx:id="csAdd" alignment="CENTER" mnemonicParsing="false" prefWidth="200.0" text="Add shape" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="9.0" AnchorPane.rightAnchor="9.0" />
                           </children>
                         </AnchorPane>
                       </content>
@@ -120,8 +120,8 @@
                       <content>
                         <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER">
                           <content>
-                            <FlowPane alignment="TOP_CENTER" columnHalignment="CENTER" hgap="10.0" vgap="10.0">
-                              <children>
+                            <FlowPane fx:id="shapePicker" alignment="TOP_CENTER" columnHalignment="CENTER" hgap="10.0" vgap="10.0">
+                              <!--children>
                                 <Rectangle height="100.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="100.0">
                                   <fill>
                                     <Color blue="0.375" green="0.375" red="0.375" fx:id="x4" />
@@ -141,7 +141,7 @@
                                     <Double fx:value="-60.0" />
                                   </points>
                                 </Polygon>
-                              </children>
+                              </children-->
                             </FlowPane>
                           </content>
                         </ScrollPane>
