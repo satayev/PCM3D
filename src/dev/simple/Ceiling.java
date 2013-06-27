@@ -15,6 +15,7 @@ public class Ceiling extends Surface {
     double d = collisionDistance(p);
     p.move(d);
     p.stat.addPath(p.r);
+    p.stat.extendHead(p.n);
     return true;
   }
 

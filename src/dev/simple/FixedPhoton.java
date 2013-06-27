@@ -24,6 +24,7 @@ public class FixedPhoton extends Photon {
     w = 299792458/f;
     E = 1.986e-25/w;
     stat.newPhoton(r);
+    stat.extendTail(n0);
   }
   
 }

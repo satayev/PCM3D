@@ -41,7 +41,9 @@ public class SimpleModel {
       boolean end = false;
       for (Tower j : LT)
         if (j.isInside(p)) {
-          p.bounce(new Vector(0, 0, 1));
+          if (!p.bounce(new Vector(0, 0, 1))) 
+            p.stat.extendHead(p.n);
+          
           end = true;
         }
       while (!end) {
