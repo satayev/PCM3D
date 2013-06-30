@@ -9,33 +9,36 @@ import pcm.model.geom.V;
 import pcm.model.geom.Vector;
 import pcm.model.geom.Wall;
 import pcm.model.geom.solids.Solid;
+import pcm.model.orbit.ISSOrbit;
 
 public class AbsorptionSimulation {
 
   public final Model model;
   public final Statistics stats;
+  public final ISSOrbit issOrbit;
 
-  public AbsorptionSimulation(Model model) {
+  public AbsorptionSimulation(Model model, ISSOrbit issOrbit) {
     // TODO(satayev): implement Threads here
     this.model = model;
+    this.issOrbit = issOrbit;
     this.stats = new Statistics();
   }
 
-  // TODO(satayev): ISSOrbit should be generating photons?
-  //                Implement PhotonFactory to efficiently reuse resources??
-  private Photon resetPhoton() {
-    Vector velocity = new Vector();
-    double theta = Math.PI / 2 * (PCM3D.rnd.nextDouble() + 1), phi = Math.PI * 2 * PCM3D.rnd.nextDouble();
-    velocity.x = Math.sin(theta) * Math.cos(phi);
-    velocity.y = Math.sin(theta) * Math.sin(phi);
-    velocity.z = Math.cos(theta);
-    return new Photon(new Vector(model.length * (PCM3D.rnd.nextDouble() - 0.5), model.width * (PCM3D.rnd.nextDouble() - 0.5), model.height), velocity);
+  private void resetPhoton(Photon photon) {
+    photon.absorbed = false;
+    photon.reflectionCounter = 0;
+    
+    photon.p.x = model.length * (PCM3D.rnd.nextDouble() - 0.5);
+    photon.p.y = model.width * (PCM3D.rnd.nextDouble() - 0.5);
+    photon.p.z = model.height;
+
+    photon.v = issOrbit.getSunlightDirection(0);
   }
 
   public void run(int n) throws Exception {
     Photon photon = new Photon(new Vector(), new Vector());
     while (n-- > 0) {
-      photon = resetPhoton();
+      resetPhoton(photon);
 
       boolean done = false;
       for (Solid s : model.cnts)

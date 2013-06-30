@@ -41,7 +41,7 @@ public abstract class Surface {
    */
   public boolean absorb(Photon photon) {
     // TODO(satayev): generate heat-maps
-    if (PCM3D.rnd.nextDouble() < 0.002)
+    if (PCM3D.rnd.nextDouble() < 0.2)
       return photon.absorbed = true;
     return photon.absorbed = false;
   }
