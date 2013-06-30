@@ -3,7 +3,6 @@ package pcm.model.orbit;
 public class NearEarthType {
   protected int isimp;
   protected int method;
-
   protected double aycof;
   protected double con41;
   protected double cc1;

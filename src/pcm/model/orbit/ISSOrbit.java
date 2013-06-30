@@ -10,63 +10,70 @@ import pcm.model.geom.solids.Sphere;
 
 public class ISSOrbit {
 
-  public static void main(String[] args) {
-    Sphere earth = new Sphere(new Vector(), 6378.135);
-    int orbitTotalMinutes = 93;
-    int step = 1;
-    int count = 0;
-    for (double minutesSince = 0; minutesSince < orbitTotalMinutes; minutesSince += step) {
-      Vector iss = getISSPosition(minutesSince);
-      Vector sun = getSunPosition(minutesSince);
-      // System.out.println(iss);
-      // System.out.println(sun);
+  // these are from SGP4 Gravity constants
+  private final static double RADIUS_EARTH_KM = 6378.135;
+  private final static double SPEED_KMperSEC = RADIUS_EARTH_KM * 0.0743669161331734132 / 60.0;
+  private static final double TO_RADIANS = Math.PI / 180;
+  private static final double ASTRONOMICAL_UNIT = 149597870.700;
 
-      Vector v = V.normalize(V.sub(sun, iss));
-      // System.out.print(V.normalize(v));
+  private final static Sphere Earth = new Sphere(new Vector(), RADIUS_EARTH_KM);
 
-      Vector n = V.normalize(iss);
-      Vector sunlight = rotate(v, new Vector(), new Vector(n.x, n.y, n.z + 1), Math.PI);
-      // System.out.print(V.normalize(sunlight));
+  public TLE tle;
+  public Sgp4Unit sgp4;
 
-      //      double r = v.length();
-      //      double theta = Math.acos(sunlight.z / r);
-      //      double phi = Math.atan2(sunlight.y, sunlight.x);
-      //      System.out.printf("%.5f %.5f %.5f ", r, theta * 180 / Math.PI, phi * 180 / Math.PI);
-
-      Photon p = new Photon(iss, v);
-      if (earth.getHit(p) != null) {
-        //        System.out.println(" 0");
-        count++;
-      } else {
-        //        System.out.println(" 1");
-      }
-    }
-    System.out.printf("%d out of %d minutes are in shadow.\n", orbitTotalMinutes - count, orbitTotalMinutes);
+  public ISSOrbit() {
+    tle = new TLE("ISS (ZARYA)", "1 25544U 98067A   13174.89292319  .00010263  00000-0  18508-3 0   582",
+        "2 25544  51.6496  75.1008 0009027  90.3531   1.0124 15.50356433835743");
+    initSgp4();
   }
 
-  // these are from SGP4 Gravity constants
-  private final static double radiusearthkm = 6378.135;
-  private final static double vkmpersec = radiusearthkm * 0.0743669161331734132 / 60.0;
+  public ISSOrbit(TLE tle) {
+    this.tle = tle;
+    initSgp4();
+  }
 
-  public final static TLE tle = new TLE("ISS (ZARYA)", "1 25544U 98067A   13174.89292319  .00010263  00000-0  18508-3 0   582",
-      "2 25544  51.6496  75.1008 0009027  90.3531   1.0124 15.50356433835743");
+  public ISSOrbit(String name, String line1, String line2) {
+    this.tle = new TLE(name, line1, line2);
+    initSgp4();
+  }
 
-  public static double step = 30; // minutes
-  public static Sgp4Unit sgp4 = new Sgp4Unit(tle);;
+  private void initSgp4() {
+    sgp4 = new Sgp4Unit(tle);
+  }
 
-  public static Vector getISSPosition(double minutesSince) {
+  public Vector getSunlightDirection(double minutesSince) {
+    Vector iss = getISSPosition(minutesSince);
+    Vector sun = getSunPosition(minutesSince);
+
+    // since ISS is closer to Earth, check if photons from ISS reach Sun
+    Vector v = V.normalize(V.sub(sun, iss));
+    Photon p = new Photon(iss, v);
+    if (Earth.getHit(p) != null)
+      return null; // in shadow
+
+    // --- find photons direction onto the solar panel ---
+
+    // assume the panel is always tangential to the surface
+    Vector normal = V.normalize(iss);
+    // rotate vectors, such that the panel's normal is (0,0,1)
+    Vector sunlight = V.rotate(v, new Vector(), new Vector(normal.x, normal.y, normal.z + 1), Math.PI);
+    // photons are coming from Sun to ISS
+    sunlight.mult(-1);
+    sunlight.normalize();
+    return sunlight;
+  }
+
+  private Vector getISSPosition(double minutesSince) {
     // NORAD Spacetrack Report #3
     Sgp4Data data = sgp4.runSgp4(tle.epochYear, tle.epochDay, minutesSince);
     Vector p = data.pos;
     Vector v = data.vel;
-    p.mult(radiusearthkm);
-    v.mult(vkmpersec);
+    p.mult(RADIUS_EARTH_KM);
+    v.mult(SPEED_KMperSEC);
     return p;
   }
 
-  public static Vector getSunPosition(double minutesSince) {
-    // http://en.wikipedia.org/wiki/Position_of_the_Sun#Rectangular_equatorial_coordinates
-    // http://www.fourmilab.ch/cgi-bin/Solar/action?sys=-Sf
+  private Vector getSunPosition(double minutesSince) {
     int year;
     if (sgp4.satrec.epochyr < 50)
       year = sgp4.satrec.epochyr + 2000;
@@ -87,24 +94,24 @@ public class ISSOrbit {
     calendar.set(Calendar.HOUR_OF_DAY, hrs);
     calendar.set(Calendar.MINUTE, min);
 
-    //    6:15 PM, PDT on March 22, 2009
     double jd = sgp4.julianday(year, calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH), hrs, min, dsecs);
+    // TODO(satayev): should delta minutes be added to epochdays instead?
     double n = jd - 2451545.0 + minutesSince / 1440;
     double L = 280.460 + 0.9856474 * n;
     double g = 357.528 + 0.9856003 * n;
 
-    L = L * Math.PI / 180;
-    g = g * Math.PI / 180;
+    L = L * TO_RADIANS;
+    g = g * TO_RADIANS;
     L = sgp4.modfunc(L, Sgp4Unit.twopi);
     g = sgp4.modfunc(g, Sgp4Unit.twopi);
 
     double lambda = L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g);
 
     double R = 1.00014 - 0.01671 * Math.cos(g) - 0.00014 * Math.cos(2 * g);
-    R *= 149597870.700;
+    R *= ASTRONOMICAL_UNIT;
 
     double e = 23.439 - 0.0000004 * n;
-    e = e * Math.PI / 180;
+    e = e * TO_RADIANS;
 
     Vector pos = new Vector();
     pos.x = R * Math.cos(lambda);
@@ -114,18 +121,4 @@ public class ISSOrbit {
     return pos;
   }
 
-  private static Vector rotate(Vector p, Vector A, Vector dx, double theta) {
-    Vector q = new Vector(0, 0, 0);
-    dx.normalize();
-    double x = p.x, y = p.y, z = p.z;
-    double a = A.x, b = A.y, c = A.z;
-    double u = dx.x, v = dx.y, w = dx.z;
-    q.x = (a * (v * v + w * w) - u * (b * v + c * w - u * x - v * y - w * z)) * (1 - Math.cos(theta)) + x * Math.cos(theta)
-        + (-c * v + b * w - w * y + v * z) * Math.sin(theta);
-    q.y = (b * (u * u + w * w) - v * (a * u + c * w - u * x - v * y - w * z)) * (1 - Math.cos(theta)) + y * Math.cos(theta)
-        + (c * u - a * w + w * x - u * z) * Math.sin(theta);
-    q.z = (c * (u * u + v * v) - w * (a * u + b * v - u * x - v * y - w * z)) * (1 - Math.cos(theta)) + z * Math.cos(theta)
-        + (-b * u + a * v - v * x + u * y) * Math.sin(theta);
-    return q;
-  }
 }
