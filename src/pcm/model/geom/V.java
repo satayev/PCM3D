@@ -1,7 +1,7 @@
 package pcm.model.geom;
 
+import java.text.DecimalFormat;
 import java.util.List;
-
 
 /**
  * Static methods to work with {@code Vector}.
@@ -12,10 +12,9 @@ public final class V {
 
   /** Used for double comparison */
   public static final double EPS = 1e-7;
-
   public static final double INFINITY = Double.POSITIVE_INFINITY;
-
   public static final Vector I = new Vector(1, 0, 0), J = new Vector(0, 1, 0), K = new Vector(0, 0, 1);
+  public static final DecimalFormat DF = new DecimalFormat("#0.000000");
 
   /**
    * Adds two vectors and returns a new vector.
@@ -160,5 +159,29 @@ public final class V {
       mean.add(list.get(i));
     mean.mult(1. / list.size());
     return mean;
+  }
+
+  /**
+   * Rotates vector p along the line (A + t*dx) by theta rad.
+   * 
+   * @param p vector to rotate
+   * @param A point on the line
+   * @param dx direction of the line
+   * @param theta angle of rotation
+   * @return rotation of p
+   */
+  public static Vector rotate(Vector p, Vector A, Vector dx, double theta) {
+    Vector q = new Vector(0, 0, 0);
+    dx.normalize();
+    double x = p.x, y = p.y, z = p.z;
+    double a = A.x, b = A.y, c = A.z;
+    double u = dx.x, v = dx.y, w = dx.z;
+    q.x = (a * (v * v + w * w) - u * (b * v + c * w - u * x - v * y - w * z)) * (1 - Math.cos(theta)) + x * Math.cos(theta)
+        + (-c * v + b * w - w * y + v * z) * Math.sin(theta);
+    q.y = (b * (u * u + w * w) - v * (a * u + c * w - u * x - v * y - w * z)) * (1 - Math.cos(theta)) + y * Math.cos(theta)
+        + (c * u - a * w + w * x - u * z) * Math.sin(theta);
+    q.z = (c * (u * u + v * v) - w * (a * u + b * v - u * x - v * y - w * z)) * (1 - Math.cos(theta)) + z * Math.cos(theta)
+        + (-b * u + a * v - v * x + u * y) * Math.sin(theta);
+    return q;
   }
 }

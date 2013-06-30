@@ -244,6 +244,6 @@ public class Vector {
 
   @Override
   public String toString() {
-    return "[" + x + ", " + y + ", " + z + "]";
+    return "[" + V.DF.format(x) + ", " + V.DF.format(y) + ", " + V.DF.format(z) + "]";
   }
 }
