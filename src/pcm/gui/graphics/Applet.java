@@ -147,7 +147,7 @@ boolean test=true;
       if (model.runningPaths < model.maxPhotons) model.addPhoton();
       t=0;
     }
-    if (model.runningPaths >= model.paths.size()) model.run();
+    if (model.runningPaths > model.paths.size()) model.run();
 
     
     if (viewsShowing==3){

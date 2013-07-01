@@ -13,6 +13,8 @@ public class Statistic {
   // The cooridinates for the photon's absorbsions
   public List<Vector> xv = new ArrayList<Vector>();
   public int n, N = 1, x, X = 1;
+  
+  public double tailLength = 1;
 
   public void newPhoton(Vector v) {
     n++;
@@ -23,14 +25,14 @@ public class Statistic {
   }
 
   public void newBranch(Vector v) {
-    if (!rv.isEmpty() && rv.size() <= N) {
+    if (!rv.isEmpty() && rv.size() <= N && n <= N) {
       rv.get(rv.size() - 1).add(new ArrayList<Vector>());
       addPath(v);
     }
   }
 
   public void addPath(Vector v) {
-    if (!rv.isEmpty() && rv.size() <= N) {
+    if (!rv.isEmpty() && rv.size() <= N && n <= N) {
       List<List<Vector>> rv1 = rv.get(rv.size() - 1);
       rv1.get(rv1.size() - 1).add(v.clone());
     }
@@ -38,7 +40,7 @@ public class Statistic {
 
   public void absorb(Vector v) {
     x++;
-    if (!xv.isEmpty() && xv.size() < X) {
+    if (!xv.isEmpty() && xv.size() < X && x <= X) {
       xv.add(v.clone());
     }
   }
@@ -74,20 +76,20 @@ public class Statistic {
   }
 
   public void extendTail(Vector n0) {
-    if (!rv.isEmpty() && rv.size() <= N) {
+    if (!rv.isEmpty() && rv.size() <= N && n <= N) {
       List<List<Vector>> rv1 = rv.get(rv.size() - 1);
       List<Vector> rv2 = rv1.get(0);
       Vector a = rv2.get(0);
-      rv2.add(0,V.sub(a,n0));
+      rv2.add(0,V.sub(a,V.mult(tailLength,n0)));
     }
   }
   
-  public void extendHead(Vector n) {
-    if (!rv.isEmpty() && rv.size() <= N) {
+  public void extendHead(Vector n0) {
+    if (!rv.isEmpty() && rv.size() <= N && n <= N) {
       List<List<Vector>> rv1 = rv.get(rv.size() - 1);
       List<Vector> rv2 = rv1.get(rv1.size()-1);
       Vector a = rv2.get(rv2.size()-1);
-      rv2.add(V.add(a,n));
+      rv2.add(V.add(a,V.mult(tailLength,n0)));
     }
   }
 

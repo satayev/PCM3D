@@ -23,6 +23,9 @@ public class Tools {
       blue = applet.color(0,0,250),
       cyan = applet.color(0,250,250),
       green = applet.color(0,250,0);
+  public static int[] colorScale = { applet.color(255, 255, 0), applet.color(223, 255, 32), applet.color(191, 255, 64), 
+      applet.color(159, 255, 96), applet.color(127, 255, 128), applet.color(96, 255, 159), applet.color(64, 255, 191), 
+      applet.color(32, 255, 223), applet.color(0, 255, 255) };
 
   // Writes on screen at (x,y) with current fill color
   public static void scribe(Applet applet, String S, int x, int y) {

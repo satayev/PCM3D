@@ -148,6 +148,7 @@ public class AppletModel {
       double radians = Math.PI * degrees / 180;
       SFM.setEntry(new Vector(Math.cos(radians), 0, -Math.sin(radians)));
       SFM.run(10000);
+      SFM.p.stat.printAll();
       printOutput += degrees + " degrees\t\t\t" + SFM.p.stat.getRatio() + " %" + "\n";
 
       //	    if (paramsChanged)
@@ -280,7 +281,9 @@ public class AppletModel {
         List<Vector> lineList = path.get(branch0);
         Vector a, b, start, finish = lineList.get(line0 + 1);
         double remainingDistance = distance0 + maxDistance;
-        while (remainingDistance > 0) {
+        boolean end = false;
+        int color = Tools.colorScale[0];
+        while (remainingDistance > 0 && !end) {
           a = lineList.get(line0);
           b = lineList.get(line0 + 1);
           double length = V.sub(b, a).length();
@@ -295,7 +298,10 @@ public class AppletModel {
             finish = V.scaleAdd(a, remainingDistance, normal);
           remainingDistance = remainingDistance - length;
           
-          int color = Tools.yellow;
+          int index = 0, power = reflections0;
+          while ((power/=2)>0) index++;
+          if (index > 8) index = 8;
+          color = Tools.colorScale[index];
           applet.fill(color);
           applet.stroke(color);
           applet.strokeWeight(2);
@@ -308,13 +314,13 @@ public class AppletModel {
             branch0++;
             reflections0--;
             if (branch0 >= path.size())
-              break;
-            lineList = path.get(branch0);
+              end = true;
+            else lineList = path.get(branch0);
           }
         }
         if (remainingDistance <= 0) {
-          applet.fill(Tools.gold);
-          applet.stroke(Tools.gold);
+          applet.fill(color);
+          applet.stroke(color);
           drawPhoton(applet, finish);
         }
       }
@@ -340,154 +346,6 @@ public class AppletModel {
     }
 
   }
-
-  /**
-   * Removes the path from the list,
-   * 
-   * @param i
-   */
-  private void removePath(int i) {
-    paths.remove(i);
-  }
-
-  /*
-   * Error in this code causing unexplainable crash
-   * public void drawPhotons(Applet applet, boolean updatePhotons) {
-   * if (updatePhotons) {
-   * long time = System.currentTimeMillis() - startTime;
-   * Vector entryVector = getEntryVector(time);
-   * double prob = .001 * -entryVector.z;
-   * long timeDelay = time - lastTime;
-   * if (prob * timeDelay > PCM3D.rnd.nextDouble()) {
-   * if (runSimpleModel) {
-   * SM.p.n0 = entryVector;
-   * SM.p.stat.N++;
-   * SM.run(1);
-   * } else {
-   * AS.stats.maxPhotonPaths++;
-   * try {
-   * AS.run(1, entryVector);
-   * } catch (Exception e) {
-   * // TODO Auto-generated catch block
-   * e.printStackTrace();
-   * }
-   * }
-   * addPhoton();
-   * }
-   * lastTime = time;
-   * }
-   * 
-   * for (int i = 0; i < currentBranch.size(); i++) {
-   * 
-   * applet.fill(Tools.yellow);
-   * applet.stroke(Tools.yellow);
-   * applet.strokeWeight(2);
-   * 
-   * int branch = currentBranch.get(i);
-   * int line = currentLine.get(i);
-   * double distance = currentDistance.get(i);
-   * List<List<Vector>> branchList;
-   * List<Vector> lineList;
-   * if (runSimpleModel)
-   * branchList = SM.p.stat.rv.get(i);
-   * else
-   * branchList = AS.stats.photonPaths.get(i);
-   * if (branch < branchList.size()) {
-   * lineList = branchList.get(branch);
-   * Vector a, b, start, finish = lineList.get(line + 1);
-   * double remainingDistance = distance + maxDistance;
-   * while (remainingDistance > 0) {
-   * a = lineList.get(line);
-   * b = lineList.get(line + 1);
-   * double length = V.sub(b, a).length();
-   * Vector normal = V.normalize(V.sub(b, a));
-   * if (remainingDistance - maxDistance < 0)
-   * start = a.clone();
-   * else
-   * start = V.scaleAdd(a, remainingDistance - maxDistance, normal);
-   * if (remainingDistance > length)
-   * finish = b.clone();
-   * else
-   * finish = V.scaleAdd(a, remainingDistance, normal);
-   * remainingDistance = remainingDistance - length;
-   * //drawLine(applet, start, finish);
-   * line++;
-   * while (line >= lineList.size() - 1) {
-   * line = 0;
-   * branch++;
-   * if (branch >= branchList.size())
-   * break;
-   * lineList = branchList.get(branch);
-   * }
-   * }
-   * if (remainingDistance <= 0) {
-   * applet.fill(Tools.gold);
-   * applet.stroke(Tools.gold);
-   * //drawPhoton(applet, finish);
-   * }
-   * 
-   * // for (int j = Math.max(branch - 2, 0); j < branch; j++) {
-   * // lineList = branchList.get(j);
-   * // for (int k = 0; k < lineList.size() - 1; k++)
-   * // drawLine(applet, lineList.get(k), lineList.get(k + 1));
-   * // }
-   * //
-   * // lineList = branchList.get(branch);
-   * // for (int k = 0; k < line; k++)
-   * // drawLine(applet, lineList.get(k), lineList.get(k + 1));
-   * // Vector finalPoint = lineList.get(line).clone(), direction = lineList.get(line + 1).clone();
-   * // direction.sub(finalPoint);
-   * // double distRemaining = direction.length();
-   * // direction.normalize();
-   * // finalPoint.add(V.mult(distance, direction));
-   * //
-   * // drawLine(applet, lineList.get(line), finalPoint);
-   * //
-   * // applet.fill(Tools.gold);
-   * // applet.stroke(Tools.gold);
-   * // drawPhoton(applet, finalPoint);
-   * 
-   * if (updatePhotons && (applet.keyPressed && applet.key == 'q' || applet.runAnim))
-   * advancePhotons(i);
-   * }
-   * 
-   * }
-   * 
-   * }
-   * 
-   * private Vector getEntryVector(long time) {
-   * double theta = 7 * Math.PI / 8, phi = Math.PI * time / 200000;
-   * return new Vector(Math.cos(theta) * Math.cos(phi), Math.sin(theta) * Math.cos(phi), -Math.sin(phi));
-   * }
-   * 
-   * public void advancePhotons(int i) {
-   * int branch = currentBranch.get(i);
-   * int line = currentLine.get(i);
-   * double distance = currentDistance.get(i);
-   * List<List<Vector>> branchList;
-   * if (runSimpleModel)
-   * branchList = SM.p.stat.rv.get(i);
-   * else
-   * branchList = AS.stats.photonPaths.get(i);
-   * if (branch < branchList.size()) {
-   * List<Vector> lineList = branchList.get(branch);
-   * distance += speed;
-   * double length = V.sub(lineList.get(line), lineList.get(line + 1)).length();
-   * if (distance >= length) {
-   * distance -= length;
-   * line++;
-   * if (line >= lineList.size() - 1) {
-   * line = 0;
-   * branch++;
-   * }
-   * }
-   * currentBranch.set(i, branch);
-   * currentLine.set(i, line);
-   * currentDistance.set(i, distance);
-   * }
-   * 
-   * }
-   */
 
   public void drawSurfaces(Applet applet) {
     //applet.textureMode(applet.NORMAL);
