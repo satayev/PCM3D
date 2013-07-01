@@ -23,14 +23,14 @@ public class Statistic {
   }
 
   public void newBranch(Vector v) {
-    if (rv.size() > 0 && rv.size() <= N) {
+    if (!rv.isEmpty() && rv.size() <= N) {
       rv.get(rv.size() - 1).add(new ArrayList<Vector>());
       addPath(v);
     }
   }
 
   public void addPath(Vector v) {
-    if (rv.size() > 0 && rv.size() <= N) {
+    if (!rv.isEmpty() && rv.size() <= N) {
       List<List<Vector>> rv1 = rv.get(rv.size() - 1);
       rv1.get(rv1.size() - 1).add(v.clone());
     }
@@ -38,7 +38,7 @@ public class Statistic {
 
   public void absorb(Vector v) {
     x++;
-    if (xv.size() > 0 && xv.size() < X) {
+    if (!xv.isEmpty() && xv.size() < X) {
       xv.add(v.clone());
     }
   }
@@ -74,7 +74,7 @@ public class Statistic {
   }
 
   public void extendTail(Vector n0) {
-    if (rv.size() > 0 && rv.size() <= N) {
+    if (!rv.isEmpty() && rv.size() <= N) {
       List<List<Vector>> rv1 = rv.get(rv.size() - 1);
       List<Vector> rv2 = rv1.get(0);
       Vector a = rv2.get(0);
@@ -83,7 +83,7 @@ public class Statistic {
   }
   
   public void extendHead(Vector n) {
-    if (rv.size() > 0 && rv.size() <= N) {
+    if (!rv.isEmpty() && rv.size() <= N) {
       List<List<Vector>> rv1 = rv.get(rv.size() - 1);
       List<Vector> rv2 = rv1.get(rv1.size()-1);
       Vector a = rv2.get(rv2.size()-1);

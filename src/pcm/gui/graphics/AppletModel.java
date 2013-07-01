@@ -40,7 +40,7 @@ public class AppletModel {
   // x-y-zBounds (magnified) and speed of photon used in applet view
   public float magnif = 250, photonRadius = (float) .01 * magnif;
   public float xBounds = (float) (X * magnif), yBounds = (float) (Y * magnif), zBounds = (float) (Z * magnif);
-  public double spacing = .25 * magnif, speed = .0001;
+  public double spacing = .25 * magnif, speed = .01;
   public Vector sunDir = new Vector(), sunPos = new Vector();
   public double sunDistance = 2, degrees = 2.5, dt = 2.5; // 90 minus degrees of zenith angle at which the sun starts, dt is change in degrees for moving sun
 
@@ -86,7 +86,7 @@ public class AppletModel {
   public AppletModel(double degrees, int maxPhotons, int modSize) {
 
     this.degrees = degrees;
-    this.maxPhotons = maxPhotons - 1;
+    this.maxPhotons = maxPhotons;
     this.modSize = modSize - 1;
 
     if (runSimpleModel) {
@@ -260,7 +260,7 @@ public class AppletModel {
     double maxDistance = .5;
 
     List<List<Vector>> path;
-    int branch = 0, line = 0;
+    int branch = 0, line = 0, reflections = 0;
     double distance = -maxDistance;
 
     public PathFollower(List<List<Vector>> path) {
@@ -273,17 +273,16 @@ public class AppletModel {
      * @return true if the photon is off screen
      */
     public boolean draw(Applet applet) {
-      applet.fill(Tools.yellow);
-      applet.stroke(Tools.yellow);
-      applet.strokeWeight(2);
 
-      if (branch < path.size()) {
-        List<Vector> lineList = path.get(branch);
-        Vector a, b, start, finish = lineList.get(line + 1);
-        double remainingDistance = distance + maxDistance;
+      int branch0 = branch, line0 = line, reflections0 = reflections;
+      double distance0 = distance;
+      if (branch0 < path.size()) {
+        List<Vector> lineList = path.get(branch0);
+        Vector a, b, start, finish = lineList.get(line0 + 1);
+        double remainingDistance = distance0 + maxDistance;
         while (remainingDistance > 0) {
-          a = lineList.get(line);
-          b = lineList.get(line + 1);
+          a = lineList.get(line0);
+          b = lineList.get(line0 + 1);
           double length = V.sub(b, a).length();
           Vector normal = V.normalize(V.sub(b, a));
           if (remainingDistance - maxDistance < 0)
@@ -295,14 +294,22 @@ public class AppletModel {
           else
             finish = V.scaleAdd(a, remainingDistance, normal);
           remainingDistance = remainingDistance - length;
+          
+          int color = Tools.yellow;
+          applet.fill(color);
+          applet.stroke(color);
+          applet.strokeWeight(2);
           drawLine(applet, start, finish);
-          line++;
-          while (line >= lineList.size() - 1) {
-            line = 0;
-            branch++;
-            if (branch >= path.size())
+          
+          line0++;
+          reflections0++;
+          while (line0 >= lineList.size() - 1) {
+            line0 = 0;
+            branch0++;
+            reflections0--;
+            if (branch0 >= path.size())
               break;
-            lineList = path.get(branch);
+            lineList = path.get(branch0);
           }
         }
         if (remainingDistance <= 0) {
@@ -322,9 +329,11 @@ public class AppletModel {
         if (distance >= length) {
           distance -= length;
           line++;
+          reflections++;
           if (line >= lineList.size() - 1) {
             line = 0;
             branch++;
+            reflections++;
           }
         }
       }
