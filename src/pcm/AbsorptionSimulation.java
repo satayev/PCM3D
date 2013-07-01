@@ -91,4 +91,5 @@ public class AbsorptionSimulation {
   public void printStats() {
     System.out.println(stats);
   }
+  
 }

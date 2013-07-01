@@ -3,6 +3,7 @@ package dev.simple;
 import java.util.ArrayList;
 import java.util.List;
 
+import pcm.model.geom.V;
 import pcm.model.geom.Vector;
 
 public class Statistic {
@@ -70,6 +71,24 @@ public class Statistic {
   
   public String getRatio() {
     return String.format("%1.2f", ((double) x) / n);
+  }
+
+  public void extendTail(Vector n0) {
+    if (rv.size() > 0 && rv.size() <= N) {
+      List<List<Vector>> rv1 = rv.get(rv.size() - 1);
+      List<Vector> rv2 = rv1.get(0);
+      Vector a = rv2.get(0);
+      rv2.add(0,V.sub(a,n0));
+    }
+  }
+  
+  public void extendHead(Vector n) {
+    if (rv.size() > 0 && rv.size() <= N) {
+      List<List<Vector>> rv1 = rv.get(rv.size() - 1);
+      List<Vector> rv2 = rv1.get(rv1.size()-1);
+      Vector a = rv2.get(rv2.size()-1);
+      rv2.add(V.add(a,n));
+    }
   }
 
 }

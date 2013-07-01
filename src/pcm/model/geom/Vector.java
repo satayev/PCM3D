@@ -246,4 +246,14 @@ public class Vector {
   public String toString() {
     return "[" + x + ", " + y + ", " + z + "]";
   }
+
+  /**
+   * Rotates the vector along the z-axis by theta
+   * @param theta The degree of rotation, in radians
+   */
+  public void rotate(double theta) {
+    double x0 = x*Math.cos(theta)-y*Math.sin(theta);
+    y = y*Math.cos(theta)+x*Math.sin(theta);
+    x = x0;
+  }
 }
