@@ -37,7 +37,9 @@ public class AppletModel {
   public static boolean runAnim = false;
   public static String printOutput = "";
   public static float magnif = 250;
-  public static double zenith = 2.5, azimuth = 0;
+  /** Zenith angle is [0, 90) degrees, 0 being straight down, 90 straight towards the side 
+   *  Azimuth is degrees to the x-y axis */
+  public static double zenith = 87.5, azimuth = 0;
 
   // Microscale bounds
   public double X = 1, Y = 1, Z = 1, Z0 = 1;
@@ -50,7 +52,7 @@ public class AppletModel {
   public float xBounds = (float) (X * magnif), yBounds = (float) (Y * magnif), zBounds = (float) (Z * magnif);
   public double spacing = .25 * magnif, speed = .01;
   public Vector sunDir = new Vector(), sunPos = new Vector();
-  public double sunDistance = 2, dt = 2.5; // dt is change in zenith for moving sun
+  public double sunDistance = 2, dzenith = -2.5; // delta is change in zenith for moving sun
 
   public List<PathFollower> paths = new LinkedList<PathFollower>();
   /** The number of paths displayed on the screen */
@@ -126,46 +128,50 @@ public class AppletModel {
    * Model rerun here with reset solar flux angles
    */
   public void run() {
-    if (zenith <= 0 || zenith >= 180) {
+    if (zenith < 0 || zenith >= 90) {
       runAnim = false;
-      zenith = 2.5;
 
     }
-
-    if (runSimpleModel) {
-      SFM.clear();
-      SFM.p.stat.N = maxPhotons;
-      SFM.p.stat.X = maxPhotons;
-
-      double zenith0 = Math.PI * zenith / 180, azimuth0 = Math.PI * azimuth / 180;
-      SFM.setEntry(new Vector(Math.cos(zenith0)*Math.cos(azimuth0), Math.cos(zenith0)*Math.sin(azimuth0), -Math.sin(zenith0)));
-      SFM.run(10000);
-      SFM.p.stat.printAll();
-      printOutput += zenith + " degrees\t" + azimuth + " degrees\t" + SFM.p.stat.getRatio() + " %" + "\n";
-
-      for (int i = 0; i < SFM.p.stat.rv.size(); i++) {
-        paths.add(new PathFollower(SFM.p.stat.rv.get(i)));
-      }
-
-    } else {
-      try {
-        // TODO - define orbit's zenith/azimuth angles, add results to printOutput
-        AS.run(1000000);
-        AS.printStats();
-      } catch (Exception E) {
-        E.printStackTrace();
-      }
-
+    else {
+	    if (runSimpleModel) {
+	      SFM.clear();
+	      SFM.p.stat.N = maxPhotons;
+	      SFM.p.stat.X = maxPhotons;
+	
+	      double zenith0 = Math.PI / 2 - Math.PI * zenith / 180, azimuth0 = Math.PI * azimuth / 180;
+	      SFM.setEntry(new Vector(Math.cos(zenith0)*Math.cos(azimuth0), Math.cos(zenith0)*Math.sin(azimuth0), -Math.sin(zenith0)));
+	      SFM.run(10000);
+	      SFM.p.stat.printAll();
+	      printOutput += zenith + " degrees\t" + azimuth + " degrees\t" + SFM.p.stat.getRatio() + " %" + "\n";
+	
+	      for (int i = 0; i < SFM.p.stat.rv.size(); i++) {
+	        paths.add(new PathFollower(SFM.p.stat.rv.get(i)));
+	      }
+	
+	    } else {
+	      try {
+	        // TODO - define orbit's zenith/azimuth angles, add results to printOutput
+	        AS.run(1000000);
+	        AS.printStats();
+	      } catch (Exception E) {
+	        E.printStackTrace();
+	      }
+	
+	    }
+	    // Position and direction of the sun set from Photon class's baseline values for spawned photons with sunDistance taken into account
+	    sunPos = new Vector(.5, 1 - zenith / 180, Math.sin((1 - zenith / 180) * Math.PI));
+	    Vector tileCenter = new Vector(.5, .5, 0);
+	    tileCenter.sub(sunPos);
+	    tileCenter.normalize();
+	    sunDir = tileCenter.clone();
+	    sunPos.sub(V.mult(sunDistance, sunDir));
+	
+	    if (zenith == 0) {
+	    	dzenith *= -1;
+	    	azimuth = (azimuth + 180) % 360;
+	    }
+	    zenith += dzenith;
     }
-    // Position and direction of the sun set from Photon class's baseline values for spawned photons with sunDistance taken into account
-    sunPos = new Vector(.5, 1 - zenith / 180, Math.sin((1 - zenith / 180) * Math.PI));
-    Vector tileCenter = new Vector(.5, .5, 0);
-    tileCenter.sub(sunPos);
-    tileCenter.normalize();
-    sunDir = tileCenter.clone();
-    sunPos.sub(V.mult(sunDistance, sunDir));
-
-    zenith += dt;
   }
 
   public void addPhoton() {

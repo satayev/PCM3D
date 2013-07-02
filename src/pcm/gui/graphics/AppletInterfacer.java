@@ -121,23 +121,15 @@ public class AppletInterfacer {
   }
 
   public static void update(double zenith, double azimuth, double latitude, double longitude, boolean toEquator) {
-
-    //applet.noLoop();
     if (changed) {
       model.reset();
       model.zenith = zenith;
       model.azimuth = azimuth;
-      //model = new AppletModel(zenith, azimuth);
-      //model.runAnim = isRunning;
       updateEarth(latitude, longitude, toEquator);
       model.runAnim = true;
     }
-    //applet.loop();
     else 
       toggleAnim();
-
-    
-    
     
     changed = false;
   }

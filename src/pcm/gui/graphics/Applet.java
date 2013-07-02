@@ -165,8 +165,6 @@ public class Applet extends PApplet {
     gl.glViewport(height / 2, 0, width - height / 2, height); // as right half
     ((PGraphicsOpenGL) g).endGL();
     
-    model.magnif /= 2;
-    model.modSize++;
     renderScene(views[0], true);
     //TODO - vary speed according to how fast model's angles are changing
     if (model.runAnim)
@@ -175,9 +173,6 @@ public class Applet extends PApplet {
       earth.draw(false, 5);
     userInput(views[0]);
     ((PGraphicsOpenGL) g).endGL();
-
-    model.magnif *= 2;
-    model.modSize--;
     
     
     cameraZ = ((float) (height / 2.0) / tan((float) (PI * 60.0 / 360.0))); //default
