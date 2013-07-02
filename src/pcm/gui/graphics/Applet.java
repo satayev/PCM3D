@@ -147,6 +147,7 @@ public class Applet extends PApplet {
         model.addPhoton();
       t = 0;
     }
+    // Rerun simulation when old photons are exiting system
     if (model.runningPaths > model.paths.size())
       model.run();
 
@@ -163,6 +164,9 @@ public class Applet extends PApplet {
     //gl.glViewport(0, 0, width/2, height); // as left half
     gl.glViewport(height / 2, 0, width - height / 2, height); // as right half
     ((PGraphicsOpenGL) g).endGL();
+    
+    model.magnif /= 2;
+    model.modSize++;
     renderScene(views[0], true);
     //TODO - vary speed according to how fast model's angles are changing
     if (model.runAnim)
@@ -170,9 +174,12 @@ public class Applet extends PApplet {
     else
       earth.draw(false, 5);
     userInput(views[0]);
-
     ((PGraphicsOpenGL) g).endGL();
 
+    model.magnif *= 2;
+    model.modSize--;
+    
+    
     cameraZ = ((float) (height / 2.0) / tan((float) (PI * 60.0 / 360.0))); //default
 
     // Bird's eye (top) view

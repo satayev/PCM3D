@@ -21,7 +21,7 @@ public class AppletInterfacer {
   private static AppletModel model = new AppletModel();
   private static Earth earth = new Earth();
 
-  private static boolean changed = false;
+  public static boolean changed = false;
 
   /*
    * Sets JPanel and creates applet inside of it.
@@ -100,7 +100,7 @@ public class AppletInterfacer {
   public static void toggleAnim() {
     model.runAnim = !model.runAnim;
   }
-
+  
   public static boolean getAnimState() {
     return model.runAnim;
   }
@@ -109,4 +109,36 @@ public class AppletInterfacer {
     return model.printOutput;
   }
 
+  /*
+   * Initial values of zenith and azimuth angles in AppletModel
+   */
+  public static double getZenith() {
+    return model.zenith;
+  }
+  
+  public static double getAzimuth() {
+    return model.azimuth;
+  }
+
+  public static void update(double zenith, double azimuth, double latitude, double longitude, boolean toEquator) {
+
+    //applet.noLoop();
+    if (changed) {
+      model.reset();
+      model.zenith = zenith;
+      model.azimuth = azimuth;
+      //model = new AppletModel(zenith, azimuth);
+      //model.runAnim = isRunning;
+      updateEarth(latitude, longitude, toEquator);
+      model.runAnim = true;
+    }
+    //applet.loop();
+    else 
+      toggleAnim();
+
+    
+    
+    
+    changed = false;
+  }
 }

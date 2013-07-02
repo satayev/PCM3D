@@ -26,8 +26,6 @@ import processing.core.PApplet;
  */
 public class Main extends JFrame implements ComponentListener {
 
-  public static AppletInterfacer appletInterfacer;
-
   private JLayeredPane layeredPane;
 
   private int initWidth = 1000, initHeight = 700; // width and height equivalent to UIMockup.fxml's values
@@ -50,9 +48,9 @@ public class Main extends JFrame implements ComponentListener {
 
     // Using AppletInterfacer to add PApplet to JPanel and LayeredPane
     int offsetLeft = 0, offsetTop = 53, offsetRight = 240; // region of window where PApplet sits
-    appletInterfacer.panel.setOpaque(true);
-    appletInterfacer.create(offsetLeft, offsetTop, getWidth() - offsetRight, getHeight() - offsetTop);
-    layeredPane.add(appletInterfacer.panel, new Integer(5));
+    AppletInterfacer.panel.setOpaque(true);
+    AppletInterfacer.create(offsetLeft, offsetTop, getWidth() - offsetRight, getHeight() - offsetTop);
+    layeredPane.add(AppletInterfacer.panel, new Integer(5));
 
     contentPane.add(layeredPane);
     contentPane.setOpaque(true);

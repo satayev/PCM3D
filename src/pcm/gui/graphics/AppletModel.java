@@ -37,7 +37,7 @@ public class AppletModel {
   public static boolean runAnim = false;
   public static String printOutput = "";
   public static float magnif = 250;
-  public double zenith = 2.5, azimuth = 0;
+  public static double zenith = 2.5, azimuth = 0;
 
   // Microscale bounds
   public double X = 1, Y = 1, Z = 1, Z0 = 1;
@@ -75,8 +75,9 @@ public class AppletModel {
   int modSize = 0;
   int maxPhotons = 100;
 
+  
   public AppletModel() {
-
+    
     /** Tower initialization here */
     // TODO - have parameters programmatically initialized - variable length of vertices
     // TODO - use dev.simple Tower or pcm.model Prism as default tower data structure?
@@ -100,8 +101,8 @@ public class AppletModel {
     if (runSimpleModel) {
 
       FixedPhoton photon = new FixedPhoton(new Vector(0, 0, -1));
-      SFM = new SimpleFixedModel(X, Y, Z0, 0, LT, photon);
-
+      SFM = new SimpleFixedModel(X, Y, Z0, 0, LT, photon); 
+      
     }
     /** pcm.model model initialization here */
     else {
@@ -116,7 +117,7 @@ public class AppletModel {
 
     }
 
-    printOutput = "Zenith Angle\t\t\tAbsorption\n\n";
+    printOutput = "Zenith Angle\tAzimuth Angle\tAbsorption\n\n";
     startTime = System.currentTimeMillis();
 
   }
@@ -138,13 +139,9 @@ public class AppletModel {
 
       double zenith0 = Math.PI * zenith / 180, azimuth0 = Math.PI * azimuth / 180;
       SFM.setEntry(new Vector(Math.cos(zenith0)*Math.cos(azimuth0), Math.cos(zenith0)*Math.sin(azimuth0), -Math.sin(zenith0)));
-      // TODO - implement azimuth angle
-      // double phi = Math.PI * azimuth / 180;
-      //SFM.setEntry(new Vector(Math.cos(zenith) * Math.cos(phi), Math.sin(zenith) * Math.cos(phi), -Math.sin(phi)));
-
       SFM.run(10000);
       SFM.p.stat.printAll();
-      printOutput += zenith + " degrees\t\t\t" + SFM.p.stat.getRatio() + " %" + "\n";
+      printOutput += zenith + " degrees\t" + azimuth + " degrees\t" + SFM.p.stat.getRatio() + " %" + "\n";
 
       for (int i = 0; i < SFM.p.stat.rv.size(); i++) {
         paths.add(new PathFollower(SFM.p.stat.rv.get(i)));
@@ -319,10 +316,12 @@ public class AppletModel {
               lineList = path.get(branch0);
           }
         }
-        if (remainingDistance <= 0) {
+        if (remainingDistance < 0) {
+          applet.lights();
           applet.fill(color);
           applet.stroke(color);
           drawPhoton(applet, finish);
+          applet.noLights();
         }
       }
       return branch >= path.size();
