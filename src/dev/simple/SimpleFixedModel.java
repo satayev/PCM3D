@@ -6,7 +6,7 @@ import pcm.model.geom.Vector;
 
 public class SimpleFixedModel extends SimpleModel {
   
-  double theta;
+  double theta = 0;
   FixedPhoton p0;
   
   /*
@@ -14,6 +14,7 @@ public class SimpleFixedModel extends SimpleModel {
    */
   public SimpleFixedModel(List<Tower> LT, Photon p) {
     super(LT, p);
+    this.p0 = (FixedPhoton) p;
   }
   
   public SimpleFixedModel(double X, double Y, double Z, double theta, List<Tower> LT, FixedPhoton p) {

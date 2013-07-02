@@ -100,7 +100,7 @@ public class AppletModel {
     if (runSimpleModel) {
 
       FixedPhoton photon = new FixedPhoton(new Vector(0, 0, -1));
-      SFM = new SimpleFixedModel(X, Y, Z0, Math.PI / 8, LT, photon);
+      SFM = new SimpleFixedModel(X, Y, Z0, 0, LT, photon);
 
     }
     /** pcm.model model initialization here */
@@ -136,8 +136,8 @@ public class AppletModel {
       SFM.p.stat.N = maxPhotons;
       SFM.p.stat.X = maxPhotons;
 
-      double theta = Math.PI * zenith / 180;
-      SFM.setEntry(new Vector(Math.cos(theta), 0, -Math.sin(theta)));
+      double zenith0 = Math.PI * zenith / 180, azimuth0 = Math.PI * azimuth / 180;
+      SFM.setEntry(new Vector(Math.cos(zenith0)*Math.cos(azimuth0), Math.cos(zenith0)*Math.sin(azimuth0), -Math.sin(zenith0)));
       // TODO - implement azimuth angle
       // double phi = Math.PI * azimuth / 180;
       //SFM.setEntry(new Vector(Math.cos(zenith) * Math.cos(phi), Math.sin(zenith) * Math.cos(phi), -Math.sin(phi)));
