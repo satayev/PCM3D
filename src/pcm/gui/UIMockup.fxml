@@ -279,13 +279,13 @@
                       <content>
                         <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="292.0" prefWidth="239.0">
                           <children>
-                            <ScrollPane layoutX="0.0" layoutY="0.0" prefHeight="293.0" prefWidth="240.0">
+                            <ScrollPane layoutX="0.0" layoutY="0.0" prefHeight="292.0" prefWidth="239.0" hbarPolicy="NEVER" >
                               <content>
-                                <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="292.0" prefWidth="239.0" >
+								<FlowPane prefWidth="230.0" alignment="CENTER" hgap="10.0" vgap="10.0">
 								  <children>
-									<Text fx:id="simulationResults" layoutX="14.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" />
+									<Text fx:id="simulationResults" layoutX="20.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" />
 								  </children>
-								</AnchorPane>
+								</FlowPane>
 							  </content>
                             </ScrollPane>
                           </children>

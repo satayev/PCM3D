@@ -24,10 +24,10 @@ import processing.core.PApplet;
  * 
  * @author Susan
  */
-public class Main extends JFrame implements ComponentListener{
+public class Main extends JFrame implements ComponentListener {
 
-	public static AppletInterfacer appletInterfacer;
-	
+  public static AppletInterfacer appletInterfacer;
+
   private JLayeredPane layeredPane;
 
   private int initWidth = 1000, initHeight = 700; // width and height equivalent to UIMockup.fxml's values
@@ -35,7 +35,7 @@ public class Main extends JFrame implements ComponentListener{
   public Main() {
     super("PCM3D");
 
-    setBounds(100, 10, initWidth, initHeight); 
+    setBounds(100, 10, initWidth, initHeight);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setResizable(true);
 
@@ -53,18 +53,18 @@ public class Main extends JFrame implements ComponentListener{
     appletInterfacer.panel.setOpaque(true);
     appletInterfacer.create(offsetLeft, offsetTop, getWidth() - offsetRight, getHeight() - offsetTop);
     layeredPane.add(appletInterfacer.panel, new Integer(5));
-    
+
     contentPane.add(layeredPane);
     contentPane.setOpaque(true);
     setContentPane(contentPane);
-    
+
     pack();
     setVisible(true);
 
     // For resizing listener
     addComponentListener(this);
   }
-  
+
   /*
    * Loading JavaFX fxml file into AWT Swing component
    */
@@ -107,7 +107,6 @@ public class Main extends JFrame implements ComponentListener{
     layeredPane.add(p, new Integer(0));
   }
 
-
   @Override
   public void componentHidden(ComponentEvent arg0) {
   }
@@ -117,31 +116,29 @@ public class Main extends JFrame implements ComponentListener{
   }
 
   /*
-   * //TODO 
+   * //TODO
    * Applet resizing enabled by adding using JFrame's listener and recreating applet
    * 
    * @see java.awt.event.ComponentListener#componentResized(java.awt.event.ComponentEvent)
    */
   @Override
   public void componentResized(ComponentEvent arg0) {
-	  	//System.out.println(" --- Resized ");
-	    
-	    // code adding listener to applet doesn't work / memory leak - 
-	  //appletInterfacer.applet.frame = this;
-	    //appletInterfacer.applet.setupFrameResizeListener();
+    //System.out.println(" --- Resized ");
+
+    // code adding listener to applet doesn't work / memory leak - 
+    //appletInterfacer.applet.frame = this;
+    //appletInterfacer.applet.setupFrameResizeListener();
   }
 
   @Override
   public void componentShown(ComponentEvent arg0) {
 
   }
-  
+
   public static void main(String[] args) {
 
     new Main();
 
   }
-
-
 
 }

@@ -17,6 +17,7 @@ public class AppletView {
   private Applet applet; // parent applet
 
   GL gl;
+  GLU glu;
   PGraphicsOpenGL pgl;
 
   // View parameters: focus, eye, up vector, and screen aligned vectors
@@ -25,7 +26,7 @@ public class AppletView {
 
   public AppletView(Applet p) {
     applet = p;
-    
+
     initE = new Vector(120, 440, 280); // (0, 0, 500) default
     initF = new Vector(125, -50, 15); // (0, 0, 0) default
     initU = new Vector(0, 0, -1); // (0, 1, 0) default
@@ -70,10 +71,6 @@ public class AppletView {
         (float) U.z);
   }
 
-  GLU glu;
-
-  
-  
   // Sets I, J, K to be aligned with the screen (I right, J up, K towards the viewer)
   void setFrame() {
     glu = ((PGraphicsOpenGL) applet.g).glu;
@@ -94,7 +91,7 @@ public class AppletView {
     Vector Li = V.normalize(V.scaleAdd(V.sub(F, E), 0.1 * E.distance(F), J));
     applet.directionalLight(255, 255, 255, (float) Li.x, (float) Li.y, (float) Li.z);
     applet.specular(255, 255, 255);
-    applet.shininess(5); 
+    applet.shininess(5);
   }
 
   // Methods for changing camera angle and orientation
@@ -110,9 +107,9 @@ public class AppletView {
     Vector d = V.scaleAdd(-dx, I, dy, J);
     F.add(d);
     E.add(d);
-    
+
   }
-  
+
   public void zoomIn() {
     Vector v = V.sub(F, E);
     v.normalize();
@@ -126,7 +123,6 @@ public class AppletView {
     v.mult(-15);
     E.add(v);
   }
-  
 
   public void rotate(float pmouseX, float pmouseY, float mouseX, float mouseY) {
     E = Tools.rotate(applet, E, (float) Math.PI * (mouseX - pmouseX) / applet.width, I, K, F);
@@ -139,7 +135,7 @@ public class AppletView {
     Tools.printVec("Up", U);
     Tools.printVec("I", I);
     Tools.printVec("J", J);
-    Tools.printVec( "K", K);
+    Tools.printVec("K", K);
     System.out.println();
   }
 

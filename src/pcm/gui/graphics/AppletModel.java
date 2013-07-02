@@ -13,6 +13,7 @@ import pcm.model.geom.V;
 import pcm.model.geom.Vector;
 import pcm.model.geom.curves.Polygon;
 import pcm.model.geom.solids.Prism;
+import pcm.model.orbit.ISSOrbit;
 import dev.simple.FixedPhoton;
 import dev.simple.Photon;
 import dev.simple.Ribbon;
@@ -32,18 +33,24 @@ import dev.simple.Tower;
  */
 public class AppletModel {
 
+  // Variables edited outside of AppletModel
+  public static boolean runAnim = false;
+  public static String printOutput = "";
+  public static float magnif = 250;
+  public double zenith = 2.5, azimuth = 0;
+
+  // Microscale bounds
   public double X = 1, Y = 1, Z = 1, Z0 = 1;
 
   // Macroscale (applet) parameters from model:
   // photonRadius and spacing in microscopic scaling with magnification
   // applied to them,
   // x-y-zBounds (magnified) and speed of photon used in applet view
-  public static float magnif = 250;
   public float photonRadius = (float) .01 * magnif;
   public float xBounds = (float) (X * magnif), yBounds = (float) (Y * magnif), zBounds = (float) (Z * magnif);
   public double spacing = .25 * magnif, speed = .01;
   public Vector sunDir = new Vector(), sunPos = new Vector();
-  public double sunDistance = 2, degrees = 2.5, dt = 2.5; // 90 minus degrees of zenith angle at which the sun starts, dt is change in degrees for moving sun
+  public double sunDistance = 2, dt = 2.5; // dt is change in zenith for moving sun
 
   public List<PathFollower> paths = new LinkedList<PathFollower>();
   /** The number of paths displayed on the screen */
@@ -66,67 +73,47 @@ public class AppletModel {
 
   // The size of the repeated drawing
   int modSize = 0;
-  int maxPhotons = 100; //*sizechange* added one to compensate for decreasing 1 everywhere else there is //*sizechange*
-
-  public static String printOutput = "";
-  public static boolean runAnim = false;
-  boolean paramsChanged = false;
-
-  public void setParams(double degrees, int maxPhotons, int modSize) {
-    this.maxPhotons = maxPhotons; //*sizechange*
-    this.modSize = modSize - 1;
-    this.degrees = degrees;
-    paramsChanged = true;
-    run();
-  }
+  int maxPhotons = 100;
 
   public AppletModel() {
-    this(2.5, 100, 1);
-  }
 
-  public AppletModel(double degrees, int maxPhotons, int modSize) {
+    /** Tower initialization here */
+    // TODO - have parameters programmatically initialized - variable length of vertices
+    // TODO - use dev.simple Tower or pcm.model Prism as default tower data structure?
+    LT = new ArrayList<Tower>();
+    List<Double> Lx;
+    List<Double> Ly;
+    //      Lx = Arrays.asList(.5, .75, .5, .25);
+    //      Ly = Arrays.asList(.25, .5, .75, .5);
+    //      LT.add(new Tower(Lx, Ly));
+    //      Lx = Arrays.asList(.1, .3, .4, .2);
+    //      Ly = Arrays.asList(.3, .2, .8, .7);
+    //      LT.add(new Tower(Lx, Ly));
+    Lx = Arrays.asList(.5, .8, .7, .7);
+    Ly = Arrays.asList(.5, .6, .8, .9);
+    LT.add(new Tower(Lx, Ly));
+    Lx = Arrays.asList(.2, .4, .5, .4, .2, .1);
+    Ly = Arrays.asList(.1, .1, .3, .5, .5, .3);
+    LT.add(new Tower(Lx, Ly));
 
-    this.degrees = degrees;
-    this.maxPhotons = maxPhotons;
-    this.modSize = modSize - 1;
-
+    /** dev.simple model initialization here */
     if (runSimpleModel) {
-
-      LT = new ArrayList<Tower>();
-      //      List<Double> Lx = Arrays.asList(.5, .75, .5, .25);
-      //      List<Double> Ly = Arrays.asList(.25, .5, .75, .5);
-      //      LT.add(new Tower(Lx, Ly));
-
-      List<Double> Lx;
-      List<Double> Ly;
-      //      Lx = Arrays.asList(.1, .3, .4, .2);
-      //      Ly = Arrays.asList(.3, .2, .8, .7);
-      //      LT.add(new Tower(Lx, Ly));
-      Lx = Arrays.asList(.5, .8, .7, .7);
-      Ly = Arrays.asList(.5, .6, .8, .9);
-      LT.add(new Tower(Lx, Ly));
-
-      //    Lx = Arrays.asList(.6, .8, .6, .4);
-      //    Ly = Arrays.asList(.4, .6, .9, .7);
-      //    LT.add(new Tower(Lx, Ly));
-      Lx = Arrays.asList(.2, .4, .5, .4, .2, .1);
-      Ly = Arrays.asList(.1, .1, .3, .5, .5, .3);
-      LT.add(new Tower(Lx, Ly));
 
       FixedPhoton photon = new FixedPhoton(new Vector(0, 0, -1));
       SFM = new SimpleFixedModel(X, Y, Z0, Math.PI / 8, LT, photon);
-      //SM.p.stat.N = 0;
-      //SM.p.stat.X = 0;
 
-    } else {
-      RPM.cnts.add(new Prism(new Vector(), new Polygon(new Vector[] { new Vector(0, -.25, 0), new Vector(.25, 0, 0),
-          new Vector(0, .25, 0), new Vector(-.25, 0, 0) })));
-      //AS = new AbsorptionSimulation(RPM);
+    }
+    /** pcm.model model initialization here */
+    else {
+      // TODO - Currently uses each first four vertices of initialized towers
+      for (Tower t : LT) {
+        RPM.cnts.add(new Prism(new Vector(), new Polygon(new Vector[] { new Vector(t.Lx.get(0), t.Ly.get(0), 0),
+            new Vector(t.Lx.get(1), t.Ly.get(1), 0),
+            new Vector(t.Lx.get(2), t.Ly.get(2), 0), new Vector(t.Lx.get(3), t.Ly.get(3), 0) })));
+      }
+      ISSOrbit orbit = new ISSOrbit();
+      AS = new AbsorptionSimulation(RPM, orbit);
 
-      LT = new ArrayList<Tower>();
-      List<Double> Lx = Arrays.asList(0., .25, 0., -.25);
-      List<Double> Ly = Arrays.asList(-.25, 0., .25, 0.);
-      LT.add(new Tower(Lx, Ly));
     }
 
     printOutput = "Zenith Angle\t\t\tAbsorption\n\n";
@@ -134,10 +121,13 @@ public class AppletModel {
 
   }
 
+  /*
+   * Model rerun here with reset solar flux angles
+   */
   public void run() {
-    if (degrees <= 0 || degrees >= 180) {
+    if (zenith <= 0 || zenith >= 180) {
       runAnim = false;
-      degrees = 2.5;
+      zenith = 2.5;
 
     }
 
@@ -146,24 +136,23 @@ public class AppletModel {
       SFM.p.stat.N = maxPhotons;
       SFM.p.stat.X = maxPhotons;
 
-      double radians = Math.PI * degrees / 180;
-      SFM.setEntry(new Vector(Math.cos(radians), 0, -Math.sin(radians)));
+      double theta = Math.PI * zenith / 180;
+      SFM.setEntry(new Vector(Math.cos(theta), 0, -Math.sin(theta)));
+      // TODO - implement azimuth angle
+      // double phi = Math.PI * azimuth / 180;
+      //SFM.setEntry(new Vector(Math.cos(zenith) * Math.cos(phi), Math.sin(zenith) * Math.cos(phi), -Math.sin(phi)));
+
       SFM.run(10000);
       SFM.p.stat.printAll();
-      printOutput += degrees + " degrees\t\t\t" + SFM.p.stat.getRatio() + " %" + "\n";
+      printOutput += zenith + " degrees\t\t\t" + SFM.p.stat.getRatio() + " %" + "\n";
 
-      //	    if (paramsChanged)
-      //	    	paths = new ArrayList<List<List<Vector>>>();
-      paramsChanged = false;
       for (int i = 0; i < SFM.p.stat.rv.size(); i++) {
         paths.add(new PathFollower(SFM.p.stat.rv.get(i)));
       }
-      //*sizechange*
-      // TODO bug for last photon in simple model? 
-      //paths.remove(paths.size() -1);
-      //reset();
+
     } else {
       try {
+        // TODO - define orbit's zenith/azimuth angles, add results to printOutput
         AS.run(1000000);
         AS.printStats();
       } catch (Exception E) {
@@ -172,14 +161,14 @@ public class AppletModel {
 
     }
     // Position and direction of the sun set from Photon class's baseline values for spawned photons with sunDistance taken into account
-    sunPos = new Vector(.5, 1 - degrees / 180, Math.sin((1 - degrees / 180) * Math.PI));
+    sunPos = new Vector(.5, 1 - zenith / 180, Math.sin((1 - zenith / 180) * Math.PI));
     Vector tileCenter = new Vector(.5, .5, 0);
     tileCenter.sub(sunPos);
     tileCenter.normalize();
     sunDir = tileCenter.clone();
     sunPos.sub(V.mult(sunDistance, sunDir));
 
-    degrees += dt;
+    zenith += dt;
   }
 
   public void addPhoton() {
@@ -190,6 +179,11 @@ public class AppletModel {
     paths.clear();
   }
 
+  /*
+   * 
+   * @param updatePhotons whether or not the model needs to be updated which should be once every frame, so one out of the views
+   * drawn needs this set as true
+   */
   public void drawPhotons(Applet applet, boolean updatePhotons) {
     //    long time = System.currentTimeMillis() - startTime;
     //    Vector entryVector = getEntryVector(time);
@@ -205,7 +199,6 @@ public class AppletModel {
     //        try {
     //          AS.run(1, entryVector);
     //        } catch (Exception e) {
-    //          // TODO Auto-generated catch block
     //          e.printStackTrace();
     //        }
     //      }
@@ -261,6 +254,10 @@ public class AppletModel {
 
     double maxDistance = .5;
 
+    /*
+     * List<List<Vector>> path: i is photon index, branch is which number of times it has been wrapped to other side, line is
+     * which path line segment it is on in this branch
+     */
     List<List<Vector>> path;
     int branch = 0, line = 0, reflections = 0;
     double distance = -maxDistance;
@@ -298,16 +295,18 @@ public class AppletModel {
           else
             finish = V.scaleAdd(a, remainingDistance, normal);
           remainingDistance = remainingDistance - length;
-          
+
           int index = 0, power = reflections0;
-          while ((power/=2)>0) index++;
-          if (index > 8) index = 8;
+          while ((power /= 2) > 0)
+            index++;
+          if (index > 8)
+            index = 8;
           color = Tools.colorScale[index];
           applet.fill(color);
           applet.stroke(color);
           applet.strokeWeight(2);
           drawLine(applet, start, finish);
-          
+
           line0++;
           reflections0++;
           while (line0 >= lineList.size() - 1) {
@@ -316,7 +315,8 @@ public class AppletModel {
             reflections0--;
             if (branch0 >= path.size())
               end = true;
-            else lineList = path.get(branch0);
+            else
+              lineList = path.get(branch0);
           }
         }
         if (remainingDistance <= 0) {
@@ -348,6 +348,11 @@ public class AppletModel {
 
   }
 
+  /*
+   * Draws towers
+   * 
+   * @param applet Processing applet that handles drawing
+   */
   public void drawSurfaces(Applet applet) {
     //applet.textureMode(applet.NORMAL);
     applet.fill(Tools.black);
@@ -374,6 +379,8 @@ public class AppletModel {
 
   /**
    * Draws the solar cell grid
+   * 
+   * @param applet Processing applet that handles drawing
    */
   public void drawFloorGrid(Applet applet) {
     spacing = .2 * magnif;
@@ -416,6 +423,9 @@ public class AppletModel {
 
   }
 
+  /*
+   * Drawing functions using Tools class
+   */
   private void drawLine(Applet applet, Vector a, Vector b) {
     for (int i = -modSize; i <= modSize; i++)
       for (int j = -modSize; j <= modSize; j++) {
