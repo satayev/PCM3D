@@ -54,7 +54,7 @@ public class ShapePane extends AnchorPane {
     }
 
     public ShapePane copy() {
-        ArrayList<CSNode> origNodes = new ArrayList<>();
+        ArrayList<CSNode> origNodes = new ArrayList<CSNode>();
         
         CSNode curr = head;
         do {

@@ -244,6 +244,16 @@ public class Vector {
 
   @Override
   public String toString() {
-    return "[" + V.DF.format(x) + ", " + V.DF.format(y) + ", " + V.DF.format(z) + "]";
+    return "[" + x + ", " + y + ", " + z + "]";
+  }
+
+  /**
+   * Rotates the vector along the z-axis by theta
+   * @param theta The degree of rotation, in radians
+   */
+  public void rotate(double theta) {
+    double x0 = x*Math.cos(theta)-y*Math.sin(theta);
+    y = y*Math.cos(theta)+x*Math.sin(theta);
+    x = x0;
   }
 }

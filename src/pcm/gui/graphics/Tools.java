@@ -23,10 +23,13 @@ public class Tools {
       blue = applet.color(0,0,250),
       cyan = applet.color(0,250,250),
       green = applet.color(0,250,0);
+  public static int[] colorScale = { applet.color(255, 255, 0), applet.color(223, 255, 32), applet.color(191, 255, 64), 
+      applet.color(159, 255, 96), applet.color(127, 255, 128), applet.color(96, 255, 159), applet.color(64, 255, 191), 
+      applet.color(32, 255, 223), applet.color(0, 255, 255) };
 
   // Writes on screen at (x,y) with current fill color
   public static void scribe(Applet applet, String S, int x, int y) {
-    applet.fill(0);
+    //applet.fill(0);
     applet.text(S, x, y);
     applet.noFill();
   }
@@ -48,6 +51,10 @@ public class Tools {
     return transform(applet, P, x * c - x - y * s, I, x * s + y * c - y, J);
   };
 
+  // Rotated vector 90 degrees in XY plane
+  public static Vector rotate(Applet applet, Vector Vec) {
+	  return new Vector(-Vec.y,Vec.x,Vec.z);
+  };
   
   // The following methods for drawing have x and y inverted because opengl is such
   public static void drawLine(Applet applet, Vector P, Vector Q) {
@@ -80,4 +87,19 @@ public class Tools {
     applet.vertex((float) P.y, (float) P.x, (float) P.z, u, v);
   };
 
+  
+  // Shows vector V as arrow from point P 
+  public static void arrow(Applet applet, Vector P, Vector Vec) {
+	  drawLine(applet, P, Vec);  
+	  double n=Vec.length(); 
+	  if (n<0.01) return; 
+	  double s=Math.max(Math.min(.2,20/n),6/n);       
+	  Vector Q=V.add(P,Vec), U = V.mult(-s,Vec), W = rotate(applet, V.mult(.3,U));  // point and two vectors
+	  applet.beginShape(); 
+	  vertex(applet, V.add(V.add(Q,U),W)); 
+	  vertex(applet, Q); 
+	  vertex(applet, V.sub(V.add(Q,U),W)); 
+	  applet.endShape(applet.CLOSE);
+  
+  }
 }

@@ -1,7 +1,7 @@
 Running Graphics with UI
 ========================
 
-To have the Processing 1.5 applet show in MainSwing.java, go to MainSwing's run configurations. Inside the arguments tab and inside the VM Arguments field, place
+To have the Processing 1.5 applet show in pcm.graphics.Main.java, go to Main's run configurations (within Eclipse IDE). Inside the arguments tab and inside the VM Arguments field, place
 -Djava.library.path="src/data/dlls"
 or
 -Djava.library.path="src/data/dlls64"

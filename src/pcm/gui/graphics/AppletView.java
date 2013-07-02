@@ -19,9 +19,9 @@ public class AppletView {
   GL gl;
   PGraphicsOpenGL pgl;
 
-  // View parameters: focus, eye, and up vector, picked surface point Q and screen aligned vectors
+  // View parameters: focus, eye, up vector, and screen aligned vectors
   // {I,J,K} set when picked
-  public Vector E, F, U, Q, I, J, K, initE, initF, initU, initQ, initI, initJ, initK;
+  public Vector E, F, U, I, J, K, initE, initF, initU, initQ, initI, initJ, initK;
 
   public AppletView(Applet p) {
     applet = p;
@@ -137,7 +137,6 @@ public class AppletView {
     Tools.printVec("Eye", E);
     Tools.printVec("Focus", F);
     Tools.printVec("Up", U);
-    // Tools.printVec("Q", Q); unnecessary for now
     Tools.printVec("I", I);
     Tools.printVec("J", J);
     Tools.printVec( "K", K);

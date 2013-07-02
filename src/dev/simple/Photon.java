@@ -15,15 +15,12 @@ import pcm.model.geom.Vector;
  */
 public class Photon {
 
-  public static double X = 1;
-  public static double Y = 1;
-  public static double Z = 1;
+  public double X = 1;
+  public double Y = 1;
+  public double Z = 1;
 
   public Vector r = new Vector(), n = new Vector();
   public Vector r0 = new Vector(), n0 = new Vector();
-  
-  // Temporary orbit interfacing with AppletModel
-  public double degrees = -1;
   //
   
   public double w, f, E;
@@ -62,10 +59,13 @@ public class Photon {
     r.y = Y * PCM3D.rnd.nextDouble();
     r.z = Z;
     r0 = r.clone();
+    
     f = genFreq();
     w = 299792458/f;
     E = 1.986e-25/w;
+    
     stat.newPhoton(r);
+    stat.extendTail(n0);
   }
 
   public double genFreq() {
@@ -107,7 +107,10 @@ public class Photon {
   public boolean bounce(Vector v) {
     n.add(V.mult(-2 * n.dot(v), v));
     // Statistics here
-    if (absorpsionChance()) {
+    if (E < 2.403e-19) {
+      stat.addPath(r);
+      return true;
+    } else if (absorpsionChance()) {
       absorb();
       return true;
     } else {
@@ -122,7 +125,7 @@ public class Photon {
    * @return true if absorbed
    */
   public boolean absorpsionChance() {
-    return (E > 2.403e-19 && PCM3D.rnd.nextDouble() < .2);
+    return PCM3D.rnd.nextDouble() < .2;
   }
 
   /**

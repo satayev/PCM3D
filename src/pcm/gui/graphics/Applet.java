@@ -17,49 +17,55 @@ import processing.opengl.PGraphicsOpenGL;
  */
 public class Applet extends PApplet {
 
-  //GL2 gl;
-  GL gl;
-  PGraphicsOpenGL pgl;
-
   int width, height; // screen size
-  int viewsShowing;
   
-// temp for bottom right viewport changing
-int z=3;
-
-boolean test=true;
-
+  Earth earth;
   AppletModel model;
+
+  //GL2 gl; // processing 2.09
+  GL gl; // processing 1.5
+PGraphicsOpenGL pgl;
 
   public PImage CNTimg; // carbon nanotube texture
   // Buttons
   PImage resetButton, playButton, pauseButton, nextButton, viewsButton;
 
   AppletView[] views=new AppletView[6]; // main, top, front, left, right, back
+  int z=3; // for multi-side-view changing
+  
   int t;
   
   public Applet() {
-    this(600,600);
+    this(800,600);
   }
   
+  /*
+   * Constructor which sets up the views (camera orientations) upon the model to draw within different viewports
+   * 
+   * @param w width of applet
+   * @param h height of applet
+   */
   public Applet(int w, int h) {
-    this(w, h, new AppletModel());
-  }
-  
-  public Applet(int w, int h, AppletModel model) {
-    width = w;
-    height = h;
+	    this(w, h, new AppletModel(), new Earth());
+	  }
+	  
+	  public Applet(int w, int h, AppletModel model, Earth earth) {
+	    width = w;
+	    height = h;
 
-    this.model = model;
-    
-    viewsShowing=3;
+	    this.model = model;
+	    this.earth = earth;
+	    earth.load(this);
     
     // Main view
     views[0] = new AppletView(this, 
-        new Vector(-237.67475172390084, 369.7502131296976, 322.29050694796695),
-        new Vector(.5*model.magnif, .5*model.magnif, .5*model.magnif),
-        new Vector(0.0, 0.0, -1.0),
-        new Vector(1, 0, 0),new Vector(0, 0, -1),new Vector(0, 1, 0)
+    new Vector(-1128.6199393109357, 941.991259236962, 783.8264517578489),
+    new Vector(.5*model.magnif, .5*model.magnif, .5*model.magnif),
+    new Vector(0.0, 0.0, -1.0),
+    new Vector(1.0, 0.0, 0.0),
+    new Vector(0.0, 0.0, -1.0),
+    new Vector(0.0, 1.0, 0.0)
+    
     );
     
     // Top view
@@ -105,27 +111,16 @@ boolean test=true;
     
   }
   
-  public Applet(int w, int h, int windowsNum, int window, Vector E, Vector F, Vector U, Vector I, Vector J, Vector K,
-      AppletModel model) {
-    width = w;
-    height = h;
 
-    viewsShowing=1;
-    views[0] = new AppletView(this, E, F, U, I, J, K);
-    this.model = model;
-
-  }
-
-  // Called upon running this applet
+  /*
+   * Called upon running this applet(non-Javadoc)
+   * @see processing.core.PApplet#setup()
+   */
   public void setup() {
     size(width, height, OPENGL);
     frameRate(60);
     
     CNTimg = loadImage("cnt.jpg");
-    playButton = loadImage("play.jpg");
-    pauseButton = loadImage("pause.jpg");
-    nextButton = loadImage("next.jpg");
-    resetButton = loadImage("reset.jpg");
     viewsButton = loadImage("viewcontrols.jpg");
 
     addMouseWheelListener(new MouseWheelListener() {
@@ -136,64 +131,69 @@ boolean test=true;
 
   }
 
-  // Drawing function called every frame
+  /*
+   * Processing applet drawing function called every frame(non-Javadoc)
+   * @see processing.core.PApplet#draw()
+   */
   public void draw() {
     //println(frameRate);
     background(Tools.llgray);
     //background(Tools.black);
 
+    // Speed of animation depends on number of max photons shown
     t++;
     if (t>=(101-model.maxPhotons) && model.runAnim) {
-      model.addPhoton();
+      if (model.runningPaths < model.maxPhotons) model.addPhoton();
       t=0;
     }
+    if (model.runningPaths > model.paths.size()) model.run();
 
     
-    if (viewsShowing==3){
-      float cameraZ =((float)(height/2.0) / tan((float)(PI*60.0/360.0))); //default
-      perspective((float)(PI/40.0), (float)(width)/(float)(height), (float)(cameraZ/10.0), (float)(cameraZ*10.0));
- 
-      
-    // Bottom left port - top view
-    gl = ((PGraphicsOpenGL)g).beginGL();
-    gl.glViewport(0, 0,  width/2, height/2);  
-    ((PGraphicsOpenGL)g).endGL();
-    renderScene(views[1], false);
-    ((PGraphicsOpenGL)g).endGL();
-
-    perspective((float)(PI/10.0), (float)(width)/(float)(height), (float)(cameraZ/10.0), (float)(cameraZ*10.0));
-    
-    // Bottom right port - front, either side, or back view
-    gl = ((PGraphicsOpenGL)g).beginGL();
-    gl.glViewport(width/2, 0, width/2, height/2);  
-    ((PGraphicsOpenGL)g).endGL();
-    renderScene(views[z],false);
-    ((PGraphicsOpenGL)g).endGL();  
-
-    }
-    
-
-    // main view taking up half of screen
+    // Main view
     float fov = (float)(PI/3.0); // field of view (default)
-    float aspect = (float)(width)/(float)(height/2);
-    float cameraZ =((float)(height/2.0) / tan((float)(PI*60.0/360.0))); 
+    // float aspect = (float)(width)/(float)(height/2); // as top half
+    float aspect = (float)(width - height/2)/(float)(height);
+    float cameraZ =((float)(height) / tan((float)(PI*60.0/360.0))); 
     //default
-    perspective(fov, aspect, (float)(cameraZ/10.0), (float)(cameraZ*10.0));
+    perspective(fov/3, aspect, (float)(cameraZ/10.0), (float)(cameraZ*10.0));
     
-    
-    // Top port - main view
     gl = ((PGraphicsOpenGL)g).beginGL();
-    if (viewsShowing==1)
-      gl.glViewport(0, 0, width, height);  
-    else if (viewsShowing==3)
-      gl.glViewport(0, height/2, width, height/2);
+    //gl.glViewport(0, height/2, width, height/2); // as top half
+    //gl.glViewport(0, 0, width/2, height); // as left half
+    gl.glViewport(height/2, 0, width - height/2, height); // as right half
     ((PGraphicsOpenGL)g).endGL();
     renderScene(views[0], true);
-    
+    //TODO - vary speed according to how fast model's angles are changing
+    if (model.runAnim)
+  	  earth.draw(true, 5);
+    else
+  	  earth.draw(false, 5);
     userInput(views[0]);
     
     ((PGraphicsOpenGL)g).endGL();  
     
+    
+    cameraZ =((float)(height/2.0) / tan((float)(PI*60.0/360.0))); //default
+    
+ // Bird's eye (top) view
+    perspective((float)(PI/47.0), 1, (float)(cameraZ/10.0), (float)(cameraZ*10.0)); // small fov for non-immersive orthogalized view
+  gl = ((PGraphicsOpenGL)g).beginGL();
+  //gl.glViewport(0, 0,  width/2, height/2);  // as bottom left port 
+  //gl.glViewport(width/2, height/2,  width/2, height/2); // as top right
+  gl.glViewport(0, height/2,  height/2, height/2); // as top left
+  ((PGraphicsOpenGL)g).endGL();
+  renderScene(views[1], false);
+  ((PGraphicsOpenGL)g).endGL();
+
+//Front, either side, or back view, determined by z
+perspective((float)(PI/13.0), 1, (float)(cameraZ/10.0), (float)(cameraZ*10.0));
+  gl = ((PGraphicsOpenGL)g).beginGL();
+  //gl.glViewport(width/2, 0, width/2, height/2);  // as bottom right
+  gl.glViewport(0, 0, height/2, height/2); // as bottom left
+  ((PGraphicsOpenGL)g).endGL();
+  renderScene(views[z],false);
+  ((PGraphicsOpenGL)g).endGL();  
+
     
     perspective();
     
@@ -207,31 +207,31 @@ boolean test=true;
     
   }
 
+  /*
+   * A view (camera orientation) has the model's solar cell drawn upon it.
+   * 
+   * @param view the view camera and frame information for drawing on an alternate viewport
+   * @param updatePhotons whether or not the model needs to be updated which should be once every frame, so one out of the views drawn needs this set as true
+   */
   void renderScene(AppletView view, boolean updatePhotons) {
     view.camera();
     
     //view.castLights();
     noLights();
     
+    colorMode(RGB); 
+    
+    // TODO Check spotlight
     // Last two args of spotLight():
     // angle = proportion of cone that is illuminated (2PI is whole scene, PI/4 is 1/8th of scene) I think
     // concentration = 1 to 10000 bias of light focusing toward the center of that cone
-    colorMode(RGB); 
-    
-    /*
-     * TODO for some reason this works in another applet and not here
-     */
     spotLight(255, 255, 255, (float)model.sunPos.x*model.magnif, (float)model.sunPos.y*model.magnif, (float)model.sunPos.z*model.magnif, (float)model.sunDir.x, (float)model.sunDir.y, (float)model.sunDir.z, PI/15, 1);
     specular(255, 255, 255);
 
     model.drawFloorGrid(this);
     model.drawSurfaces(this);
-    model.drawPhotons(this, updatePhotons, test);
+    model.drawPhotons(this, updatePhotons);
     
-    /*
-     * TODO: maybe only need for cell creation stage
-     * 
-     */
     // Spheres on grid for easy identification of camera orientation
     lights();
     fill(Tools.white);stroke(Tools.white);
@@ -248,6 +248,14 @@ boolean test=true;
     sphere(14);
     popMatrix();
 
+    //TODO
+    // Rendering compass
+    Vector compass = new Vector(7+model.magnif, 7+model.magnif,0);
+    Tools.arrow(this, compass, new Vector(1,0,0)); // south
+    Tools.arrow(this, compass, new Vector(-1,0,0)); // north
+    Tools.arrow(this, compass, new Vector(0,1,0)); // 
+    Tools.arrow(this, compass, new Vector(0,-1,0)); // 
+    
     // Grid coordinates
     fill(Tools.black);
     pushMatrix();
@@ -262,38 +270,40 @@ boolean test=true;
   }
   
   
-  // Keyboard input and mouse press
+  /*
+   *  Keyboard input and mouse press aside from GUI for running animation and other things in stand-alone Applet
+   *  
+   * @param view the view camera and frame information for accessing an alternate viewport
+   */
   void userInput(AppletView view) {
     if (keyPressed) {
       if (key == 'p') {
-        //view.printVecs();
-        println(model.printOutput);
+        view.printVecs();
+        //println(model.printOutput);
       }
-      if (key == 'r' && mousePressed) {
-        // Rotating
-        view.rotate(pmouseX, pmouseY, mouseX, mouseY);
-      }
-
       if (key == CODED) {
-        // Zooming in and out
-        if (keyCode == UP)
-          view.zoomIn();
-        else if (keyCode == DOWN)
-          view.zoomOut();
         // Altering speed of photon animation
-        else if (keyCode == LEFT)
+        if (keyCode == LEFT)
           model.speed *= .99;
         else if (keyCode == RIGHT)
           model.speed *= 1.01;
       }
-      if (key == ' ') {
-        view.initView();
+
+      if (key == 't') {
+            model.reset();
+      }
+      if (key == 'r') {
+        model.runAnim = !model.runAnim;
+        if (model.runAnim)
+        	println("Running animation");
+        else
+        	println("Stopped animation");
       }
     }
     else if (mousePressed) {
 
       if (mouseButton == LEFT) {
-        // Camera looking around
+        // Camera looking around or panning
         view.lookAround(pmouseX, pmouseY, mouseX, mouseY);
         //view.setFrame();
       }
@@ -311,55 +321,71 @@ boolean test=true;
       views[0].zoomOut();
   }
 
-  // Button listener
+  /*
+   * Listener for interactive buttons
+   * @see processing.core.PApplet#mouseClicked()
+   */
   public void mouseClicked() {
-    
-    if (key == 't') {
-      test=!test;
-    } 
-    if (mouseButton == LEFT) {
-      if (mouseX < 50 && mouseY < 50)
-        model.reset();
-      if (mouseX > 50 && mouseX < 100 && mouseY <50) {
-        model.runAnim = !model.runAnim;
-        if (model.runAnim)
-        	println("Running animation");
-        else
-        	println("Stopped animation");
-      }
-      if (mouseX > 100 && mouseX < 150 && mouseY <50)
-        model.addPhoton();
-      if (mouseX > width - viewsButton.width - 5 && mouseX < width - viewsButton.width/2 - 5 && mouseY > height/2 + 5 && mouseY < height/2 + viewsButton.height + 5){
+      if (mouseX > width-45 && mouseY < 25) {
+          views[0].initView();
+        }
+      
+      // When multiview at bottom right
+//      if (mouseX > width - viewsButton.width - 5 && mouseX < width - viewsButton.width/2 - 5 && mouseY > height/2 + 5 && mouseY < height/2 + viewsButton.height + 5){
+//          z--;
+//          if (z<2) z=5;
+//        }
+//      else if (mouseX > width - viewsButton.width/2 - 5 && mouseX < width - 5 && mouseY > height/2 + 5 && mouseY < height/2 + viewsButton.height + 5){
+//          z++;
+//          if (z>=6) z=2;
+//        }
+   // When multiview at bottom left (only change: width -> height/2)
+      if (mouseX > height/2 - viewsButton.width - 5 && mouseX < height/2 - viewsButton.width/2 - 5 && mouseY > height/2 + 5 && mouseY < height/2 + viewsButton.height + 5){
           z--;
           if (z<2) z=5;
         }
-      else if (mouseX > width - viewsButton.width/2 - 5 && mouseX < width - 5 && mouseY > height/2 + 5 && mouseY < height/2 + viewsButton.height + 5){
+      else if (mouseX > height/2 - viewsButton.width/2 - 5 && mouseX < height/2 - 5 && mouseY > height/2 + 5 && mouseY < height/2 + viewsButton.height + 5){
           z++;
           if (z>=6) z=2;
         }
-    }
+
 
   }
 
-  // Showing buttons and instructions
+  /*
+   * Showing interactive buttons and instructions
+   */
   void userPanel() {
     hint(DISABLE_DEPTH_TEST);
     camera();
     
     stroke(Tools.black);
-    line(0, height/2, width, height/2);
-    line(width/2, height/2, width/2, height);
     
-    image(viewsButton, width - viewsButton.width - 5, height/2 + 5);
+//    // main view at top
+//    line(0, height/2, width, height/2);
+//    line(width/2, height/2, width/2, height);
+//    // main view at left
+//    line(width - height/2, 0, width - height/2, height);
+//    line(width - height/2, height/2, width, height/2);
+    // main view at right
+    line(height/2, 0, height/2, height);
+    line(height/2, height/2, 0, height/2);
+    noStroke();
+    noFill();
+    noTint();
+    // multiview at bottom right
+    //image(viewsButton, width - viewsButton.width - 5, height/2 + 5);
+    // multiview at bottom left
+    image(viewsButton, height/2 - viewsButton.width - 5, height/2 + 5);
     
-//    image(resetButton, 5, 5);
-//    if (model.runAnim)
-//      image(pauseButton, 50, 5);
-//    else
-//      image(playButton, 50, 5);
-//    image(nextButton, 100, 5);
-
-    //Tools.scribe(this, "click to look around\nr and click to rotate\nup and down arrows to zoom\nspacebar to reset view", 5,playButton.height + 20);
+    // Reset main view button
+    lights();
+    colorMode(RGB);
+    fill(Tools.dgray);
+    rect(width-45, 5, 40,20);
+    fill(Tools.white);
+    textSize(15);
+    Tools.scribe(this, "reset", width-42, 20);
 
     hint(ENABLE_DEPTH_TEST);
   }
