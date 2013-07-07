@@ -10,38 +10,28 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 
 import pcm.gui.graphics.*;
 
 import javafx.scene.Node;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
-import processing.core.PApplet;
 
 import javafx.scene.control.*;
-import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 public class UIMockupController implements Initializable {
 
-  public Button csReset;
-  public Button csAdd;
+  public Button csReset, csAdd;
   public ShapePane csPane;
   public FlowPane shapePicker;
   public AnchorPane shapeCanvas;
-  public TextField csEdgeCount;
+  public TextField csEdgeCount, shapeRotation, shapeScale;
   private CSNode head;
 
   public Tab simulationTab;
@@ -55,105 +45,7 @@ public class UIMockupController implements Initializable {
 
   @Override
   public void initialize(URL url, ResourceBundle rb) {
-
-    /*
-     * Panel tab controls
-     */
-    assert csReset != null : "fx:id=\"csReset\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    assert csAdd != null : "fx:id=\"csAdd\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    assert csPane != null : "fx:id=\"csPane\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    assert shapePicker != null : "fx:id=\"shapePicker\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    assert shapeCanvas != null : "fx:id=\"shapeCanvas\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    assert csEdgeCount != null : "fx:id=\"csEdgeCount\" was not injected: check your FXML file 'UIMockup.fxml'.";
-
-    csReset.setOnAction(new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent t) {
-        csPane.clear();
-
-        int count;
-        try {
-          count = Integer.parseInt(csEdgeCount.getText());
-        } catch (NumberFormatException e) {
-          System.out.println(e);
-          return;
-        }
-
-        CSNode[] nodes = new CSNode[count];
-        Line[] edges = new Line[count];
-
-        double thetaDelta = 2 * Math.PI / count;
-
-        for (int i = 0; i < count; i++) {
-          nodes[i] = new CSNode(null, null);
-
-          double theta = thetaDelta * i;
-          nodes[i].layoutXProperty().set(100 + 90 * Math.cos(theta));
-          nodes[i].layoutYProperty().set(100 + 90 * Math.sin(theta));
-        }
-        for (int i = 0; i < count; i++) {
-          int j = i + 1 == count ? 0 : i + 1;
-          nodes[i].prev = i == 0 ? nodes[count - 1] : nodes[i - 1];
-          nodes[i].next = nodes[j];
-
-          edges[i] = new Line();
-          edges[i].startXProperty().bind(nodes[i].layoutXProperty());
-          edges[i].startYProperty().bind(nodes[i].layoutYProperty());
-          edges[i].endXProperty().bind(nodes[j].layoutXProperty());
-          edges[i].endYProperty().bind(nodes[j].layoutYProperty());
-        }
-
-        head = nodes[0];
-
-        csPane.getChildren().addAll(edges);
-        csPane.getChildren().addAll(nodes);
-      }
-    });
-    csAdd.setOnAction(new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent t) {
-        if (head == null || head.next == head)
-          return;
-
-        CSNode currNode = head;
-        do {
-          currNode.setLayoutX(currNode.getLayoutX() * 0.5d);
-          currNode.setLayoutY(currNode.getLayoutY() * 0.5d);
-          currNode = currNode.next;
-        } while (currNode != head);
-
-        shapePicker.getChildren().add(new ShapePane(head, 0.0d, true));
-
-        do {
-          currNode.setLayoutX(currNode.getLayoutX() * 2.0d);
-          currNode.setLayoutY(currNode.getLayoutY() * 2.0d);
-          currNode = currNode.next;
-        } while (currNode != head);
-      }
-    });
-    shapeCanvas.setOnDragOver(new EventHandler<DragEvent>() {
-      @Override
-      public void handle(DragEvent t) {
-        t.acceptTransferModes(TransferMode.ANY);
-        ShapePane.dragPreview.layoutXProperty().set(t.getSceneX() - 100.0d);
-        ShapePane.dragPreview.layoutYProperty().set(t.getSceneY() - 148.0d);
-        t.consume();
-      }
-    });
-    shapeCanvas.setOnDragEntered(new EventHandler<DragEvent>() {
-      @Override
-      public void handle(DragEvent t) {
-        shapeCanvas.getChildren().add(ShapePane.dragPreview);
-        t.consume();
-      }
-    });
-    shapeCanvas.setOnDragDropped(new EventHandler<DragEvent>() {
-      @Override
-      public void handle(DragEvent t) {
-        t.setDropCompleted(true);
-        t.consume();
-      }
-    });
+      initializePatternTab();
 
     /*
      * Simulation tab controls using AppletInterfacer
@@ -287,4 +179,148 @@ public class UIMockupController implements Initializable {
     //        });
 
   }
+  
+  private void initializePatternTab() {
+        shapeRotation.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> ov, String t, String t1) {
+                double rotation;
+                try {
+                    rotation = Double.parseDouble(t1);
+                } catch (NumberFormatException e) {
+                    System.out.println(e);
+                    return;
+                }
+                
+                for (Node shape : shapePicker.getChildren())
+                    shape.rotateProperty().set(rotation);
+            }
+        });
+        csReset.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+                csPane.clear();
+
+                int count;
+                try {
+                    count = Integer.parseInt(csEdgeCount.getText());
+                } catch (NumberFormatException e) {
+                    System.out.println(e);
+                    return;
+                }
+
+                CSNode[] nodes = new CSNode[count];
+                Line[] edges = new Line[count];
+
+                double thetaDelta = 2 * Math.PI / count;
+
+                for (int i = 0; i < count; i++) {
+                    nodes[i] = new CSNode(null, null);
+
+                    double theta = thetaDelta * i;
+                    nodes[i].layoutXProperty().set(100 + 90 * Math.cos(theta));
+                    nodes[i].layoutYProperty().set(100 + 90 * Math.sin(theta));
+                }
+                for (int i = 0; i < count; i++) {
+                    int j = i + 1 == count ? 0 : i + 1;
+                    nodes[i].prev = i == 0 ? nodes[count - 1] : nodes[i - 1];
+                    nodes[i].next = nodes[j];
+
+                    edges[i] = new Line();
+                    edges[i].startXProperty().bind(nodes[i].layoutXProperty());
+                    edges[i].startYProperty().bind(nodes[i].layoutYProperty());
+                    edges[i].endXProperty().bind(nodes[j].layoutXProperty());
+                    edges[i].endYProperty().bind(nodes[j].layoutYProperty());
+                }
+
+                head = nodes[0];
+
+                csPane.getChildren().addAll(edges);
+                csPane.getChildren().addAll(nodes);
+
+                t.consume();
+            }
+        });
+        csAdd.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+                if (head == null || head.next == head)
+                    return;
+
+                CSNode currNode = head;
+                do {
+                    currNode.setLayoutX(currNode.getLayoutX() * 0.5d);
+                    currNode.setLayoutY(currNode.getLayoutY() * 0.5d);
+                    currNode = currNode.next;
+                } while (currNode != head);
+                
+                ShapePane newShape = new ShapePane(head, 0.0d, true);
+                try {
+                    newShape.rotateProperty().set(Double.parseDouble(shapeRotation.getText()));
+                } catch (NumberFormatException e) {
+                    System.out.println(e);
+                }
+                
+                shapePicker.getChildren().add(newShape);
+
+//                do {
+//                    currNode.setLayoutX(currNode.getLayoutX() * 2.0d);
+//                    currNode.setLayoutY(currNode.getLayoutY() * 2.0d);
+//                    currNode = currNode.next;
+//                } while (currNode != head);
+                
+                csPane.clear();
+                head = null;
+
+                t.consume();
+            }
+        });
+        shapeCanvas.setOnDragOver(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent t) {
+                t.acceptTransferModes(TransferMode.ANY);
+                
+                double radius;
+                try {
+                    radius = Double.parseDouble(shapeScale.getText()) / 2 - 50;
+                } catch (NumberFormatException e) {
+                    System.out.println(e);
+                    return;
+                }
+                
+                ShapePane.dragPreview.layoutXProperty().set(Math.max(radius, Math.min(
+                        t.getX() - 50.0d, shapeCanvas.getWidth() - radius - 100.0d)));
+                ShapePane.dragPreview.layoutYProperty().set(Math.max(radius, Math.min(
+                        t.getY() - 50.0d, shapeCanvas.getHeight() - radius - 100.0d)));
+                
+                t.consume();
+            }
+        });
+        shapeCanvas.setOnDragEntered(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent t) {
+                if (!shapeCanvas.getChildren().contains(ShapePane.dragPreview)) {
+                    double scale = 1.0d;
+                    try {
+                        scale = Double.parseDouble(shapeScale.getText()) / 100.0d;
+                    } catch (NumberFormatException e) {
+                        System.out.println(e);
+                        return;
+                    }
+                    
+                    ShapePane.dragPreview.scaleXProperty().set(scale);
+                    ShapePane.dragPreview.scaleYProperty().set(scale);
+                    shapeCanvas.getChildren().add(ShapePane.dragPreview);
+                }
+                t.consume();
+            }
+        });
+        shapeCanvas.setOnDragDropped(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent t) {
+                t.setDropCompleted(true);
+                t.consume();
+            }
+        });
+    }
 }
