@@ -163,10 +163,10 @@ public class UIMockupController implements Initializable {
       @Override
       public void handle(Event t) {
         if (simulationTab.isSelected()) {
-          Main.appletInterfacer.open();
+          AppletInterfacer.open();
         }
         else {
-          Main.appletInterfacer.standBy();
+          AppletInterfacer.standBy();
         }
       }
     });
@@ -176,15 +176,17 @@ public class UIMockupController implements Initializable {
     animationButton.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent e) {
-        //Main.appletInterfacer.updateModel((int)modelSizeSlider.getValue());
-        Main.appletInterfacer.toggleAnim();
-        //Main.appletModel.setParams(degreesSlider.getValue(), (int)photonsSlider.getValue(), (int)modelSizeSlider.getValue());
+        //AppletInterfacer.updateModel((int)modelSizeSlider.getValue());
+        //AppletInterfacer.toggleAnim();
+        //AppletModel.setParams(degreesSlider.getValue(), (int)photonsSlider.getValue(), (int)modelSizeSlider.getValue());
 
         // User inputed values updated in model on animationButton press
-        Main.appletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()),
-            Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
+        //AppletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()),  Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
 
-        if (Main.appletInterfacer.getAnimState()) {
+        AppletInterfacer.update(Double.parseDouble(zenithField.getText()), Double.parseDouble(azimuthField.getText()), Double.parseDouble(latitudeField.getText()),
+            Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
+        
+        if (AppletInterfacer.getAnimState()) {
           animationButton.setText("Pause Simulation");
         }
         else {
@@ -199,8 +201,8 @@ public class UIMockupController implements Initializable {
     Timeline fiveSecondsWonder = new Timeline(new KeyFrame(Duration.seconds(.1), new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent event) {
-        simulationResults.setText(Main.appletInterfacer.modelStats());
-
+        simulationResults.setText(AppletInterfacer.modelStats());
+        
       }
     }));
     fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
@@ -212,35 +214,40 @@ public class UIMockupController implements Initializable {
     assert longitudeField != null : "fx:id=\"longitudeField\" was not injected: check your FXML file 'UIMockup.fxml'.";
     assert toEquatorCheckBox != null : "fx:id=\"toEquatorCheckBox\" was not injected: check your FXML file 'UIMockup.fxml'.";
 
+    zenithField.setText(String.valueOf(AppletInterfacer.getZenith()));
+    azimuthField.setText(String.valueOf(AppletInterfacer.getAzimuth()));
+    
     // TODO - Add ability for user to choose switch to radians?
     // TODO - Accept only valid values from text fields, prompt user when invalid
     zenithField.setOnKeyReleased(new EventHandler<KeyEvent>() {
       public void handle(KeyEvent ke) {
-        Main.appletInterfacer.updateModel(Double.parseDouble(zenithField.getText()), Double.parseDouble(azimuthField.getText()));
+        //AppletInterfacer.updateModel(Double.parseDouble(zenithField.getText()), Double.parseDouble(azimuthField.getText()));
+        AppletInterfacer.changed = true; animationButton.setText("Reset");
       }
     });
     azimuthField.setOnKeyReleased(new EventHandler<KeyEvent>() {
       public void handle(KeyEvent ke) {
-        Main.appletInterfacer.updateModel(Double.parseDouble(zenithField.getText()), Double.parseDouble(azimuthField.getText()));
+        //AppletInterfacer.updateModel(Double.parseDouble(zenithField.getText()), Double.parseDouble(azimuthField.getText()));
+        AppletInterfacer.changed = true;animationButton.setText("Reset");
       }
     });
     latitudeField.setOnKeyReleased(new EventHandler<KeyEvent>() {
       public void handle(KeyEvent ke) {
-        Main.appletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()),
-            Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
+        //AppletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()), Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
+        AppletInterfacer.changed = true;animationButton.setText("Reset");
       }
     });
     longitudeField.setOnKeyReleased(new EventHandler<KeyEvent>() {
       public void handle(KeyEvent ke) {
-        Main.appletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()),
-            Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
+        //AppletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()), Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
+        AppletInterfacer.changed = true;animationButton.setText("Reset");
       }
     });
     toEquatorCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
       @Override
       public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-        Main.appletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()),
-            Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
+        //AppletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()),    Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
+       AppletInterfacer.changed = true;animationButton.setText("Reset");
       }
     });
 
@@ -258,7 +265,7 @@ public class UIMockupController implements Initializable {
     //        degreesSlider.valueProperty().addListener(new ChangeListener<Number>() {
     //            public void changed(ObservableValue<? extends Number> ov,
     //                Number old_val, Number new_val) {
-    //        		Main.appletInterfacer.changed();
+    //        		AppletInterfacer.changed();
     //        		degreesLabel.setText(Double.toString(degreesSlider.getValue()));
     //            }
     //        });
@@ -266,7 +273,7 @@ public class UIMockupController implements Initializable {
     //        photonsSlider.valueProperty().addListener(new ChangeListener<Number>() {
     //            public void changed(ObservableValue<? extends Number> ov,
     //                Number old_val, Number new_val) {
-    //        		Main.appletInterfacer.changed();
+    //        		AppletInterfacer.changed();
     //            	photonsLabel.setText(String.valueOf((int)photonsSlider.getValue()));
     //            }
     //        });
@@ -274,7 +281,7 @@ public class UIMockupController implements Initializable {
     //        modelSizeSlider.valueProperty().addListener(new ChangeListener<Number>() {
     //            public void changed(ObservableValue<? extends Number> ov,
     //                Number old_val, Number new_val) {
-    //        		Main.appletInterfacer.changed();
+    //        		AppletInterfacer.changed();
     //            	modelSizeLabel.setText(String.valueOf(Math.pow((int)modelSizeSlider.getValue(), 2)));
     //            }
     //        });
