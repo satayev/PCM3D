@@ -11,11 +11,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Paint;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
 public class ShapePane extends AnchorPane {
-    private Rectangle background;
+    protected Rectangle background;
     private CSNode head;
     public static ShapePane dragPreview;
     
@@ -69,11 +70,14 @@ public class ShapePane extends AnchorPane {
             nodes[i].layoutYProperty().set(origNodes.get(i).layoutYProperty().get());
         }
         for (int i = 0; i < nodes.length; i++) {
-            nodes[i].prev = i == 0 ? nodes[nodes.length - 1] : nodes [i - 1];
+            nodes[i].prev = i == 0 ? nodes[nodes.length - 1] : nodes[i - 1];
             nodes[i].next = i == nodes.length - 1 ? nodes[0] : nodes[i + 1];
         }
         
-        return new ShapePane(nodes[0], 0.0d, false);
+        ShapePane copy = new ShapePane(nodes[0], 0.0d, false);
+        copy.rotateProperty().set(rotateProperty().doubleValue());
+        copy.setFill(Color.BLUE);
+        return copy;
     }
     
     private void setShape(CSNode firstNode) {

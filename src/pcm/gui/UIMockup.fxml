@@ -16,8 +16,9 @@
   <tabs>
     <Tab closable="false" text="Pattern">
       <content>
-        <AnchorPane fx:id="shapeCanvas">
+        <AnchorPane style="-fx-background-color:silver;">
           <children>
+            <AnchorPane fx:id="shapeCanvas" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" style="-fx-background-color:white;&#10;-fx-brush-color:silver;" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="160.0" AnchorPane.rightAnchor="240.0" AnchorPane.topAnchor="24.0" />
             <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
               <menus>
                 <Menu mnemonicParsing="false" text="Open" />
@@ -31,7 +32,7 @@
                 <Menu mnemonicParsing="false" text="Preview" />
               </menus>
             </MenuBar>
-            <VBox prefWidth="240.0" style="-fx-background-color:silver;" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0">
+            <VBox prefWidth="240.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0">
               <children>
                 <HBox alignment="CENTER">
                   <children>
@@ -40,9 +41,9 @@
                         <Insets left="5.0" fx:id="x5_x0_x0" />
                       </HBox.margin>
                     </Label>
-                    <TextField prefWidth="80.0" HBox.hgrow="ALWAYS">
+                    <TextField fx:id="shapeScale" prefWidth="80.0" text="100" HBox.hgrow="ALWAYS">
                       <HBox.margin>
-                        <Insets left="23.0" right="5.0" />
+                        <Insets left="23.0" right="8.0" />
                       </HBox.margin>
                     </TextField>
                     <Label text="nm">
@@ -56,15 +57,15 @@
                   <children>
                     <Label text="Rotation">
                       <HBox.margin>
-                        <Insets left="5.0" fx:id="x5_x0_x0" />
+                        <Insets left="5.0" fx:id="x6_x0_x0" />
                       </HBox.margin>
                     </Label>
-                    <TextField prefWidth="80.0" HBox.hgrow="ALWAYS">
+                    <TextField fx:id="shapeRotation" prefWidth="80.0" text="0" HBox.hgrow="ALWAYS">
                       <HBox.margin>
                         <Insets left="5.0" right="5.0" fx:id="x5" />
                       </HBox.margin>
                     </TextField>
-                    <Label text="nm">
+                    <Label text="deg">
                       <HBox.margin>
                         <Insets left="5.0" right="10.0" fx:id="x7" />
                       </HBox.margin>
@@ -74,9 +75,9 @@
                 <HBox alignment="CENTER">
                   <children>
                     <Label text="Height" HBox.margin="$x5_x0_x0" />
-                    <TextField prefWidth="80.0" HBox.hgrow="ALWAYS">
+                    <TextField prefWidth="80.0" text="200" HBox.hgrow="ALWAYS">
                       <HBox.margin>
-                        <Insets left="15.0" right="5.0" />
+                        <Insets left="15.0" right="8.0" />
                       </HBox.margin>
                     </TextField>
                     <Label text="nm" HBox.margin="$x2" />
@@ -97,7 +98,7 @@
                                 </Label>
                                 <TextField fx:id="csEdgeCount" prefWidth="80.0" text="4" HBox.hgrow="ALWAYS">
                                   <HBox.margin>
-                                    <Insets left="5.0" right="5.0" fx:id="x5" />
+                                    <Insets left="5.0" right="5.0" fx:id="x10" />
                                   </HBox.margin>
                                 </TextField>
                                 <Button fx:id="csReset" mnemonicParsing="false" text="Begin">
@@ -120,29 +121,7 @@
                       <content>
                         <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER">
                           <content>
-                            <FlowPane fx:id="shapePicker" alignment="TOP_CENTER" columnHalignment="CENTER" hgap="10.0" vgap="10.0">
-                              <!--children>
-                                <Rectangle height="100.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="100.0">
-                                  <fill>
-                                    <Color blue="0.375" green="0.375" red="0.375" fx:id="x4" />
-                                  </fill>
-                                  <FlowPane.margin>
-                                    <Insets top="10.0" />
-                                  </FlowPane.margin>
-                                </Rectangle>
-                                <Circle fill="$x4" radius="50.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
-                                <Polygon fill="$x4" smooth="false" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
-                                  <points>
-                                    <Double fx:value="-50.0" />
-                                    <Double fx:value="40.0" />
-                                    <Double fx:value="50.0" />
-                                    <Double fx:value="40.0" />
-                                    <Double fx:value="0.0" />
-                                    <Double fx:value="-60.0" />
-                                  </points>
-                                </Polygon>
-                              </children-->
-                            </FlowPane>
+                            <FlowPane fx:id="shapePicker" alignment="TOP_CENTER" columnHalignment="CENTER" hgap="10.0" vgap="10.0" />
                           </content>
                         </ScrollPane>
                       </content>
@@ -152,6 +131,28 @@
                 </Accordion>
               </children>
             </VBox>
+            <HBox alignment="CENTER" prefHeight="45.0" prefWidth="170.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="160.0" AnchorPane.rightAnchor="240.0">
+              <children>
+                <Label text="Width" />
+                <TextField prefWidth="50.0" text="600">
+                  <HBox.margin>
+                    <Insets left="10.0" right="10.0" />
+                  </HBox.margin>
+                </TextField>
+                <Label text="nm" />
+              </children>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="600.0" prefWidth="160.0" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="24.0">
+              <children>
+                <Label text="Height" />
+                <TextField prefWidth="50.0" text="600">
+                  <HBox.margin>
+                    <Insets left="10.0" right="10.0" />
+                  </HBox.margin>
+                </TextField>
+                <Label text="nm" />
+              </children>
+            </HBox>
           </children>
         </AnchorPane>
       </content>
@@ -184,7 +185,7 @@
                               <children>
                                 <Label text="Zenith">
                                   <HBox.margin>
-                                    <Insets left="5.0" fx:id="x5" />
+                                    <Insets left="5.0" fx:id="x11" />
                                   </HBox.margin>
                                 </Label>
                                 <TextField fx:id="zenithField" prefWidth="20.0" text="90.0" HBox.hgrow="ALWAYS">
@@ -194,7 +195,7 @@
                                 </TextField>
                                 <Label text="degrees">
                                   <HBox.margin>
-                                    <Insets left="5.0" right="50.0" fx:id="x5_x0" />
+                                    <Insets left="5.0" right="50.0" fx:id="x6_x0" />
                                   </HBox.margin>
                                 </Label>
                               </children>
@@ -203,12 +204,12 @@
                               <children>
                                 <Label text="Azimuth">
                                   <HBox.margin>
-                                    <Insets left="5.0" right="5.0" fx:id="x5" />
+                                    <Insets left="5.0" right="5.0" fx:id="x12" />
                                   </HBox.margin>
                                 </Label>
                                 <TextField fx:id="azimuthField" prefWidth="20.0" text="0.0" HBox.hgrow="ALWAYS">
                                   <HBox.margin>
-                                    <Insets left="5.0" right="5.0" fx:id="x5" />
+                                    <Insets left="5.0" right="5.0" fx:id="x13" />
                                   </HBox.margin>
                                 </TextField>
                                 <Label text="degrees">
@@ -237,22 +238,22 @@
                               <children>
                                 <Label text="Latitude">
                                   <HBox.margin>
-                                    <Insets left="5.0" fx:id="x5" />
+                                    <Insets left="5.0" fx:id="x14" />
                                   </HBox.margin>
                                 </Label>
                                 <TextField fx:id="latitudeField" prefWidth="40.0" text="0.0" HBox.hgrow="ALWAYS">
                                   <HBox.margin>
-                                    <Insets left="5.0" right="5.0" fx:id="x5" />
+                                    <Insets left="5.0" right="5.0" fx:id="x15" />
                                   </HBox.margin>
                                 </TextField>
                                 <Label text="Longitude">
                                   <HBox.margin>
-                                    <Insets left="5.0" right="5.0" fx:id="x5" />
+                                    <Insets left="5.0" right="5.0" fx:id="x16" />
                                   </HBox.margin>
                                 </Label>
                                 <TextField fx:id="longitudeField" prefWidth="40.0" text="0.0" HBox.hgrow="ALWAYS">
                                   <HBox.margin>
-                                    <Insets left="5.0" fx:id="x5" />
+                                    <Insets left="5.0" fx:id="x17" />
                                   </HBox.margin>
                                 </TextField>
                               </children>
@@ -279,14 +280,14 @@
                       <content>
                         <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="292.0" prefWidth="239.0">
                           <children>
-                            <ScrollPane layoutX="0.0" layoutY="0.0" prefHeight="292.0" prefWidth="239.0" hbarPolicy="NEVER" >
+                            <ScrollPane hbarPolicy="NEVER" prefHeight="292.0" prefWidth="239.0">
                               <content>
-								<FlowPane prefWidth="230.0" alignment="CENTER" hgap="10.0" vgap="10.0">
-								  <children>
-									<Text fx:id="simulationResults" layoutX="20.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" />
-								  </children>
-								</FlowPane>
-							  </content>
+                                <FlowPane alignment="CENTER" hgap="10.0" prefWidth="230.0" vgap="10.0">
+                                  <children>
+                                    <Text fx:id="simulationResults" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                  </children>
+                                </FlowPane>
+                              </content>
                             </ScrollPane>
                           </children>
                         </AnchorPane>
