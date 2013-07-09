@@ -2,6 +2,7 @@ package pcm;
 
 import pcm.model.Model;
 import pcm.model.Photon;
+import pcm.model.RectangularPrismModel;
 import pcm.model.Statistics;
 import pcm.model.geom.Hit;
 import pcm.model.geom.Surface;
@@ -10,21 +11,32 @@ import pcm.model.geom.Vector;
 import pcm.model.geom.Wall;
 import pcm.model.geom.solids.Solid;
 import pcm.model.orbit.ISSOrbit;
+import pcm.model.statics.Wavelength;
+import pcm.model.statics.WavelengthAM0;
 
 public class AbsorptionSimulation {
 
   public final Model model;
   public final Statistics stats;
   public final ISSOrbit issOrbit;
+  public final Wavelength wavelength;
 
   public AbsorptionSimulation(Model model, ISSOrbit issOrbit) {
     // TODO(satayev): implement Threads here
     this.model = model;
     this.issOrbit = issOrbit;
+    this.wavelength = new WavelengthAM0();
     this.stats = new Statistics();
   }
 
-  private void resetPhoton(Photon photon) {
+  public AbsorptionSimulation(RectangularPrismModel model, Wavelength wavelength) {
+    this.model = model;
+    this.issOrbit = new ISSOrbit();
+    this.wavelength = wavelength;
+    this.stats = new Statistics();
+  }
+
+  private void resetPhoton(Photon photon, Vector v0) {
     photon.absorbed = false;
     photon.reflectionCounter = 0;
     
@@ -32,13 +44,17 @@ public class AbsorptionSimulation {
     photon.p.y = model.Y * (PCM3D.rnd.nextDouble() - 0.5);
     photon.p.z = model.Z;
 
-    photon.v = issOrbit.getSunlightDirection(0);
+    if (v0.length() == 0) photon.v = issOrbit.getSunlightDirection(0);
+    else photon.v = v0;
+    
+    photon.w = wavelength.genWavelength();
+    photon.E = 1.99e-25 / photon.w;
   }
 
   public void run(int n, Vector v0) throws Exception {
     Photon photon = new Photon(new Vector(), new Vector());
     while (n-- > 0) {
-      resetPhoton(photon);
+      resetPhoton(photon, v0);
 
       boolean done = false;
       for (Solid s : model.cnts)
