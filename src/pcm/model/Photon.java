@@ -25,6 +25,11 @@ public class Photon {
   /** Initial velocity of the photon (unit vector) */
   public Vector v0;
 
+  /** Wavelength of the photon */
+  public double w;
+  /** Energy of the photon */
+  public double E;
+
   public int reflectionCounter = 0;
   public boolean absorbed = false;
   public List<List<Vector>> path = new ArrayList<List<Vector>>(); // the path the photon takes

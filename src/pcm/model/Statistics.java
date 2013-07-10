@@ -41,4 +41,9 @@ public class Statistics {
     sb.append((double) photonAbsorbedCounter / photonTotalCounter);
     return sb.toString();
   }
+
+  public void setDetail(int details) {
+    maxPhotonPaths = details;
+    maxPhotonAbsorptionPoints = details;
+  }
 }

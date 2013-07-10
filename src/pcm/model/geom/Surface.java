@@ -2,6 +2,8 @@ package pcm.model.geom;
 
 import pcm.PCM3D;
 import pcm.model.Photon;
+import pcm.model.statics.BandgapEnergy;
+import pcm.model.statics.ProbabilityOfAbsorption;
 
 /**
  * Abstract Surface which can absorb a photon and provide information to properly reflect from it.
@@ -41,9 +43,11 @@ public abstract class Surface {
    */
   public boolean absorb(Photon photon) {
     // TODO(satayev): generate heat-maps
-    if (PCM3D.rnd.nextDouble() < 0.2)
-      return photon.absorbed = true;
-    return photon.absorbed = false;
+    if (ProbabilityOfAbsorption.test(photon.w)) {
+      if (photon.E < BandgapEnergy.genEnergy()) photon.absorbed = false;
+      else photon.absorbed = true;
+      return true;
+    } else return photon.absorbed = false;
   }
 
   @Override
