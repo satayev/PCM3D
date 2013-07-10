@@ -28,8 +28,8 @@ public class CSNode extends Circle {
             @Override
             public void handle(MouseEvent me) {
                 if (locked) return;
-                layoutXProperty().set(Math.min(Math.max(layoutXProperty().doubleValue() + me.getX(), 0.0), 200.0));
-                layoutYProperty().set(Math.min(Math.max(layoutYProperty().doubleValue() + me.getY(), 0.0), 200.0));
+                setLayoutX(Math.min(Math.max(getLayoutX() + me.getX(), 0.0), 200.0));
+                setLayoutY(Math.min(Math.max(getLayoutY() + me.getY(), 0.0), 200.0));
             }
         });
     }

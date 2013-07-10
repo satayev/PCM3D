@@ -1,13 +1,9 @@
 package pcm.gui.graphics;
 
+import dev.simple.SimpleFixedModel;
 import java.awt.FlowLayout;
-
-import javafx.beans.property.BooleanProperty;
-
 import javax.swing.JPanel;
-
 import processing.core.PApplet;
-import pcm.model.geom.*;
 
 /**
  * Holder for and modifier of JPanel and the Processing applet contained inside it.
@@ -39,6 +35,11 @@ public class AppletInterfacer {
     standBy();
 
     panel.add(applet);
+  }
+  
+  public static void setModel(SimpleFixedModel sfm) {
+      model.SFM = sfm;
+      model.LT = sfm.LT;
   }
 
   /*

@@ -1,12 +1,18 @@
 package pcm.gui;
 
+import dev.simple.FixedPhoton;
+import dev.simple.SimpleFixedModel;
+import dev.simple.Tower;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -24,163 +30,167 @@ import javafx.scene.layout.*;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import pcm.model.geom.Vector;
 
 public class UIMockupController implements Initializable {
 
-  public Button csReset, csAdd;
-  public ShapePane csPane;
-  public FlowPane shapePicker;
-  public AnchorPane shapeCanvas;
-  public TextField csEdgeCount, shapeRotation, shapeScale;
-  private CSNode head;
+    public static AnchorPane shapeCanvas;
+    public Button csReset, csAdd;
+    public ShapePane csPane;
+    public FlowPane shapePicker;
+    public TextField csEdgeCount, shapeRotation, shapeScale, shapeHeight;
+    private CSNode head;
+    public Tab simulationTab;
+    public Button animationButton;
+    public Text simulationResults;
+    public TextField zenithField, azimuthField, latitudeField, longitudeField;
+    public CheckBox toEquatorCheckBox;
+    public Slider degreesSlider, photonsSlider, modelSizeSlider;
+    public Label degreesLabel, photonsLabel, modelSizeLabel;
 
-  public Tab simulationTab;
-  public Button animationButton;
-  public Text simulationResults;
-  public TextField zenithField, azimuthField, latitudeField, longitudeField;
-  public CheckBox toEquatorCheckBox;
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        initializePatternTab();
 
-  public Slider degreesSlider, photonsSlider, modelSizeSlider;
-  public Label degreesLabel, photonsLabel, modelSizeLabel;
+        /*
+         * Simulation tab controls using AppletInterfacer
+         */
+        assert simulationTab != null : "fx:id=\"simulationTab\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        simulationTab.setOnSelectionChanged(new EventHandler<Event>() {
+            @Override
+            public void handle(Event t) {
+                if (simulationTab.isSelected()) {
+                    if (shapeCanvas.getChildren().size() > 0)
+                        AppletInterfacer.setModel(makeSFM());
+                    AppletInterfacer.open();
+                } else {
+                    AppletInterfacer.standBy();
+                }
+            }
+        });
 
-  @Override
-  public void initialize(URL url, ResourceBundle rb) {
-      initializePatternTab();
+        // Turning on or off animation
+        assert animationButton != null : "fx:id=\"animationButton\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        animationButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                //AppletInterfacer.updateModel((int)modelSizeSlider.getValue());
+                //AppletInterfacer.toggleAnim();
+                //AppletModel.setParams(degreesSlider.getValue(), (int)photonsSlider.getValue(), (int)modelSizeSlider.getValue());
 
-    /*
-     * Simulation tab controls using AppletInterfacer
-     */
-    assert simulationTab != null : "fx:id=\"simulationTab\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    simulationTab.setOnSelectionChanged(new EventHandler<Event>() {
-      @Override
-      public void handle(Event t) {
-        if (simulationTab.isSelected()) {
-          AppletInterfacer.open();
-        }
-        else {
-          AppletInterfacer.standBy();
-        }
-      }
-    });
+                // User inputed values updated in model on animationButton press
+                //AppletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()),  Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
 
-    // Turning on or off animation
-    assert animationButton != null : "fx:id=\"animationButton\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    animationButton.setOnAction(new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent e) {
-        //AppletInterfacer.updateModel((int)modelSizeSlider.getValue());
-        //AppletInterfacer.toggleAnim();
-        //AppletModel.setParams(degreesSlider.getValue(), (int)photonsSlider.getValue(), (int)modelSizeSlider.getValue());
+                AppletInterfacer.update(Double.parseDouble(zenithField.getText()), Double.parseDouble(azimuthField.getText()), Double.parseDouble(latitudeField.getText()),
+                        Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
 
-        // User inputed values updated in model on animationButton press
-        //AppletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()),  Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
+                if (AppletInterfacer.getAnimState()) {
+                    animationButton.setText("Pause Simulation");
+                } else {
+                    animationButton.setText("Play Simulation");
+                }
 
-        AppletInterfacer.update(Double.parseDouble(zenithField.getText()), Double.parseDouble(azimuthField.getText()), Double.parseDouble(latitudeField.getText()),
-            Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
-        
-        if (AppletInterfacer.getAnimState()) {
-          animationButton.setText("Pause Simulation");
-        }
-        else {
-          animationButton.setText("Play Simulation");
-        }
+            }
+        });
 
-      }
-    });
+        // Retrieving AppletModel's simulation stat results for viewing
+        assert simulationResults != null : "fx:id=\"simulationResults\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        Timeline fiveSecondsWonder = new Timeline(new KeyFrame(Duration.seconds(.1), new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                simulationResults.setText(AppletInterfacer.modelStats());
 
-    // Retrieving AppletModel's simulation stat results for viewing
-    assert simulationResults != null : "fx:id=\"simulationResults\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    Timeline fiveSecondsWonder = new Timeline(new KeyFrame(Duration.seconds(.1), new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent event) {
-        simulationResults.setText(AppletInterfacer.modelStats());
-        
-      }
-    }));
-    fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
-    fiveSecondsWonder.play();
+            }
+        }));
+        fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
+        fiveSecondsWonder.play();
 
-    assert zenithField != null : "fx:id=\"zenithField\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    assert azimuthField != null : "fx:id=\"azimuthField\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    assert latitudeField != null : "fx:id=\"latitudeField\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    assert longitudeField != null : "fx:id=\"longitudeField\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    assert toEquatorCheckBox != null : "fx:id=\"toEquatorCheckBox\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        assert zenithField != null : "fx:id=\"zenithField\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        assert azimuthField != null : "fx:id=\"azimuthField\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        assert latitudeField != null : "fx:id=\"latitudeField\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        assert longitudeField != null : "fx:id=\"longitudeField\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        assert toEquatorCheckBox != null : "fx:id=\"toEquatorCheckBox\" was not injected: check your FXML file 'UIMockup.fxml'.";
 
-    zenithField.setText(String.valueOf(AppletInterfacer.getZenith()));
-    azimuthField.setText(String.valueOf(AppletInterfacer.getAzimuth()));
-    
-    // TODO - Add ability for user to choose switch to radians?
-    // TODO - Accept only valid values from text fields, prompt user when invalid
-    zenithField.setOnKeyReleased(new EventHandler<KeyEvent>() {
-      public void handle(KeyEvent ke) {
-        //AppletInterfacer.updateModel(Double.parseDouble(zenithField.getText()), Double.parseDouble(azimuthField.getText()));
-        AppletInterfacer.changed = true; animationButton.setText("Reset");
-      }
-    });
-    azimuthField.setOnKeyReleased(new EventHandler<KeyEvent>() {
-      public void handle(KeyEvent ke) {
-        //AppletInterfacer.updateModel(Double.parseDouble(zenithField.getText()), Double.parseDouble(azimuthField.getText()));
-        AppletInterfacer.changed = true;animationButton.setText("Reset");
-      }
-    });
-    latitudeField.setOnKeyReleased(new EventHandler<KeyEvent>() {
-      public void handle(KeyEvent ke) {
-        //AppletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()), Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
-        AppletInterfacer.changed = true;animationButton.setText("Reset");
-      }
-    });
-    longitudeField.setOnKeyReleased(new EventHandler<KeyEvent>() {
-      public void handle(KeyEvent ke) {
-        //AppletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()), Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
-        AppletInterfacer.changed = true;animationButton.setText("Reset");
-      }
-    });
-    toEquatorCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-      @Override
-      public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-        //AppletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()),    Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
-       AppletInterfacer.changed = true;animationButton.setText("Reset");
-      }
-    });
+        zenithField.setText(String.valueOf(AppletInterfacer.getZenith()));
+        azimuthField.setText(String.valueOf(AppletInterfacer.getAzimuth()));
 
-    /*
-     * Various other controls that may be kept or phased out
-     */
-    //        assert degreesSlider != null : "fx:id=\"degreesSlider\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    //        assert photonsSlider != null : "fx:id=\"photonsSlider\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    //        assert modelSizeSlider != null : "fx:id=\"modelSizeSlider\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    //        assert degreesLabel != null : "fx:id=\"degreesLabel\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    //        assert photonsLabel != null : "fx:id=\"photonsLabel\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    //        assert modelSizeLabel != null : "fx:id=\"modelSizeLabel\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    //
-    //        degreesLabel.setText(Double.toString(degreesSlider.getValue()));
-    //        degreesSlider.valueProperty().addListener(new ChangeListener<Number>() {
-    //            public void changed(ObservableValue<? extends Number> ov,
-    //                Number old_val, Number new_val) {
-    //        		AppletInterfacer.changed();
-    //        		degreesLabel.setText(Double.toString(degreesSlider.getValue()));
-    //            }
-    //        });
-    //        photonsLabel.setText(Double.toString(photonsSlider.getValue()));
-    //        photonsSlider.valueProperty().addListener(new ChangeListener<Number>() {
-    //            public void changed(ObservableValue<? extends Number> ov,
-    //                Number old_val, Number new_val) {
-    //        		AppletInterfacer.changed();
-    //            	photonsLabel.setText(String.valueOf((int)photonsSlider.getValue()));
-    //            }
-    //        });
-    //        modelSizeLabel.setText(Double.toString(modelSizeSlider.getValue()));
-    //        modelSizeSlider.valueProperty().addListener(new ChangeListener<Number>() {
-    //            public void changed(ObservableValue<? extends Number> ov,
-    //                Number old_val, Number new_val) {
-    //        		AppletInterfacer.changed();
-    //            	modelSizeLabel.setText(String.valueOf(Math.pow((int)modelSizeSlider.getValue(), 2)));
-    //            }
-    //        });
+        // TODO - Add ability for user to choose switch to radians?
+        // TODO - Accept only valid values from text fields, prompt user when invalid
+        zenithField.setOnKeyReleased(new EventHandler<KeyEvent>() {
+            public void handle(KeyEvent ke) {
+                //AppletInterfacer.updateModel(Double.parseDouble(zenithField.getText()), Double.parseDouble(azimuthField.getText()));
+                AppletInterfacer.changed = true;
+                animationButton.setText("Reset");
+            }
+        });
+        azimuthField.setOnKeyReleased(new EventHandler<KeyEvent>() {
+            public void handle(KeyEvent ke) {
+                //AppletInterfacer.updateModel(Double.parseDouble(zenithField.getText()), Double.parseDouble(azimuthField.getText()));
+                AppletInterfacer.changed = true;
+                animationButton.setText("Reset");
+            }
+        });
+        latitudeField.setOnKeyReleased(new EventHandler<KeyEvent>() {
+            public void handle(KeyEvent ke) {
+                //AppletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()), Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
+                AppletInterfacer.changed = true;
+                animationButton.setText("Reset");
+            }
+        });
+        longitudeField.setOnKeyReleased(new EventHandler<KeyEvent>() {
+            public void handle(KeyEvent ke) {
+                //AppletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()), Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
+                AppletInterfacer.changed = true;
+                animationButton.setText("Reset");
+            }
+        });
+        toEquatorCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                //AppletInterfacer.updateEarth(Double.parseDouble(latitudeField.getText()),    Double.parseDouble(longitudeField.getText()), (toEquatorCheckBox.selectedProperty()).getValue());
+                AppletInterfacer.changed = true;
+                animationButton.setText("Reset");
+            }
+        });
 
-  }
-  
-  private void initializePatternTab() {
+        /*
+         * Various other controls that may be kept or phased out
+         */
+        //        assert degreesSlider != null : "fx:id=\"degreesSlider\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        //        assert photonsSlider != null : "fx:id=\"photonsSlider\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        //        assert modelSizeSlider != null : "fx:id=\"modelSizeSlider\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        //        assert degreesLabel != null : "fx:id=\"degreesLabel\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        //        assert photonsLabel != null : "fx:id=\"photonsLabel\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        //        assert modelSizeLabel != null : "fx:id=\"modelSizeLabel\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        //
+        //        degreesLabel.setText(Double.toString(degreesSlider.getValue()));
+        //        degreesSlider.valueProperty().addListener(new ChangeListener<Number>() {
+        //            public void changed(ObservableValue<? extends Number> ov,
+        //                Number old_val, Number new_val) {
+        //        		AppletInterfacer.changed();
+        //        		degreesLabel.setText(Double.toString(degreesSlider.getValue()));
+        //            }
+        //        });
+        //        photonsLabel.setText(Double.toString(photonsSlider.getValue()));
+        //        photonsSlider.valueProperty().addListener(new ChangeListener<Number>() {
+        //            public void changed(ObservableValue<? extends Number> ov,
+        //                Number old_val, Number new_val) {
+        //        		AppletInterfacer.changed();
+        //            	photonsLabel.setText(String.valueOf((int)photonsSlider.getValue()));
+        //            }
+        //        });
+        //        modelSizeLabel.setText(Double.toString(modelSizeSlider.getValue()));
+        //        modelSizeSlider.valueProperty().addListener(new ChangeListener<Number>() {
+        //            public void changed(ObservableValue<? extends Number> ov,
+        //                Number old_val, Number new_val) {
+        //        		AppletInterfacer.changed();
+        //            	modelSizeLabel.setText(String.valueOf(Math.pow((int)modelSizeSlider.getValue(), 2)));
+        //            }
+        //        });
+
+    }
+
+    private void initializePatternTab() {
         shapeRotation.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> ov, String t, String t1) {
@@ -191,9 +201,9 @@ public class UIMockupController implements Initializable {
                     System.out.println(e);
                     return;
                 }
-                
+
                 for (Node shape : shapePicker.getChildren())
-                    shape.rotateProperty().set(rotation);
+                    ((ShapePane) shape).rotate(rotation);
             }
         });
         csReset.setOnAction(new EventHandler<ActionEvent>() {
@@ -218,8 +228,8 @@ public class UIMockupController implements Initializable {
                     nodes[i] = new CSNode(null, null);
 
                     double theta = thetaDelta * i;
-                    nodes[i].layoutXProperty().set(100 + 90 * Math.cos(theta));
-                    nodes[i].layoutYProperty().set(100 + 90 * Math.sin(theta));
+                    nodes[i].setLayoutX(100 + 100 * Math.cos(theta));
+                    nodes[i].setLayoutY(100 + 100 * Math.sin(theta));
                 }
                 for (int i = 0; i < count; i++) {
                     int j = i + 1 == count ? 0 : i + 1;
@@ -244,7 +254,7 @@ public class UIMockupController implements Initializable {
         csAdd.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                if (head == null || head.next == head)
+                if (head == null)
                     return;
 
                 CSNode currNode = head;
@@ -256,19 +266,13 @@ public class UIMockupController implements Initializable {
                 
                 ShapePane newShape = new ShapePane(head, 0.0d, true);
                 try {
-                    newShape.rotateProperty().set(Double.parseDouble(shapeRotation.getText()));
+                    newShape.rotate(Double.parseDouble(shapeRotation.getText()));
                 } catch (NumberFormatException e) {
                     System.out.println(e);
                 }
                 
                 shapePicker.getChildren().add(newShape);
 
-//                do {
-//                    currNode.setLayoutX(currNode.getLayoutX() * 2.0d);
-//                    currNode.setLayoutY(currNode.getLayoutY() * 2.0d);
-//                    currNode = currNode.next;
-//                } while (currNode != head);
-                
                 csPane.clear();
                 head = null;
 
@@ -279,20 +283,14 @@ public class UIMockupController implements Initializable {
             @Override
             public void handle(DragEvent t) {
                 t.acceptTransferModes(TransferMode.ANY);
-                
-                double radius;
-                try {
-                    radius = Double.parseDouble(shapeScale.getText()) / 2 - 50;
-                } catch (NumberFormatException e) {
-                    System.out.println(e);
-                    return;
-                }
-                
-                ShapePane.dragPreview.layoutXProperty().set(Math.max(radius, Math.min(
-                        t.getX() - 50.0d, shapeCanvas.getWidth() - radius - 100.0d)));
-                ShapePane.dragPreview.layoutYProperty().set(Math.max(radius, Math.min(
-                        t.getY() - 50.0d, shapeCanvas.getHeight() - radius - 100.0d)));
-                
+
+                double radius = ShapePane.dragPreview.scale * 0.5d;
+
+                ShapePane.dragPreview.setLayoutX(Math.max(0, Math.min(
+                        t.getX() - radius, shapeCanvas.getWidth() - ShapePane.dragPreview.scale)));
+                ShapePane.dragPreview.setLayoutY(Math.max(0, Math.min(
+                        t.getY() - radius, shapeCanvas.getHeight() - ShapePane.dragPreview.scale)));
+
                 t.consume();
             }
         });
@@ -300,16 +298,20 @@ public class UIMockupController implements Initializable {
             @Override
             public void handle(DragEvent t) {
                 if (!shapeCanvas.getChildren().contains(ShapePane.dragPreview)) {
-                    double scale = 1.0d;
+                    double scale = 100.0d;
+                    double height = 200.0d;
                     try {
-                        scale = Double.parseDouble(shapeScale.getText()) / 100.0d;
+                        scale = Double.parseDouble(shapeScale.getText());
                     } catch (NumberFormatException e) {
                         System.out.println(e);
-                        return;
                     }
-                    
-                    ShapePane.dragPreview.scaleXProperty().set(scale);
-                    ShapePane.dragPreview.scaleYProperty().set(scale);
+                    try {
+                        height = Double.parseDouble(shapeHeight.getText());
+                    } catch (NumberFormatException e) {
+                        System.out.println(e);
+                    }
+
+                    ShapePane.dragPreview.scale(scale);
                     shapeCanvas.getChildren().add(ShapePane.dragPreview);
                 }
                 t.consume();
@@ -322,5 +324,29 @@ public class UIMockupController implements Initializable {
                 t.consume();
             }
         });
+    }
+    
+    private SimpleFixedModel makeSFM() {
+        ObservableList<Node> shapes = shapeCanvas.getChildren();
+        List<Tower> towers = new ArrayList<Tower>();
+        double x = 1, y = 1, z = 0, theta = 0;
+        
+        for (int i = 0; i < shapes.size(); i++) {
+            ShapePane shape = (ShapePane) shapes.get(i);
+            List<Double> lx = new ArrayList<>();
+            List<Double> ly = new ArrayList<>();
+            CSNode first = shape.head;
+            CSNode curr = first;
+            
+            do {
+                lx.add((shape.getLayoutX() + curr.getLayoutX()) / 600.0d);
+                ly.add((shape.getLayoutY() + curr.getLayoutY()) / 600.0d);
+                curr = curr.next;
+            } while(curr != first);
+            
+            towers.add(new Tower(lx, ly));
+        }
+        
+        return new SimpleFixedModel(x, y, z, theta, towers, new FixedPhoton(new Vector(0, 0, -1)));
     }
 }

@@ -46,7 +46,7 @@
                         <Insets left="23.0" right="8.0" />
                       </HBox.margin>
                     </TextField>
-                    <Label text="nm">
+                    <Label>
                       <HBox.margin>
                         <Insets left="5.0" right="10.0" fx:id="x2" />
                       </HBox.margin>
@@ -65,7 +65,7 @@
                         <Insets left="5.0" right="5.0" fx:id="x5" />
                       </HBox.margin>
                     </TextField>
-                    <Label text="deg">
+                    <Label text="'">
                       <HBox.margin>
                         <Insets left="5.0" right="10.0" fx:id="x7" />
                       </HBox.margin>
@@ -75,12 +75,12 @@
                 <HBox alignment="CENTER">
                   <children>
                     <Label text="Height" HBox.margin="$x5_x0_x0" />
-                    <TextField prefWidth="80.0" text="200" HBox.hgrow="ALWAYS">
+                    <TextField fx:id="shapeHeight" prefWidth="80.0" text="200" HBox.hgrow="ALWAYS">
                       <HBox.margin>
                         <Insets left="15.0" right="8.0" />
                       </HBox.margin>
                     </TextField>
-                    <Label text="nm" HBox.margin="$x2" />
+                    <Label HBox.margin="$x2" />
                   </children>
                 </HBox>
                 <Accordion VBox.vgrow="ALWAYS">
@@ -139,7 +139,7 @@
                     <Insets left="10.0" right="10.0" />
                   </HBox.margin>
                 </TextField>
-                <Label text="nm" />
+                <Label />
               </children>
             </HBox>
             <HBox alignment="CENTER" prefHeight="600.0" prefWidth="160.0" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="24.0">
@@ -150,7 +150,7 @@
                     <Insets left="10.0" right="10.0" />
                   </HBox.margin>
                 </TextField>
-                <Label text="nm" />
+                <Label />
               </children>
             </HBox>
           </children>
