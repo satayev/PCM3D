@@ -34,6 +34,7 @@ import pcm.model.geom.Vector;
 
 public class UIMockupController implements Initializable {
 
+	public static TabPane GUIPane;
     public static AnchorPane shapeCanvas;
     public Button csReset, csAdd;
     public ShapePane csPane;
@@ -50,6 +51,10 @@ public class UIMockupController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+    	
+        assert GUIPane != null : "fx:id=\"GUIPane\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        GUIPane.setPrefSize(Main.width, Main.height);
+
         initializePatternTab();
 
         /*
@@ -333,8 +338,8 @@ public class UIMockupController implements Initializable {
         
         for (int i = 0; i < shapes.size(); i++) {
             ShapePane shape = (ShapePane) shapes.get(i);
-            List<Double> lx = new ArrayList<>();
-            List<Double> ly = new ArrayList<>();
+            List<Double> lx = new ArrayList<Double>();
+            List<Double> ly = new ArrayList<Double>();
             CSNode first = shape.head;
             CSNode curr = first;
             

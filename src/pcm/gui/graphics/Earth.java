@@ -16,11 +16,12 @@ import processing.opengl.*;
 public class Earth {
 
   private Applet applet; // parent applet
-  Vector position = new Vector(.5 * AppletModel.magnif, .5 * AppletModel.magnif, -600); // changed in Applet and AppletInterfacer
+
+  Vector position = new Vector();
   float offset = 0; // in degrees longitude offset for sine function because ISS doesn't follow consistent path
-  double ISSOrbitalPeriod = 92 * 60 + 50; // in seconds
-  double ISSLag = 20; // degrees that Earth rotates past ISS in every orbit 
-  double speed = (360 - ISSLag) / ISSOrbitalPeriod; // degrees per second, speed of Earth's spin
+  double earthAngularSpeed = 360. / (24 * 60 * 60), ISSAngularSpeed = 360. / (92 * 60 + 50);
+  double speed = ISSAngularSpeed; // degrees per second, speed of sphere's spin
+  float lag = 0;
 
   PImage bg;
   PImage texmap;
@@ -28,9 +29,7 @@ public class Earth {
   int sDetail = 35; // Sphere detail setting
   float rotationX = 0; // corresponds with degrees latitude
   float rotationY = 0; // corresponds with degrees longitude
-  float velocityX = 0;
-  float velocityY = 0;
-  float globeRadius = 1500;
+  float globeRadius = 250;
   float pushBack = 0;
 
   float[] cx, cz, sphereX, sphereY, sphereZ;
@@ -80,6 +79,8 @@ public class Earth {
     rotationY += (speed / applet.frameRate) * scalar;
 
     rotationX = (float) (51.6 * Math.sin(applet.radians(rotationY + offset)));
+
+    lag += (earthAngularSpeed / applet.frameRate) * scalar;
     //applet.println(rotationY+ " "+ rotationX);
 
   }
@@ -87,7 +88,87 @@ public class Earth {
   void draw(boolean toSpin, double speed) {
     if (toSpin)
       spin(speed);
+
+    // Dark backdrop behind earth
+    applet.noLights();
+    applet.fill(Tools.dgray);
+    applet.beginShape();
+    Tools.vertexM(applet, new Vector(-globeRadius * 3, -globeRadius * 3, -globeRadius * 3));
+    Tools.vertexM(applet, new Vector(globeRadius * 3, -globeRadius * 3, -globeRadius * 3));
+    Tools.vertexM(applet, new Vector(globeRadius * 3, globeRadius * 3, -globeRadius * 3));
+    Tools.vertexM(applet, new Vector(-globeRadius * 3, globeRadius * 3, -globeRadius * 3));
+    applet.endShape(applet.CLOSE);
+
+    applet.pushMatrix();
+    applet.rotateY(applet.radians(lag));
+    applet.rotateX(applet.radians(rotationX));
+
     renderGlobe();
+
+    applet.popMatrix();
+
+    applet.hint(applet.DISABLE_DEPTH_TEST);
+    applet.camera();
+    applet.fill(Tools.white);
+    applet.textSize(20);
+    //if (rotationX >= 0 ) North else South if (rotationY%360>=180) West
+
+    //text("0, 0", -30, 15,0);
+    applet.text("1, 0", 15, 0);
+    applet.noFill();
+    applet.hint(applet.ENABLE_DEPTH_TEST);
+  }
+
+  public void pathOfISS() {
+    applet.pushMatrix();
+    applet.rotateY(applet.radians(-lag));
+    double x, y, z, r = globeRadius;
+    applet.noFill();
+    applet.stroke(Tools.white);
+    applet.beginShape();
+    for (float t = 0; t <= 360; t += 1)
+    {
+      x = Math.cos(applet.radians(t)) * r * .45; // .45 or .7 arbitrary value altitude of ISS
+      y = Math.sin(applet.radians(t)) * r * .7;
+      z = Math.tan(applet.radians(51.6f)) * x;
+      // Switched or inverted axises to correspond with default globe orientation rendered
+      applet.vertex((float) y, (float) x, (float) z);
+    }
+    applet.endShape(applet.CLOSE);
+
+    applet.stroke(Tools.red);
+    applet.strokeWeight(5);
+    applet.beginShape();
+    for (float t = 90 + rotationY; t <= 100 + rotationY; t += 1)
+    {
+      x = Math.cos(applet.radians(t)) * r * .45; // .45 or .7 arbitrary value altitude of ISS
+      y = Math.sin(applet.radians(t)) * r * .7;
+      z = Math.tan(applet.radians(51.6f)) * x;
+      // Switched or inverted axises to correspond with default globe orientation rendered
+      applet.vertex((float) y, (float) x, (float) z);
+    }
+    applet.endShape(applet.CLOSE);
+
+    applet.stroke(Tools.black);
+    x = Math.cos(applet.radians(90 + rotationY)) * r * .45;
+    y = Math.sin(applet.radians(90 + rotationY)) * r * .7;
+    z = Math.tan(applet.radians(51.6f)) * x;
+    applet.translate((float) y, (float) x, (float) z);
+    applet.sphere(4);
+
+    // Crosshair indicating ISS
+    //	applet.strokeWeight(4);
+    //	applet.stroke(Tools.white);
+    //    applet.pushMatrix();
+    //	applet.line((float)y, (float)x-11, (float)z, (float)y, (float)x+11, (float)z);
+    //	applet.line((float)y, (float)x, (float)z-11, (float)y, (float)x, (float)z+11);
+    //	applet.stroke(Tools.black);applet.strokeWeight(2);
+    //	applet.line((float)y, (float)x-10, (float)z, (float)y, (float)x+10, (float)z);
+    //	applet.line((float)y, (float)x, (float)z-10, (float)y, (float)x, (float)z+10);
+    //	applet.popMatrix();
+
+    applet.popMatrix();
+
   }
 
   void renderGlobe() {
@@ -107,12 +188,11 @@ public class Earth {
     applet.noStroke();
     applet.textureMode(applet.IMAGE);
     texturedSphere(globeRadius, texmap);
+
+    pathOfISS();
+
     applet.popMatrix();
     applet.popMatrix();
-    rotationX += velocityX;
-    rotationY += velocityY;
-    velocityX *= 0.95;
-    velocityY *= 0.95;
 
   }
 

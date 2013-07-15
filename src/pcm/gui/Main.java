@@ -28,14 +28,22 @@ public class Main extends JFrame implements ComponentListener {
 
   private JLayeredPane layeredPane;
 
-  private int initWidth = 1000, initHeight = 700; // width and height equivalent to UIMockup.fxml's values
-
+  // width and height equivalent to UIMockup.fxml's values, but are altered on running Main
+  public static int width = 1000, height = 700; 
+   
   public Main() {
     super("PCM3D");
-
-    setBounds(100, 10, initWidth, initHeight);
+    
+    int offsetTop = 53, offsetRight = 240; // region of window where PApplet sits
+    
+    GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+    //int width = gd.getDisplayMode().getWidth();
+//    height = gd.getDisplayMode().getHeight();
+//    width = height - offsetTop + offsetRight;
+    
+    setBounds(100, 0, width, height);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    setResizable(true);
+    setResizable(false);
 
     // Creating a LayeredPane for PApplet to appear over JavaFX
     JComponent contentPane = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -47,9 +55,9 @@ public class Main extends JFrame implements ComponentListener {
     initJavaFX();
 
     // Using AppletInterfacer to add PApplet to JPanel and LayeredPane
-    int offsetLeft = 0, offsetTop = 53, offsetRight = 240; // region of window where PApplet sits
+    
     AppletInterfacer.panel.setOpaque(true);
-    AppletInterfacer.create(offsetLeft, offsetTop, getWidth() - offsetRight, getHeight() - offsetTop);
+    AppletInterfacer.create(0, offsetTop, width - offsetRight, height - offsetTop);
     layeredPane.add(AppletInterfacer.panel, new Integer(5));
 
     contentPane.add(layeredPane);
