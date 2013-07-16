@@ -31,7 +31,7 @@ public class StatisticalEvaluator {
   public void AssignModel(double X, double Y, double Z, List<List<Vector>> list) {
     model = new RectangularPrismModel(X,Y,Z);
     for (List<Vector> i : list)
-      model.cnts.add(new Prism(new Vector(), new Polygon((Vector[]) i.toArray())));
+      model.cnts.add(new Prism(new Vector(), new Polygon(i.toArray(new Vector[i.size()]))));
   }
   
   /**

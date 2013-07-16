@@ -35,7 +35,7 @@ public class Main extends JFrame implements ComponentListener {
 
     setBounds(100, 10, initWidth, initHeight);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    setResizable(true);
+    setResizable(false);
 
     // Creating a LayeredPane for PApplet to appear over JavaFX
     JComponent contentPane = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));

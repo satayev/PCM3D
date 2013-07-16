@@ -1,8 +1,23 @@
 package pcm.gui.graphics;
 
+import dev.simple.FixedPhoton;
 import dev.simple.SimpleFixedModel;
+import dev.simple.Tower;
+
 import java.awt.FlowLayout;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JPanel;
+
+import pcm.AbsorptionSimulation;
+import pcm.StatisticalEvaluator;
+import pcm.model.RectangularPrismModel;
+import pcm.model.geom.V;
+import pcm.model.geom.Vector;
+import pcm.model.geom.curves.Polygon;
+import pcm.model.geom.solids.Prism;
+import pcm.model.orbit.ISSOrbit;
 import processing.core.PApplet;
 
 /**
@@ -37,9 +52,31 @@ public class AppletInterfacer {
     panel.add(applet);
   }
   
-  public static void setModel(SimpleFixedModel sfm) {
-      model.SFM = sfm;
-      model.LT = sfm.LT;
+  public static void setModel(double X, double Y, double Z, List<List<Vector>> edgelists) {
+    double theta = 0;
+    List<Tower> towers = new ArrayList<Tower>();
+    for (List<Vector> i : edgelists) {
+      List<Double> lx = new ArrayList<Double>();
+      List<Double> ly = new ArrayList<Double>();
+      for (Vector j : i) {
+        lx.add(j.x);
+        ly.add(j.y);
+      }
+      towers.add(new Tower(lx, ly));
+    }
+    model.SFM = new SimpleFixedModel(X, Y, Z, theta, towers, new FixedPhoton(new Vector(0, 0, -1)));
+    model.LT = towers;
+
+    model.RPM = new RectangularPrismModel(X, Y, Z);
+    Vector displacement = new Vector(X/2,Y/2,0);
+    for (List<Vector> i : edgelists) {
+      for (Vector j : i) j.sub(displacement);
+      model.RPM.cnts.add(new Prism(new Vector(), new Polygon(i.toArray(new Vector[i.size()]))));
+    }
+    model.edgelists = edgelists;
+    ISSOrbit orbit = new ISSOrbit();
+    model.AS = new AbsorptionSimulation(model.RPM, orbit);
+    model.SE.AssignModel(X, Y, Z, edgelists);
   }
 
   /*
