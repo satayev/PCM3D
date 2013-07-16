@@ -26,15 +26,15 @@ public class Applet extends PApplet {
   GL gl; // processing 1.5
   PGraphicsOpenGL pgl;
 
-  public PImage CNTimg; // carbon nanotube texture
-  // Buttons
-  PImage resetButton, playButton, pauseButton, nextButton, viewsButton;
+  boolean mouseClicked = false, mousePressedAgain = false, mouseDragged = false;
+  int t, backgroundColor = Tools.llgray,
+      buttonStroke = Tools.orange, buttonOverStroke = Tools.black, buttonFill = Tools.white;
+
+  // Image textures
+  public PImage CNTimg, NASAimg;
 
   AppletView[] views = new AppletView[7]; // main, top, front, left, right, back, earth
   int z = 3; // for multi-side-view changing
-
-  boolean mouseClicked = false, mousePressedAgain = false, mouseDragged = false;
-  int t, buttonStroke = Tools.orange, buttonOverStroke = Tools.black, buttonFill = Tools.white;
 
   // Backporch rotating cube
   float xRotation = PI, yRotation = 0;
@@ -134,8 +134,10 @@ public class Applet extends PApplet {
     size(width, height, OPENGL);
     frameRate(60);
 
-    CNTimg = loadImage("cnt.jpg");
-    viewsButton = loadImage("viewcontrols.jpg");
+    //CNTimg = loadImage("cnt.jpg");
+    NASAimg = loadImage("nasa.jpg");
+
+    println("Optional key controls ->\nleft arrow = slows down model animation\nright arrow = speeds up model animation\nt = resets animation\nr = runs animation\ns = stops animation\np = prints camera vectors of the view with the rotating ability");
 
     addMouseWheelListener(new MouseWheelListener() {
       public void mouseWheelMoved(MouseWheelEvent mwe) {
@@ -152,8 +154,7 @@ public class Applet extends PApplet {
    */
   public void draw() {
     //println(frameRate);
-    background(Tools.llgray);
-    //background(Tools.black);
+    background(backgroundColor);
 
     // Speed of animation depends on number of max photons shown
     t++;
@@ -168,7 +169,7 @@ public class Applet extends PApplet {
 
     // Main view - top right viewport
     float fov = (float) (PI / 3.0); // field of view (default)
-    float aspect = 1;
+    float aspect = width / height;
     float cameraZ = ((float) (height) / tan((float) (PI * 60.0 / 360.0)));
 
     perspective(fov / 3, aspect, (float) (cameraZ / 10.0), (float) (cameraZ * 10.0));
@@ -184,11 +185,10 @@ public class Applet extends PApplet {
     userInput(views[0]);
     ((PGraphicsOpenGL) g).endGL();
 
-
     cameraZ = ((float) (height / 2.0) / tan((float) (PI * 60.0 / 360.0))); //default
 
     // Bird's eye (top) view - top left viewport
-    perspective((float) (PI / 47.0), 1, (float) (cameraZ / 10.0), (float) (cameraZ * 10.0)); // small fov for non-immersive orthogalized view
+    perspective((float) (PI / 47.0), aspect, (float) (cameraZ / 10.0), (float) (cameraZ * 10.0)); // small fov for non-immersive orthogalized view
     gl = ((PGraphicsOpenGL) g).beginGL();
     gl.glViewport(0, height / 2, width / 2, height / 2);
     ((PGraphicsOpenGL) g).endGL();
@@ -197,15 +197,13 @@ public class Applet extends PApplet {
     ((PGraphicsOpenGL) g).endGL();
 
     // Front, either side, or back view, determined by z - bottom left viewport
-    perspective((float) (PI / 13.0), 1, (float) (cameraZ / 10.0), (float) (cameraZ * 10.0));
+    perspective((float) (PI / 11.0), aspect, (float) (cameraZ / 10.0), (float) (cameraZ * 10.0));
     gl = ((PGraphicsOpenGL) g).beginGL();
     gl.glViewport(0, 0, width / 2, height / 2);
     ((PGraphicsOpenGL) g).endGL();
     views[z].camera();
     model.draw(this, false);
     ((PGraphicsOpenGL) g).endGL();
-
-    perspective();
 
     cameraZ = ((float) (height) / tan((float) (PI * 60.0 / 360.0)));
     perspective(fov / 3, aspect, (float) (cameraZ / 10.0), (float) (cameraZ * 10.0));
@@ -216,41 +214,6 @@ public class Applet extends PApplet {
 
     views[6].camera();
     lights();
-    //TODO - vary speed according to how fast model's angles are changing
-    if (model.runAnim)
-      earth.draw(true, 500 * model.speed);
-    else
-      earth.draw(false, 500 * model.speed);
-
-    ((PGraphicsOpenGL) g).endGL();
-
-    // User controls on applet
-    gl = ((PGraphicsOpenGL) g).beginGL();
-    gl.glViewport(0, 0, width, height);
-    ((PGraphicsOpenGL) g).endGL();
-    userPanel();
-    ((PGraphicsOpenGL) g).endGL();
-
-    mouseClicked = false;
-  }
-
-  /*
-   * A view (camera orientation) has the model's solar cell drawn upon it.
-   * 
-   * @param view the view camera and frame information for drawing on an alternate viewport
-   * 
-   * @param updatePhotons whether or not the model needs to be updated which should be once every frame, so one out of the views
-   * drawn needs this set as true
-   */
-  void renderScene(AppletView view, boolean updatePhotons) {
-
-    view.camera();
-
-    //view.castLights();
-    noLights();
-
-    colorMode(RGB);
-
     // TODO Check spotlight
     // Last two args of spotLight():
     // angle = proportion of cone that is illuminated (2PI is whole scene, PI/4 is 1/8th of scene) I think
@@ -260,8 +223,23 @@ public class Applet extends PApplet {
     //        1);
     //    specular(255, 255, 255);
 
-    model.draw(this, updatePhotons);
+    //TODO - vary speed according to how fast model's angles are changing
+    if (model.runAnim)
+      earth.draw(true, 500 * model.speed);
+    else
+      earth.draw(false, 500 * model.speed);
 
+    ((PGraphicsOpenGL) g).endGL();
+
+    perspective();
+    // User controls on applet
+    gl = ((PGraphicsOpenGL) g).beginGL();
+    gl.glViewport(0, 0, width, height);
+    ((PGraphicsOpenGL) g).endGL();
+    userPanel();
+    ((PGraphicsOpenGL) g).endGL();
+
+    mouseClicked = false;
   }
 
   void backPorch() {
@@ -281,18 +259,21 @@ public class Applet extends PApplet {
     Tools.vertexM(this, new Vector(one, one, 0));
     Tools.vertexM(this, new Vector(one, zero, 0));
     endShape(CLOSE);
-    fill(Tools.black);
+    //fill(Tools.black);
+    noFill();
+    textureMode(NORMAL);
     zero = 0;
     one = magnif * modSize;
     beginShape();
-    Tools.vertexM(this, new Vector(zero, zero, -1));
-    Tools.vertexM(this, new Vector(zero, one, -1));
-    Tools.vertexM(this, new Vector(one, one, -1));
-    Tools.vertexM(this, new Vector(one, zero, -1));
+    texture(NASAimg);
+    Tools.vertexM(this, new Vector(zero, zero, -1), 1, 1);
+    Tools.vertexM(this, new Vector(zero, one, -1), 1, 0);
+    Tools.vertexM(this, new Vector(one, one, -1), 0, 0);
+    Tools.vertexM(this, new Vector(one, zero, -1), 0, 1);
     endShape(CLOSE);
     fill(Tools.red);
-
     Tools.drawMArrow(this, new Vector(0, one / 2 - 50, -1), new Vector(0, one / 2 + 50, -1), new Vector(-1, 0, 0), 300);
+
     //Tools.drawSphere(this, new Vector(one,one/2,-5), 50);
     popMatrix();
 
@@ -335,19 +316,48 @@ public class Applet extends PApplet {
       float y = screenY((float) arrows[i].y, (float) arrows[i].x, (float) (arrows[i].z + dir.z * len / 2)) * .5f;
 
       if (mouseX < x + 6 && mouseX > x - 6 && mouseY < y + 6 && mouseY > y - 6) {
-        strokeWeight(4);
+        strokeWeight(2);
         stroke(buttonOverStroke);
-        if (mouseClicked && !mouseDragged) {
+        float xRot = xRotation % (2 * PI), yRot = yRotation % (2 * PI);
+        if (xRot < 0)
+          xRot += 2 * PI;
+        if (yRot < 0)
+          yRot += 2 * PI;
 
-          if (i == 0)
+        if (mouseClicked && !mouseDragged) {
+          if (i == 0) {
             yRotation -= PI / 2;
-          if (i == 1)
+            //          if (xRot == PI/2)
+            //            xRotation -= PI / 2;
+            //          else if (xRot == 3*PI/2)
+            //            xRotation += PI / 2;
+          }
+          if (i == 1) {
             yRotation += PI / 2;
-          if (i == 2)
+            if (xRot == 3 * PI / 2)
+              xRotation -= PI / 2;
+            else if (xRot == PI / 2)
+              xRotation += PI / 2;
+          }
+          if (i == 2) {
             xRotation -= PI / 2;
-          if (i == 3)
+            if (yRot == PI / 2)
+              yRotation -= PI / 2;
+            else if (yRot == 3 * PI / 2)
+              yRotation += PI / 2;
+          }
+          if (i == 3) {
             xRotation += PI / 2;
-          println(xRotation + " " + yRotation);
+            if (yRot == 3 * PI / 2)
+              yRotation += PI / 2;
+            else if (yRot == PI / 2)
+              yRotation -= PI / 2;
+          }
+          // printing/testing
+          xRot = xRotation%(2*PI); yRot = yRotation%(2*PI);
+          if (xRot < 0) xRot+=2*PI; if (yRot < 0) yRot+=2*PI;
+          println(xRot + " " + yRot);
+          model.reset();
           //TODO - set model's incoming light at another angle
         }
       }
@@ -460,15 +470,15 @@ public class Applet extends PApplet {
   void sideViewGUI() {
     // Multiview buttons
     lights();
-    Vector viewArrows[] = { new Vector(width / 2 - 12, height / 2 + 4, 0), new Vector(width / 2 - 10, height / 2 + 4, 0) };
+    Vector viewArrows[] = { new Vector(width / 2 - 35, height / 2 + 10, 0), new Vector(width / 2 - 30, height / 2 + 10, 0) };
     fill(buttonFill);
     stroke(buttonStroke);
     for (int i = 0; i < viewArrows.length; i++) {
-      double x = (i == 0) ? viewArrows[i].x - 15 : viewArrows[i].x + 20, y = viewArrows[i].y;
+      double x = (i == 0) ? viewArrows[i].x - 25 : viewArrows[i].x, y = viewArrows[i].y;
       Vector Q = viewArrows[i].clone(), dir = (i == 0) ? new Vector(-1, 0, 0) : new Vector(1, 0, 0);
-      Q.add(new Vector(0, 3, 0)); // y value is width of arrow
-      if (mouseX < x - 10 && mouseX > x - 40 && mouseY < y + 30 && mouseY > y) {
-        strokeWeight(4);
+      Q.add(new Vector(0, 10, 0)); // y value is width of arrow
+      if (mouseX < x + 25 && mouseX > x && mouseY < y + 10 && mouseY > y) {
+        strokeWeight(2);
         stroke(buttonOverStroke);
         if (mouseClicked && !mouseDragged) {
           if (i == 0) {
@@ -489,7 +499,7 @@ public class Applet extends PApplet {
       }
       fill(buttonFill);
 
-      Tools.drawArrow(this, viewArrows[i], Q, dir, 9);
+      Tools.drawArrow(this, viewArrows[i], Q, dir, 25);
     }
     strokeWeight(2);
   }
@@ -506,20 +516,31 @@ public class Applet extends PApplet {
     // Lines dividing 4 viewports
     line(width / 2, 0, width / 2, height);
     line(0, height / 2, width, height / 2);
+    fill(Tools.black);
+    noLights();
+
+    fill(backgroundColor);
+    rect(-1, -1, 65, 17);
+    rect(width / 2, -1, 65, 17);
+    rect(-1, height / 2, 65, 17);
+    rect(width / 2, height / 2, 65, 17);
+
+    fill(Tools.black);
+    textSize(11);
+    text("Top View", 2, 13);
+    text("Back Porch", width / 2 + 2, 13);
+    text("Side View", 2, height / 2 + 13);
+    text("Earth", width / 2 + 2, height / 2 + 13);
+
     noStroke();
     noFill();
     noTint();
 
+    // Side view
     sideViewGUI();
 
-    // Reset main view button
-    lights();
-    colorMode(RGB);
-    fill(Tools.dgray);
-    rect(width - 45, 5, 40, 20);
-    fill(Tools.white);
-    textSize(15);
-    Tools.scribe(this, "reset", width - 42, 20);
+    // Earth view
+    earth.displayCoord();
 
     hint(ENABLE_DEPTH_TEST);
   }

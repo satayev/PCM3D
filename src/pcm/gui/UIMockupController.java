@@ -48,6 +48,7 @@ public class UIMockupController implements Initializable {
     public CheckBox toEquatorCheckBox;
     public Slider degreesSlider, photonsSlider, modelSizeSlider;
     public Label degreesLabel, photonsLabel, modelSizeLabel;
+    public Accordion simulationAccordion1, simulationAccordion2, simulationAccordion3;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -56,7 +57,34 @@ public class UIMockupController implements Initializable {
         GUIPane.setPrefSize(Main.width, Main.height);
 
         initializePatternTab();
-
+        
+        assert simulationAccordion1 != null : "fx:id=\"simulationAccordion1\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        simulationAccordion1.expandedPaneProperty().addListener(new ChangeListener<TitledPane>() {
+          @Override public void changed(ObservableValue<? extends TitledPane> property, final TitledPane oldPane, final TitledPane newPane) {
+            if (simulationAccordion1.maxHeightProperty().getValue() == 0)
+              simulationAccordion1.setMaxHeight(500);
+            else
+              simulationAccordion1.setMaxHeight(0);
+          }
+        });
+        assert simulationAccordion2 != null : "fx:id=\"simulationAccordion2\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        simulationAccordion2.expandedPaneProperty().addListener(new ChangeListener<TitledPane>() {
+          @Override public void changed(ObservableValue<? extends TitledPane> property, final TitledPane oldPane, final TitledPane newPane) {
+            if (simulationAccordion2.maxHeightProperty().getValue() == 0)
+              simulationAccordion2.setMaxHeight(500);
+            else
+              simulationAccordion2.setMaxHeight(0);
+          }
+        });
+        assert simulationAccordion3 != null : "fx:id=\"simulationAccordion3\" was not injected: check your FXML file 'UIMockup.fxml'.";
+        simulationAccordion3.expandedPaneProperty().addListener(new ChangeListener<TitledPane>() {
+          @Override public void changed(ObservableValue<? extends TitledPane> property, final TitledPane oldPane, final TitledPane newPane) {
+            if (simulationAccordion3.maxHeightProperty().getValue() == 0)
+              simulationAccordion3.setMaxHeight(500);
+            else
+              simulationAccordion3.setMaxHeight(0);
+          }
+        });
         /*
          * Simulation tab controls using AppletInterfacer
          */

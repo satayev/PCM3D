@@ -157,6 +157,7 @@
         </AnchorPane>
       </content>
     </Tab>
+  
     <Tab fx:id="simulationTab" closable="false" text="Simulation">
       <content>
         <AnchorPane fx:id="simulationAnchorPane">
@@ -175,7 +176,7 @@
             </MenuBar>
             <VBox prefWidth="240.0" style="-fx-background-color:silver;" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0">
               <children>
-                <Accordion>
+                <Accordion fx:id="simulationAccordion1">
                   <expandedPane>
                     <TitledPane fx:id="x3" animated="false" prefHeight="66.0" prefWidth="241.0" text="Incoming Solar Flux">
                       <content>
@@ -228,7 +229,7 @@
                     <fx:reference source="x3" />
                   </panes>
                 </Accordion>
-                <Accordion>
+                <Accordion fx:id="simulationAccordion2">
                   <expandedPane>
                     <TitledPane fx:id="x4" animated="false" prefHeight="66.0" prefWidth="243.0" text="ISS Position Over Earth (Optional)">
                       <content>
@@ -274,7 +275,7 @@
                     <Button fx:id="animationButton" alignment="CENTER" mnemonicParsing="false" prefHeight="40.0" text="Begin Simulation" />
                   </children>
                 </HBox>
-                <Accordion>
+                <Accordion fx:id="simulationAccordion3">
                   <expandedPane>
                     <TitledPane fx:id="x6" animated="false" text="Generated Results">
                       <content>

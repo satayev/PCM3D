@@ -37,8 +37,7 @@ public class Main extends JFrame implements ComponentListener {
     int offsetTop = 53, offsetRight = 240; // region of window where PApplet sits
     
     GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-    //int width = gd.getDisplayMode().getWidth();
-//    height = gd.getDisplayMode().getHeight();
+//    height = gd.getDisplayMode().getHeight() - 75;
 //    width = height - offsetTop + offsetRight;
     
     setBounds(100, 0, width, height);
@@ -48,7 +47,7 @@ public class Main extends JFrame implements ComponentListener {
     // Creating a LayeredPane for PApplet to appear over JavaFX
     JComponent contentPane = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
     layeredPane = new JLayeredPane();
-    layeredPane.setPreferredSize(new Dimension(1000, 700));
+    layeredPane.setPreferredSize(new Dimension(width, height));
     layeredPane.setLayout(null);
 
     // Adding JavaFX to JPanel and LayeredPane

@@ -7,7 +7,7 @@ import pcm.model.geom.Vector;
 public class SimpleFixedModel extends SimpleModel {
   
   double theta = 0;
-  FixedPhoton p0;
+  public FixedPhoton p0;
   
   /*
    * Warning: Do not use
