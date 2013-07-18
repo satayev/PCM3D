@@ -17,7 +17,7 @@ import pcm.model.statics.WavelengthAM0;
 public class AbsorptionSimulation {
 
   public final Model model;
-  public final Statistics stats;
+  public Statistics stats;
   public final ISSOrbit issOrbit;
   public final Wavelength wavelength;
 

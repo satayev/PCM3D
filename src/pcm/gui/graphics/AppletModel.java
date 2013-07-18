@@ -8,7 +8,9 @@ import java.util.List;
 
 import pcm.AbsorptionSimulation;
 import pcm.PCM3D;
+import pcm.StatisticalEvaluator;
 import pcm.model.RectangularPrismModel;
+import pcm.model.Statistics;
 import pcm.model.geom.V;
 import pcm.model.geom.Vector;
 import pcm.model.geom.curves.Polygon;
@@ -41,7 +43,6 @@ public class AppletModel {
   public static float magnif = 250;
   public Applet applet;
   public double speed = .01; // speed of traveling photons used in applet view
-
   /**
    * Zenith angle is [0, 90) degrees, 0 being straight down, 90 straight towards the side
    * Azimuth is degrees to the x-y axis
@@ -68,7 +69,10 @@ public class AppletModel {
   public List<Tower> LT;
   public boolean runSimpleModel = true; // whether to use the simple model
 
+  public List<List<Vector>> edgelists = new ArrayList<List<Vector>>();
   public RectangularPrismModel RPM = new RectangularPrismModel(X, Y, Z);
+
+  public StatisticalEvaluator SE = new StatisticalEvaluator();
 
   // The start time for the simulation
   public long startTime;
@@ -150,15 +154,27 @@ public class AppletModel {
         SFM.p.stat.printAll();
         printOutput += zenith + " degrees\t" + azimuth + " degrees\t" + SFM.p.stat.getRatio() + " %" + "\n";
 
-        for (int i = 0; i < SFM.p.stat.rv.size(); i++) {
-          paths.add(new PathFollower(SFM.p.stat.rv.get(i)));
-        }
+        List<List<List<Vector>>> photonPaths = SFM.p.stat.rv;
+        for (List<List<Vector>> i : photonPaths) paths.add(new PathFollower(i));
 
       } else {
         try {
-          // TODO - define orbit's zenith/azimuth angles, add results to printOutput
-          AS.run(1000000);
+          System.out.println("start");
+          AS.stats = new Statistics();
+          AS.stats.maxPhotonPaths = maxPhotons;
+          AS.stats.maxPhotonAbsorptionPoints = maxPhotons;
+          System.out.println("clear");
+
+          double zenith0 = Math.PI / 2 - Math.PI * zenith / 180, azimuth0 = Math.PI * azimuth / 180;
+          AS.run(1000, new Vector(Math.cos(zenith0) * Math.cos(azimuth0), Math.cos(zenith0) * Math.sin(azimuth0), -Math.sin(zenith0)));
+          System.out.println("finish");
           AS.printStats();
+          printOutput += zenith + " degrees\t" + azimuth + " degrees\t" + (AS.stats.photonAbsorbedCounter*1./AS.stats.photonTotalCounter) + " %" + "\n";
+
+          List<List<List<Vector>>> photonPaths = AS.stats.photonPaths;
+          for (List<List<Vector>> i : photonPaths) paths.add(new PathFollower(i));
+          System.out.println("print");
+
         } catch (Exception E) {
           E.printStackTrace();
         }
@@ -381,20 +397,37 @@ public class AppletModel {
     applet.stroke(Tools.gray);
     applet.colorMode(applet.HSB, 100);
     double Z = Z0;
-    for (int x = 0; x < LT.size(); x++) {
-      Tower t = LT.get(x);
-      //applet.stroke((float)(1.0*x/LT.size()*100), 100, 100); // color denoting each tower
-      //for (Surface s : surfaces) {
-      //if (s instanceof Ribbon) {
-      //Ribbon r = (Ribbon) s;
-      for (Ribbon r : t.LS) {
-        drawRibbon(new Vector(r.rx, r.ry, 0), new Vector(r.x2, r.y2, 0),
-            new Vector(r.x2, r.y2, Z), new Vector(r.rx, r.ry, Z), r.b);
+    if (runSimpleModel) {
+      for (int x = 0; x < LT.size(); x++) {
+        Tower t = LT.get(x);
+        //applet.stroke((float)(1.0*x/LT.size()*100), 100, 100); // color denoting each tower
+        //for (Surface s : surfaces) {
+        //if (s instanceof Ribbon) {
+        //Ribbon r = (Ribbon) s;
+        for (Ribbon r : t.LS) {
+          drawRibbon(new Vector(r.rx, r.ry, 0), new Vector(r.x2, r.y2, 0),
+              new Vector(r.x2, r.y2, Z), new Vector(r.rx, r.ry, Z), r.b);
+        }
+        List<Vector> bounds = new ArrayList<Vector>();
+        for (int i = 0; i < t.Lx.size(); i++)
+          bounds.add(new Vector(t.Lx.get(i), t.Ly.get(i), Z));
+        drawPolygon(bounds);
       }
-      List<Vector> bounds = new ArrayList<Vector>();
-      for (int i = 0; i < t.Lx.size(); i++)
-        bounds.add(new Vector(t.Lx.get(i), t.Ly.get(i), Z));
-      drawPolygon(bounds);
+    } else {
+      for (List<Vector> i : edgelists) {
+        Vector v0 = i.get(i.size() - 1), v1 = i.get(0);
+        drawRibbon(v0, v1, new Vector(v1.x, v1.y, Z), new Vector(v0.x, v0.y, Z), V.sub(v0, v1).length());
+        for (int j = 0; j < i.size() - 1; j++) {
+          v0 = i.get(j);
+          v1 = i.get(j + 1);
+          drawRibbon(v0, v1, new Vector(v1.x, v1.y, Z), new Vector(v0.x, v0.y, Z), V.sub(v0, v1).length());
+        }
+        Vector shift = new Vector(0, 0, Z);
+        List<Vector> bounds = new ArrayList<Vector>(i.size());
+        for (Vector j : i)
+          bounds.add(V.add(j, shift));
+        drawPolygon(bounds);
+      }
     }
 
   }

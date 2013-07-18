@@ -66,7 +66,7 @@ public class UIMockupController implements Initializable {
             public void handle(Event t) {
                 if (simulationTab.isSelected()) {
                     if (shapeCanvas.getChildren().size() > 0)
-                        AppletInterfacer.setModel(makeSFM());
+                        AppletInterfacer.setModel(1,1,1,makeEdgeLists());
                     AppletInterfacer.open();
                 } else {
                     AppletInterfacer.standBy();
@@ -353,5 +353,29 @@ public class UIMockupController implements Initializable {
         }
         
         return new SimpleFixedModel(x, y, z, theta, towers, new FixedPhoton(new Vector(0, 0, -1)));
+    }
+    
+    private List<List<Vector>> makeEdgeLists() {
+      ObservableList<Node> shapes = shapeCanvas.getChildren();
+      List<List<Vector>> edgelists = new ArrayList<List<Vector>>();
+
+      for (int i = 0; i < shapes.size(); i++) {
+        ShapePane shape = (ShapePane) shapes.get(i);
+        List<Vector> edgelist = new ArrayList<Vector>();
+        CSNode first = shape.head;
+        CSNode curr = first;
+
+        do {
+          double x = (shape.getLayoutX() + curr.getLayoutX()) / 600.0d;
+          double y = (shape.getLayoutY() + curr.getLayoutY()) / 600.0d;
+          Vector edge = new Vector(x, y, 0);
+          edgelist.add(edge);
+          curr = curr.next;
+        } while (curr != first);
+
+        edgelists.add(edgelist);
+      }
+
+      return edgelists;
     }
 }
