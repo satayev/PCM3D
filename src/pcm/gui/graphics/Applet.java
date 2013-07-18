@@ -65,6 +65,7 @@ public class Applet extends PApplet {
     float magnif = model.magnif;
     // Main view
     views[0] = new AppletView(this,
+        //new Vector(3649.2651652694626, 640.8186570186839, 807.227290303987),
         new Vector(2367.9393409229156, 1683.7968615726913, -697.3584421318751),//modSize=1 (2*2 cells)
         //          new Vector(1189.4688663645709, 963.3238398033682, -769.9952779021853),// modSize=0 (1*1 cell)
         new Vector(-16.0, 0.0, -142.0),
@@ -354,11 +355,10 @@ public class Applet extends PApplet {
               yRotation -= PI / 2;
           }
           // printing/testing
-          xRot = xRotation%(2*PI); yRot = yRotation%(2*PI);
-          if (xRot < 0) xRot+=2*PI; if (yRot < 0) yRot+=2*PI;
-          println(xRot + " " + yRot);
-          model.reset();
-          //TODO - set model's incoming light at another angle
+//          xRot = xRotation%(2*PI); yRot = yRotation%(2*PI);
+//          if (xRot < 0) xRot+=2*PI; if (yRot < 0) yRot+=2*PI;
+//          println(xRot + " " + yRot);
+//          model.reset();
         }
       }
       else {

@@ -29,7 +29,10 @@ public class Main extends JFrame implements ComponentListener {
   private JLayeredPane layeredPane;
 
   // width and height equivalent to UIMockup.fxml's values, but are altered on running Main
-  public static int width = 1000, height = 700; 
+  public static int width = 1000, height = 700,
+      //region of window where PApplet sits   
+      offsetTop = 53, offsetRight = 240; 
+  
    
   public Main() {
     super("PCM3D");

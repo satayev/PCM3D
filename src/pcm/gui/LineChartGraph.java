@@ -9,10 +9,14 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.stage.Stage;
 
-public class LineChartGraph extends Application {
+public class LineChartGraph {
   public List<Double> x, y;
   public String title, xLabel, yLabel;
   
+  final NumberAxis xAxis = new NumberAxis();
+  final NumberAxis yAxis = new NumberAxis();
+  final LineChart<Number,Number> lineChart =  new LineChart<Number,Number>(xAxis,yAxis);
+
   /**
    * Creates a graph with the list x and y, which should be the same size
    * @param x
@@ -29,15 +33,10 @@ public class LineChartGraph extends Application {
     this.yLabel = yLabel;
   }
   
-  @Override public void start(Stage stage) {
-      //defining the axes
-      final NumberAxis xAxis = new NumberAxis();
-      final NumberAxis yAxis = new NumberAxis();
+  public void make() {
       xAxis.setLabel(xLabel);
       yAxis.setLabel(yLabel);
-      //creating the chart
-      final LineChart<Number,Number> lineChart =  new LineChart<Number,Number>(xAxis,yAxis);
-              
+ 
       lineChart.setTitle(title);
       //defining a series
       XYChart.Series series = new XYChart.Series();
@@ -45,11 +44,8 @@ public class LineChartGraph extends Application {
       for (int i = 0; i < x.size(); i++) 
         series.getData().add(new XYChart.Data(x.get(i), y.get(i)));
       
-      Scene scene  = new Scene(lineChart,800,600);
       lineChart.getData().add(series);
      
-      stage.setScene(scene);
-      stage.show();
   }
 
 }

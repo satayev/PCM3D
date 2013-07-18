@@ -102,8 +102,7 @@ public class AppletModel {
     Lx = Arrays.asList(.2, .4, .5, .4, .2, .1);
     Ly = Arrays.asList(.1, .1, .3, .5, .5, .3);
     LT.add(new Tower(Lx, Ly));
-    
-   
+
     /** dev.simple model initialization here */
     if (runSimpleModel) {
 
@@ -144,8 +143,13 @@ public class AppletModel {
         SFM.p.stat.X = maxPhotons;
 
         // Cautious Incorporation of applet.xRotation and applet.yRotation into angles
-        // TODO test interfacing with Applet's rotating
-        double zenith0 = Math.PI * (90 - zenith) / 180 - Math.PI + applet.xRotation - applet.yRotation, azimuth0 = Math.PI * azimuth / 180 + applet.yRotation;
+        float xRot = applet.xRotation, yRot = applet.yRotation;
+        yRot = (yRot == (float) Math.PI / 2) ? 0 : applet.yRotation;
+        System.out.println("appletmodel " + xRot + " " + yRot);
+        double zenith0 = Math.PI * (180 - (90 - zenith)) / 180
+            + (Math.PI - xRot) + (Math.PI - yRot), 
+            azimuth0 = Math.PI * azimuth / 180
+            + (Math.PI - yRot);
         Vector entry = new Vector(Math.cos(zenith0) * Math.cos(azimuth0), Math.cos(zenith0) * Math.sin(azimuth0), -Math
             .sin(zenith0));
 
@@ -155,7 +159,8 @@ public class AppletModel {
         printOutput += zenith + " degrees\t" + azimuth + " degrees\t" + SFM.p.stat.getRatio() + " %" + "\n";
 
         List<List<List<Vector>>> photonPaths = SFM.p.stat.rv;
-        for (List<List<Vector>> i : photonPaths) paths.add(new PathFollower(i));
+        for (List<List<Vector>> i : photonPaths)
+          paths.add(new PathFollower(i));
 
       } else {
         try {
@@ -166,13 +171,16 @@ public class AppletModel {
           System.out.println("clear");
 
           double zenith0 = Math.PI / 2 - Math.PI * zenith / 180, azimuth0 = Math.PI * azimuth / 180;
-          AS.run(1000, new Vector(Math.cos(zenith0) * Math.cos(azimuth0), Math.cos(zenith0) * Math.sin(azimuth0), -Math.sin(zenith0)));
+          AS.run(1000,
+              new Vector(Math.cos(zenith0) * Math.cos(azimuth0), Math.cos(zenith0) * Math.sin(azimuth0), -Math.sin(zenith0)));
           System.out.println("finish");
           AS.printStats();
-          printOutput += zenith + " degrees\t" + azimuth + " degrees\t" + (AS.stats.photonAbsorbedCounter*1./AS.stats.photonTotalCounter) + " %" + "\n";
+          printOutput += zenith + " degrees\t" + azimuth + " degrees\t"
+              + (AS.stats.photonAbsorbedCounter * 1. / AS.stats.photonTotalCounter) + " %" + "\n";
 
           List<List<List<Vector>>> photonPaths = AS.stats.photonPaths;
-          for (List<List<Vector>> i : photonPaths) paths.add(new PathFollower(i));
+          for (List<List<Vector>> i : photonPaths)
+            paths.add(new PathFollower(i));
           System.out.println("print");
 
         } catch (Exception E) {
