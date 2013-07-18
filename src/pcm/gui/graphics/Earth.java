@@ -107,16 +107,6 @@ public class Earth {
 
     applet.popMatrix();
 
-    applet.hint(applet.DISABLE_DEPTH_TEST);
-    applet.camera();
-    applet.fill(Tools.white);
-    applet.textSize(20);
-    //if (rotationX >= 0 ) North else South if (rotationY%360>=180) West
-
-    //text("0, 0", -30, 15,0);
-    applet.text("1, 0", 15, 0);
-    applet.noFill();
-    applet.hint(applet.ENABLE_DEPTH_TEST);
   }
 
   public void pathOfISS() {
@@ -169,6 +159,32 @@ public class Earth {
 
     applet.popMatrix();
 
+  }
+
+  void displayCoord() {
+    applet.fill(applet.backgroundColor);
+    applet.stroke(Tools.black);
+    applet.rect(applet.width - 80, applet.height - 50, 81, 51);
+
+    applet.textSize(13);
+    applet.fill(Tools.black);
+    double latitude = (int) (rotationX * 100) / 100.0, longitude = (int) (rotationY % 360 * 100) / 100.0;
+    if (rotationX >= 0) {
+      applet.text(latitude + "", applet.width - 70, applet.height - 30);
+      applet.text("N", applet.width - 20, applet.height - 30);
+    } else {
+      applet.text((latitude * -1) + "", applet.width - 70, applet.height - 30);
+      applet.text("S", applet.width - 20, applet.height - 30);
+    }
+    if (rotationY % 360 >= 180) {
+      applet.text(longitude + "", applet.width - 70, applet.height - 10);
+      applet.text("W", applet.width - 20, applet.height - 10);
+    } else {
+      {
+        applet.text(longitude + "", applet.width - 70, applet.height - 10);
+        applet.text("E", applet.width - 20, applet.height - 10);
+      }
+    }
   }
 
   void renderGlobe() {

@@ -47,7 +47,7 @@ public class AppletModel {
    * Zenith angle is [0, 90) degrees, 0 being straight down, 90 straight towards the side
    * Azimuth is degrees to the x-y axis
    */
-  public static double zenith = 87.5, azimuth = 0;
+  public static double zenith = 50, azimuth = 0;
 
   // Model microscale bounds
   public double X = 1, Y = 1, Z = 1, Z0 = 1;
@@ -102,7 +102,8 @@ public class AppletModel {
     Lx = Arrays.asList(.2, .4, .5, .4, .2, .1);
     Ly = Arrays.asList(.1, .1, .3, .5, .5, .3);
     LT.add(new Tower(Lx, Ly));
-
+    
+   
     /** dev.simple model initialization here */
     if (runSimpleModel) {
 
@@ -142,14 +143,13 @@ public class AppletModel {
         SFM.p.stat.N = maxPhotons;
         SFM.p.stat.X = maxPhotons;
 
-        /*
-         * TODO - incorporate applet.xRotation and applet.yRotation into angles
-         * when xRotation = PI, model is upside-down
-         * xRotation = PI/2,
-         */
-        double zenith0 = Math.PI * zenith / 180, azimuth0 = Math.PI * azimuth / 180;
-        SFM.setEntry(new Vector(Math.cos(zenith0) * Math.cos(azimuth0), Math.cos(zenith0) * Math.sin(azimuth0), -Math
-            .sin(zenith0)));
+        // Cautious Incorporation of applet.xRotation and applet.yRotation into angles
+        // TODO test interfacing with Applet's rotating
+        double zenith0 = Math.PI * (90 - zenith) / 180 - Math.PI + applet.xRotation - applet.yRotation, azimuth0 = Math.PI * azimuth / 180 + applet.yRotation;
+        Vector entry = new Vector(Math.cos(zenith0) * Math.cos(azimuth0), Math.cos(zenith0) * Math.sin(azimuth0), -Math
+            .sin(zenith0));
+
+        SFM.setEntry(entry);
         SFM.run(10000);
         SFM.p.stat.printAll();
         printOutput += zenith + " degrees\t" + azimuth + " degrees\t" + SFM.p.stat.getRatio() + " %" + "\n";
@@ -188,7 +188,7 @@ public class AppletModel {
       sunDir = tileCenter.clone();
       sunPos.sub(V.mult(sunDistance, sunDir));
 
-      if (zenith == 0) {
+      if (zenith == 0 && zenith == 90) {
         dzenith *= -1;
         azimuth = (azimuth + 180) % 360;
       }
