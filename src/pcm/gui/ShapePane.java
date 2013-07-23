@@ -136,8 +136,8 @@ public class ShapePane extends AnchorPane {
         }
         
         ShapePane copy = new ShapePane(nodes[0], 0.0d, false);
-        copy.background.setFill(Color.BLUE);
-        copy.background.setOpacity(0.1d);
+//        copy.background.setFill(Color.BLUE);
+//        copy.background.setOpacity(0.1d);
         return copy;
     }
     

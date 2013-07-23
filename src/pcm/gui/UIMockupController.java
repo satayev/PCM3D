@@ -39,7 +39,7 @@ public class UIMockupController implements Initializable {
   public Button csReset, csAdd;
   public ShapePane csPane;
   public FlowPane shapePicker;
-  public TextField csEdgeCount, shapeRotation, shapeScale, shapeHeight;
+  public TextField csEdgeCount, shapeRotation, shapeScale;//, shapeHeight;
   private CSNode head;
   public Tab simulationTab;
   public Button animationButton;
@@ -50,6 +50,7 @@ public class UIMockupController implements Initializable {
   public Label degreesLabel, photonsLabel, modelSizeLabel;
   public Accordion simulationAccordion1, simulationAccordion2, simulationAccordion3;
   public MenuBar dataMenuBar;
+    public Menu clearButton;
   public GridPane dataGridPane;
   
   @Override
@@ -208,7 +209,7 @@ private void initializeSimulationTab() {
       @Override
       public void handle(Event t) {
         if (simulationTab.isSelected()) {
-          if (shapeCanvas.getChildren().size() > 0)
+//        if (shapeCanvas.getChildren().size() > 0)
             AppletInterfacer.setModel(1, 1, 1, makeEdgeLists());
           AppletInterfacer.open();
         } else {
@@ -305,6 +306,13 @@ private void initializeSimulationTab() {
   }
 
   private void initializePatternTab() {
+    clearButton.showingProperty().addListener(new ChangeListener<Boolean>() {
+        @Override
+        public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+            shapeCanvas.getChildren().clear();
+            clearButton.hide();
+        }
+    });
     shapeRotation.textProperty().addListener(new ChangeListener<String>() {
       @Override
       public void changed(ObservableValue<? extends String> ov, String t, String t1) {
@@ -412,18 +420,18 @@ private void initializeSimulationTab() {
       @Override
       public void handle(DragEvent t) {
         if (!shapeCanvas.getChildren().contains(ShapePane.dragPreview)) {
-          double scale = 100.0d;
-          double height = 200.0d;
+          double scale = 0.1d;
+//          double height = 1.0d;
           try {
-            scale = Double.parseDouble(shapeScale.getText());
+            scale = Double.parseDouble(shapeScale.getText()) * 600.0d;
           } catch (NumberFormatException e) {
             System.out.println(e);
           }
-          try {
-            height = Double.parseDouble(shapeHeight.getText());
-          } catch (NumberFormatException e) {
-            System.out.println(e);
-          }
+//          try {
+//            height = Double.parseDouble(shapeHeight.getText());
+//          } catch (NumberFormatException e) {
+//            System.out.println(e);
+//          }
 
           ShapePane.dragPreview.scale(scale);
           shapeCanvas.getChildren().add(ShapePane.dragPreview);
@@ -443,7 +451,7 @@ private void initializeSimulationTab() {
   private SimpleFixedModel makeSFM() {
     ObservableList<Node> shapes = shapeCanvas.getChildren();
     List<Tower> towers = new ArrayList<Tower>();
-    double x = 1, y = 1, z = 0, theta = 0;
+    double x = 1, y = 1, z = 1, theta = 0;
 
     for (int i = 0; i < shapes.size(); i++) {
       ShapePane shape = (ShapePane) shapes.get(i);
