@@ -234,43 +234,48 @@
                 </Accordion>
                 <Accordion fx:id="simulationAccordion2">
                   <expandedPane>
-                    <TitledPane fx:id="x4" animated="false" prefHeight="66.0" prefWidth="243.0" text="ISS Position Over Earth (Optional)">
+                    <TitledPane fx:id="userEarthOptions" animated="false" prefHeight="90.0" prefWidth="243.0" text="ISS Position Over Earth (Optional)" >
                       <content>
                         <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                           <children>
-                            <HBox alignment="CENTER" AnchorPane.leftAnchor="9.0" AnchorPane.rightAnchor="9.0" AnchorPane.topAnchor="0.0">
-                              <children>
-                                <Label text="Latitude">
-                                  <HBox.margin>
-                                    <Insets left="5.0" fx:id="x14" />
-                                  </HBox.margin>
-                                </Label>
-                                <TextField fx:id="latitudeField" prefWidth="40.0" text="0.0" HBox.hgrow="ALWAYS">
-                                  <HBox.margin>
-                                    <Insets left="5.0" right="5.0" fx:id="x15" />
-                                  </HBox.margin>
-                                </TextField>
-                                <Label text="Longitude">
-                                  <HBox.margin>
-                                    <Insets left="5.0" right="5.0" fx:id="x16" />
-                                  </HBox.margin>
-                                </Label>
-                                <TextField fx:id="longitudeField" prefWidth="40.0" text="0.0" HBox.hgrow="ALWAYS">
-                                  <HBox.margin>
-                                    <Insets left="5.0" fx:id="x17" />
-                                  </HBox.margin>
-                                </TextField>
-                              </children>
-                            </HBox>
-                            <HBox alignment="CENTER" />
-                            <CheckBox fx:id="toEquatorCheckBox" layoutX="20.0" layoutY="20.0" mnemonicParsing="false" text="ISS heading towards equator" />
-                          </children>
+							<CheckBox fx:id="orbitCheckBox" mnemonicParsing="false" text="Use TLE orbit"  AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="4.0"/>
+                            <VBox alignment="CENTER" AnchorPane.leftAnchor="9.0" AnchorPane.rightAnchor="9.0" AnchorPane.topAnchor="22.0">
+							  <children>
+								<HBox>
+								  <children>
+									<Label text="Latitude">
+									  <HBox.margin>
+										<Insets left="5.0" fx:id="x14" />
+									  </HBox.margin>
+									</Label>
+									<TextField fx:id="latitudeField" prefWidth="40.0" text="0.0" HBox.hgrow="ALWAYS">
+									  <HBox.margin>
+										<Insets left="5.0" right="5.0" fx:id="x15" />
+									  </HBox.margin>
+									</TextField>
+									<Label text="Longitude">
+									  <HBox.margin>
+										<Insets left="5.0" right="5.0" fx:id="x16" />
+									  </HBox.margin>
+									</Label>
+									<TextField fx:id="longitudeField" prefWidth="40.0" text="0.0" HBox.hgrow="ALWAYS">
+									  <HBox.margin>
+										<Insets left="5.0" fx:id="x17" />
+									  </HBox.margin>
+									</TextField>
+								  </children>
+								</HBox>
+								<HBox alignment="CENTER" />
+								<CheckBox fx:id="toEquatorCheckBox" mnemonicParsing="false" text="ISS heading towards equator" />
+							  </children>
+						    </VBox> 
+						  </children>
                         </AnchorPane>
                       </content>
                     </TitledPane>
                   </expandedPane>
                   <panes>
-                    <fx:reference source="x4" />
+                    <fx:reference source="userEarthOptions" />
                   </panes>
                 </Accordion>
                 <HBox alignment="CENTER">
@@ -308,18 +313,11 @@
         </AnchorPane>
       </content>
     </Tab>
-    <Tab closable="false" text="Data">
+    <Tab fx:id="dataTab" closable="false" text="Data">
       <AnchorPane id="AnchorPane" fx:id="dataAnchorPane" prefWidth="1280.0">
         <children>
-          <MenuBar fx:id="dataMenuBar" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-          <GridPane fx:id="dataGridPane" layoutY="21.0" prefHeight="650.0" prefWidth="1000.0">
-            <columnConstraints>
-              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            </columnConstraints>
-            <rowConstraints>
-              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            </rowConstraints>
-          </GridPane>
+         <GridPane fx:id="dataOptionsGrid" prefHeight="150.0" style="-fx-background-color:#474747;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+		 <GridPane fx:id="dataGraphGrid" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0" />
         </children>
       </AnchorPane>
     </Tab>
