@@ -16,6 +16,7 @@ import pcm.model.geom.Vector;
 import pcm.model.geom.curves.Polygon;
 import pcm.model.geom.solids.Prism;
 import pcm.model.orbit.ISSOrbit;
+import pcm.model.statics.Wavelength;
 import pcm.model.statics.WavelengthAM0;
 import dev.simple.FixedPhoton;
 import dev.simple.Photon;

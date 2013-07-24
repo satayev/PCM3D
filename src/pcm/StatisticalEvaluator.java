@@ -12,6 +12,7 @@ import pcm.model.geom.solids.Prism;
 import pcm.model.orbit.ISSOrbit;
 import pcm.model.statics.Alpha;
 import pcm.model.statics.Wavelength;
+import pcm.model.statics.WavelengthAM0;
 
 public class StatisticalEvaluator {
   
@@ -21,6 +22,7 @@ public class StatisticalEvaluator {
   
   public List<Statistics> points;
 
+  public List<Double> wavelengthValue;
   public List<Double> wavelengthIntensity;
   public List<Double> wavelengthAlpha;
   
@@ -69,10 +71,12 @@ public class StatisticalEvaluator {
    * @param detail The number of trials to run for the intensity measurement
    */
   public void analyzeWavelength(Wavelength wavelength, int steps, double maxWavelength, double detail) {
+    wavelengthValue = new ArrayList<Double>(steps);
     wavelengthIntensity = new ArrayList<Double>(steps);
     wavelengthAlpha = new ArrayList<Double>(steps);
     int[] wavelengthCount = new int[steps];
     double stepSize = maxWavelength / steps;
+    for (int i = 0; i < steps; i++) wavelengthValue.add((i+1) * stepSize);
     for (int i = 0; i < detail;) {
       double w = wavelength.genWavelength();
       int w0 = (int) (w / stepSize) - 1;
@@ -81,8 +85,8 @@ public class StatisticalEvaluator {
         i++;
       }
     }
-    for (int i = 0; i < detail; i++) wavelengthIntensity.add((int) wavelengthCount[i] / detail); 
-    for (int i = 0; i < detail; i++) wavelengthAlpha.add(Alpha.getAlpha((i+1) * stepSize)); 
+    for (int i = 0; i < steps; i++) wavelengthIntensity.add(((double) wavelengthCount[i]) / detail); 
+    for (int i = 0; i < steps; i++) wavelengthAlpha.add(Alpha.getAlpha(wavelengthValue.get(i))); 
   }
   
   public List<Vector> generateVectors(double zenith, double azimuth, double angle, int precision) {

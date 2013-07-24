@@ -30,7 +30,7 @@ public class AppletInterfacer {
 
   public static JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
   public static PApplet applet = new Applet();
-  private static AppletModel model = new AppletModel();
+  public static AppletModel model = new AppletModel();
   private static Earth earth = new Earth();
 
   public static boolean changed = false;

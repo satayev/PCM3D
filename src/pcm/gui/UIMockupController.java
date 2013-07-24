@@ -21,6 +21,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 
+import pcm.StatisticalEvaluator;
 import pcm.gui.graphics.*;
 
 import javafx.scene.Node;
@@ -35,7 +36,9 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import pcm.model.Statistics;
 import pcm.model.geom.Vector;
+import pcm.model.statics.WavelengthAM0;
 
 public class UIMockupController implements Initializable {
 
@@ -60,6 +63,7 @@ public class UIMockupController implements Initializable {
   public TitledPane userEarthOptions;
 
   /** These variables are set according to the menu options selected */
+  int f0 = 0, x0 = 0, y0 = 0;
   List<Double> x;
   List<Double> y;
   String title;
@@ -68,6 +72,8 @@ public class UIMockupController implements Initializable {
   LineChartGraph lcg = new LineChartGraph();
   ListView<String> fileList = new ListView<String>(), modeList = new ListView<String>(), xAxisList = new ListView<String>(), yAxisList = new ListView<String>();
   ObservableList<String> items;
+  List<Double>[][] graphAxis;
+  String[][] graphTitles;
   
   @Override
   public void initialize(URL url, ResourceBundle rb) {
@@ -127,7 +133,7 @@ public class UIMockupController implements Initializable {
 
     final String[] fileOptions = new String[] { "Save graph as .csv" };
     final String[] modeOptions = new String[] { "Wavelength", "Frequency" };
-    final String[] axisOptions = new String[] { "..", "..." };
+    final String[] axisOptions = new String[] { "..", "..." , "....", "....." };
 
     /* Creating lists */
     items = FXCollections.observableArrayList(fileOptions);
@@ -162,16 +168,9 @@ public class UIMockupController implements Initializable {
         new ChangeListener<String>() {
           public void changed(ObservableValue<? extends String> ov,
               String old_val, String new_val) {
-            if (new_val.equals(modeOptions[0])) {
-              // Wavelength
-              //change affected vars
-              lcg.update(x, y, title, xLabel, yLabel);
-            }
-            else if (new_val.equals(modeOptions[1])) {
-              // Frequency
-              //change affected vars
-              lcg.update(x, y, title, xLabel, yLabel);
-            }
+            for (int i = 0; i < 2; i++) if (new_val.equals(modeOptions[i]))
+              f0 = i;
+            updateGraph();
           }
         });
 
@@ -179,18 +178,9 @@ public class UIMockupController implements Initializable {
         new ChangeListener<String>() {
           public void changed(ObservableValue<? extends String> ov,
               String old_val, String new_val) {
-            if (new_val.equals(axisOptions[0])) {
-              //x = ....;
-              xLabel = axisOptions[0];
-              title = yLabel + " vs " + xLabel;
-              lcg.update(x, y, title, xLabel, yLabel);
-            }
-            else if (new_val.equals(axisOptions[1])) {
-              //x = ....;
-              xLabel = axisOptions[1];
-              title = yLabel + " vs " + xLabel;
-              lcg.update(x, y, title, xLabel, yLabel);
-            }
+            for (int i = 0; i < 4; i++) if (new_val.equals(axisOptions[i]))
+              x0 = i;
+            updateGraph();
           }
         });
 
@@ -198,18 +188,9 @@ public class UIMockupController implements Initializable {
         new ChangeListener<String>() {
           public void changed(ObservableValue<? extends String> ov,
               String old_val, String new_val) {
-            if (new_val.equals(axisOptions[0])) {
-              y = new ArrayList<Double>(Arrays.asList(new Double(8), new Double(3), new Double(0)));;
-              yLabel = axisOptions[0];
-              title = yLabel + " vs " + xLabel;
-              lcg.update(x, y, title, xLabel, yLabel);
-            }
-            else if (new_val.equals(axisOptions[1])) {
-              //y = ....;
-              yLabel = axisOptions[1];
-              title = yLabel + " vs " + xLabel;
-              lcg.update(x, y, title, xLabel, yLabel);
-            }
+            for (int i = 0; i < 4; i++) if (new_val.equals(axisOptions[i]))
+              y0 = i;
+            updateGraph();
           }
         });
 
@@ -558,5 +539,62 @@ public class UIMockupController implements Initializable {
     }
 
     return edgelists;
+  }
+  
+  public void setGraph() {
+    StatisticalEvaluator SE = AppletInterfacer.model.SE;
+    SE.analyzeWavelength(new WavelengthAM0(), 100, 1e-6, 10000);
+    graphTitles = new String[2][];
+    graphAxis = new List[2][];
+    graphTitles[0] = new String[4];
+    graphAxis[0] = new List[4];
+    graphTitles[0][0] = "Average Absorption Rate";
+    graphAxis[0][0] = new ArrayList<Double>();
+    graphTitles[0][1] = "Average Reflections Counter";
+    graphAxis[0][1] = new ArrayList<Double>();
+    graphTitles[0][2] = "Zenith Angle";
+    graphAxis[0][2] = new ArrayList<Double>();
+    graphTitles[0][3] = "Azimuth Angle";
+    graphAxis[0][3] = new ArrayList<Double>();
+    for (Statistics i : SE.points) {
+      graphAxis[0][0].add(((double) i.photonAbsorbedCounter) / i.photonTotalCounter);
+      graphAxis[0][1].add(((double) i.reflectionsTotalCounter) / i.photonTotalCounter);
+    }
+    for (Vector i : SE.vectors) {
+      graphAxis[0][2].add(SE.vectorToZenith(i));
+      graphAxis[0][3].add(SE.vectorToAzimuth(i));
+    }
+    graphTitles[1] = new String[4];
+    graphAxis[1] = new List[4];
+    graphTitles[1][0] = "Wavelength";
+    graphAxis[1][0] = new ArrayList<Double>();
+    graphTitles[1][1] = "Frequency";
+    graphAxis[1][1] = new ArrayList<Double>();
+    graphTitles[1][2] = "Wavelength Intensity";
+    graphAxis[1][2] = new ArrayList<Double>();
+    graphTitles[1][3] = "Wavelength Alpha";
+    graphAxis[1][3] = new ArrayList<Double>();
+    for (double i : SE.wavelengthValue) {
+      graphAxis[1][0].add(i);
+      graphAxis[1][1].add(3e8/i);
+    }
+    for (double i : SE.wavelengthIntensity) graphAxis[1][2].add(i);
+    for (double i : SE.wavelengthAlpha) graphAxis[1][3].add(i);
+    updateGraph();
+  }
+  
+  public void updateGraph() {
+    if (graphAxis == null) setGraph();
+    if (f0 < 0 || f0 >= 2) f0 = 0;
+    if (x0 < 0 || x0 >= 4) x0 = 0;
+    if (y0 < 0 || y0 >= 4) y0 = 0;
+    System.out.println("Graph options: " + f0 + " " + x0 + " " + y0);
+    System.out.println("Graph size: " + graphAxis.length + " " + graphAxis[0].length + " " + graphAxis[1].length);
+    
+    List<Double> x = graphAxis[f0][x0], y = graphAxis[f0][y0];
+    String title = "Generic Graph", xLabel = graphTitles[f0][x0], yLabel = graphTitles[f0][y0];
+    System.out.println("x: "+ x);
+    System.out.println("y: "+ y);
+    lcg.update(x, y, title, xLabel, yLabel);
   }
 }
