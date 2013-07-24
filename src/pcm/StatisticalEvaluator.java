@@ -5,6 +5,7 @@ import java.util.List;
 
 import pcm.model.RectangularPrismModel;
 import pcm.model.Statistics;
+import pcm.model.geom.V;
 import pcm.model.geom.Vector;
 import pcm.model.geom.curves.Polygon;
 import pcm.model.geom.solids.Prism;
@@ -15,6 +16,8 @@ import pcm.model.statics.Wavelength;
 public class StatisticalEvaluator {
   
   public RectangularPrismModel model = new RectangularPrismModel(1., 1., 1.);
+  
+  public List<Vector> vectors;
   
   public List<Statistics> points;
 
@@ -42,6 +45,7 @@ public class StatisticalEvaluator {
    * @param precision The number of trials to run
    */
   public void runSimulation(List<Vector> vectors, Wavelength wavelength, int details, int precision) {
+    this.vectors = vectors;
     if (precision < details) precision = details;
     int N = vectors.size();
     points = new ArrayList<Statistics>(N);
@@ -79,6 +83,49 @@ public class StatisticalEvaluator {
     }
     for (int i = 0; i < detail; i++) wavelengthIntensity.add((int) wavelengthCount[i] / detail); 
     for (int i = 0; i < detail; i++) wavelengthAlpha.add(Alpha.getAlpha((i+1) * stepSize)); 
+  }
+  
+  public List<Vector> generateVectors(double zenith, double azimuth, double angle, int precision) {
+    Vector entry = angleToVector(zenith, azimuth);
+    return generateVectors(entry, angle, precision);
+  }
+  
+  public List<Vector> generateVectors(Vector entry, double angle, int size) {
+    Vector y = V.cross(entry, new Vector(0,0,1)), x = V.cross(y, entry);
+    y.normalize();
+    x.normalize();
+    double angle0 = Math.PI*angle / 180;
+    Vector rotation = V.add(V.mult(Math.cos(angle0), x), V.mult(Math.sin(angle0), y));
+    rotation = V.cross(rotation, entry);
+    rotation.normalize();
+    double degree = 2*Math.PI / size;
+    return generateVectors(entry, rotation, degree, size);
+  }
+  
+  public List<Vector> generateVectors(Vector entry, Vector rotation, double angle, int size) {
+    List<Vector> list = new ArrayList<Vector>();
+    while (size-- > 0) {
+      list.add(entry);
+      entry = V.rotateAbout(entry, rotation, angle);
+    }
+    return list;
+  }
+  
+  public Vector angleToVector(double zenith, double azimuth) {
+    double zenith0 = Math.PI * zenith / 180, 
+        azimuth0 = Math.PI * azimuth / 180 + Math.PI;
+    return new Vector(Math.cos(azimuth0) * Math.sin(zenith0), Math.sin(azimuth0) * Math.sin(zenith0), -Math.cos(zenith0));
+  }
+  
+  public double vectorToZenith(Vector vector) {
+    return Math.acos(vector.z) * 180 / Math.PI;
+  }
+  
+  public double vectorToAzimuth(Vector vector) {
+    Vector v0 = vector.clone();
+    v0.z = 0;
+    v0.normalize();
+    return Math.acos(v0.x) * 180 / Math.PI;
   }
   
 }

@@ -5,6 +5,10 @@ import pcm.model.geom.*;
 
 /**
  * Processing applet tools class for ease of drawing text, lines, colors, and rotation.
+ * For drawing the model, the x- and y-axises are flipped due to Processing's inverted
+ * appearance (default for rendering is having y axis being the up vector instead of z axis which
+ * model uses as axis of elevation). The alternative is having z be negative, though would involve changes with a view's camera
+ * vectors.
  * 
  * @author Susan
  */
@@ -29,7 +33,6 @@ public class Tools {
 
   // Writes on screen at (x,y) with current fill color
   public static void scribe(Applet applet, String S, int x, int y) {
-    //applet.fill(0);
     applet.text(S, x, y);
     applet.noFill();
   }
@@ -57,51 +60,86 @@ public class Tools {
   };
 
   // The following methods for drawing have x and y inverted because opengl is such
-  public static void drawLine(Applet applet, Vector P, Vector Q) {
+  // Draws a line between two points
+  public static void drawMLine(Applet applet, Vector P, Vector Q) {
     applet.line((float) Q.y, (float) Q.x, (float) Q.z, (float) P.y, (float) P.x, (float) P.z);
   };
 
-  public static void drawLine(Applet applet, Vector P, Vector Q, float magnif) {
+  public static void drawMLine(Applet applet, Vector P, Vector Q, float magnif) {
     applet.line((float) Q.y * magnif, (float) Q.x * magnif, (float) Q.z * magnif, (float) P.y * magnif, (float) P.x * magnif,
         (float) P.z * magnif);
   };
 
-  public static void drawPhoton(Applet applet, Vector p, float photonRadius, float magnif, int detail) {
+  public static void drawMPhoton(Applet applet, Vector p, float photonRadius, float magnif, int detail) {
+    Vector v = V.mult(magnif, p);
     applet.sphereDetail(detail); // 360/params = __ degrees of rotation in sphere mesh
-    drawSphere(applet, V.mult(magnif, p), photonRadius);
+    drawSphere(applet, new Vector(v.y, v.x, v.z), photonRadius);
   }
 
   public static void drawSphere(Applet applet, Vector p, float radius) {
     applet.pushMatrix();
-    applet.translate((float) p.y, (float) p.x, (float) p.z);
-    applet.sphereDetail(2); // 360/params = __ degrees of rotation in sphere mesh
+    applet.translate((float) p.x, (float) p.y, (float) p.z);
     applet.sphere(radius);
     applet.popMatrix();
   }
 
   // Vertex for shading or drawing
-  public static void vertex(Applet applet, Vector P) {
+  public static void vertexM(Applet applet, Vector P) {
     applet.vertex((float) P.y, (float) P.x, (float) P.z);
   };
 
   // Vertex with texture coordinates
-  public static void vertex(Applet applet, Vector P, float u, float v) {
+  public static void vertexM(Applet applet, Vector P, float u, float v) {
     applet.vertex((float) P.y, (float) P.x, (float) P.z, u, v);
   };
 
-  // Shows vector V as arrow from point P 
-  public static void arrow(Applet applet, Vector P, Vector Vec) {
-    drawLine(applet, P, Vec);
-    double n = Vec.length();
-    if (n < 0.01)
-      return;
-    double s = Math.max(Math.min(.2, 20 / n), 6 / n);
-    Vector Q = V.add(P, Vec), U = V.mult(-s, Vec), W = rotate(applet, V.mult(.3, U)); // point and two vectors
+  public static void drawLine(Applet applet, Vector P, Vector Q) {
+    applet.line((float) Q.x, (float) Q.y, (float) Q.z, (float) P.x, (float) P.y, (float) P.z);
+  };
+
+  public static void vertex(Applet applet, Vector P) {
+    applet.vertex((float) P.x, (float) P.y, (float) P.z);
+  };
+
+
+  public static void drawMArrow(Applet applet, Vector P, Vector Q, Vector dir, float len) {
+    Vector D = V.normalize(dir);
+    Vector A = V.add(V.mult(.5, V.add(P, Q)), V.mult(len, D)), // arrow tip
+    s1 = V.sub(P, Q), s2 = V.sub(Q, P);
+    double size = s1.length();
+    Vector S1 = V.sub(V.add(s2, A), V.mult(size, D)), S2 = V.sub(V.add(s1, A), V.mult(size, D)), // sides of the arrow
+    S = V.sub(V.add(Q, V.mult(len, D)), V.mult(size, D)), R = V.sub(V.add(P, V.mult(len, D)), V.mult(size, D));//V.sub(S2,s1);
+
     applet.beginShape();
-    vertex(applet, V.add(V.add(Q, U), W));
-    vertex(applet, Q);
-    vertex(applet, V.sub(V.add(Q, U), W));
+    vertexM(applet, Q);
+    vertexM(applet, P);
+    vertexM(applet, R);
+    vertexM(applet, S2);
+    vertexM(applet, A);
+    vertexM(applet, S1);
+    vertexM(applet, S);
     applet.endShape(applet.CLOSE);
 
   }
+
+  public static void drawArrow(Applet applet, Vector P, Vector Q, Vector dir, float len) {
+    Vector D = V.normalize(dir);
+    Vector A = V.add(V.mult(.5, V.add(P, Q)), V.mult(len, D)), // arrow tip
+    s1 = V.sub(P, Q), s2 = V.sub(Q, P);
+    double size = s1.length();
+    Vector S1 = V.sub(V.add(s2, A), V.mult(size, D)), S2 = V.sub(V.add(s1, A), V.mult(size, D)), // sides of the arrow
+    S = V.sub(V.add(Q, V.mult(len, D)), V.mult(size, D)), R = V.sub(V.add(P, V.mult(len, D)), V.mult(size, D));//V.sub(S2,s1);
+
+    applet.beginShape();
+    vertex(applet, Q);
+    vertex(applet, P);
+    vertex(applet, R);
+    vertex(applet, S2);
+    vertex(applet, A);
+    vertex(applet, S1);
+    vertex(applet, S);
+    applet.endShape(applet.CLOSE);
+
+  }
+
 }

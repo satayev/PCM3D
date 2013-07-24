@@ -184,4 +184,20 @@ public final class V {
         + (-b * u + a * v - v * x + u * y) * Math.sin(theta);
     return q;
   }
+
+  public static Vector rotateAbout(Vector vector, Vector rotation, double angle) {
+    rotation.normalize();
+    Vector next = V.mult(vector.dot(rotation) * (1-Math.cos(angle)), rotation);
+    next.add(V.mult(Math.cos(angle), vector));
+    next.add(V.mult(Math.sin(angle),V.cross(rotation, vector)));
+    return next;
+  }
+
+  public static Vector matrixRotate(Vector[] matrix, Vector vector) {
+    if (matrix.length != 3 || matrix[0] == null || matrix[1] == null || matrix[2] == null) {
+      System.err.println("Invalid Matrix: " + matrix.length);
+      return vector;
+    }
+    return new Vector(matrix[0].dot(vector), matrix[1].dot(vector), matrix[2].dot(vector));
+  }
 }

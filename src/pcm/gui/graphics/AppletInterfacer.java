@@ -18,6 +18,7 @@ import pcm.model.geom.Vector;
 import pcm.model.geom.curves.Polygon;
 import pcm.model.geom.solids.Prism;
 import pcm.model.orbit.ISSOrbit;
+import pcm.model.statics.WavelengthAM0;
 import processing.core.PApplet;
 
 /**
@@ -77,6 +78,7 @@ public class AppletInterfacer {
     ISSOrbit orbit = new ISSOrbit();
     model.AS = new AbsorptionSimulation(model.RPM, orbit);
     model.SE.AssignModel(X, Y, Z, edgelists);
+    model.reset();
   }
 
   /*
@@ -160,9 +162,9 @@ public class AppletInterfacer {
 
   public static void update(double zenith, double azimuth, double latitude, double longitude, boolean toEquator) {
     if (changed) {
-      model.reset();
       model.zenith = zenith;
       model.azimuth = azimuth;
+      model.reset();
       updateEarth(latitude, longitude, toEquator);
       model.runAnim = true;
     }

@@ -16,6 +16,7 @@ import pcm.model.geom.Vector;
 import pcm.model.geom.curves.Polygon;
 import pcm.model.geom.solids.Prism;
 import pcm.model.orbit.ISSOrbit;
+import pcm.model.statics.WavelengthAM0;
 import dev.simple.FixedPhoton;
 import dev.simple.Photon;
 import dev.simple.Ribbon;
@@ -38,23 +39,21 @@ public class AppletModel {
   // Variables edited outside of AppletModel
   public static boolean runAnim = false;
   public static String printOutput = "";
+
+  // Variables for drawing the model
   public static float magnif = 250;
+  public Applet applet;
+  public double speed = .01; // speed of traveling photons used in applet view
   /**
    * Zenith angle is [0, 90) degrees, 0 being straight down, 90 straight towards the side
    * Azimuth is degrees to the x-y axis
    */
-  public static double zenith = 87.5, azimuth = 0;
+  public static double zenith = 50, azimuth = 0;
 
-  // Microscale bounds
+  // Model microscale bounds
   public double X = 1, Y = 1, Z = 1, Z0 = 1;
 
-  // Macroscale (applet) parameters from model:
-  // photonRadius and spacing in microscopic scaling with magnification
-  // applied to them,
-  // x-y-zBounds (magnified) and speed of photon used in applet view
-  public float photonRadius = (float) .01 * magnif;
-  public float xBounds = (float) (X * magnif), yBounds = (float) (Y * magnif), zBounds = (float) (Z * magnif);
-  public double spacing = .25 * magnif, speed = .01;
+  // TODO need to reconsider the following vars
   public Vector sunDir = new Vector(), sunPos = new Vector();
   public double sunDistance = 2, dzenith = -2.5; // delta is change in zenith for moving sun
 
@@ -69,7 +68,7 @@ public class AppletModel {
   public AbsorptionSimulation AS;
 
   public List<Tower> LT;
-  public boolean runSimpleModel = true; // whether to use the simple model
+  public boolean runSimpleModel = false; // whether to use the simple model
 
   public List<List<Vector>> edgelists = new ArrayList<List<Vector>>();
   public RectangularPrismModel RPM = new RectangularPrismModel(X, Y, Z);
@@ -82,7 +81,18 @@ public class AppletModel {
 
   // The size of the repeated drawing
   int modSize = 0;
-  int maxPhotons = 100;
+  int maxPhotons = 40;
+  
+  public boolean useAngles = false, useStatisticalResults = true, useOrbit;
+  public int statisticsCounter = 0;
+  
+  public Vector rotationVector = new Vector(0,0,1);
+  public double rotationAngle = Math.PI / 36;
+  public int rotationSize = 72;
+  
+  public Vector[] rotationMatrix = new Vector[3];
+  
+  public List<Vector> vectorList = new ArrayList<Vector>();
 
   public AppletModel() {
 
@@ -127,52 +137,85 @@ public class AppletModel {
 
     printOutput = "Zenith Angle\tAzimuth Angle\tAbsorption\n\n";
     startTime = System.currentTimeMillis();
-
+    
+    rotationMatrix[0] = new Vector(1,0,0);
+    rotationMatrix[1] = new Vector(0,1,0);
+    rotationMatrix[2] = new Vector(0,0,1);
+    
+    reset();
+    
   }
 
   /*
    * Model rerun here with reset solar flux angles
    */
   public void run() {
-    if (zenith < 0 || zenith >= 90) {
+    if ((zenith < 0 || zenith >= 90) && !useStatisticalResults || useStatisticalResults && SE.points != null && statisticsCounter >= SE.points.size()) {
       runAnim = false;
-
-    }
-    else {
+    } else {
       if (runSimpleModel) {
         SFM.clear();
         SFM.p.stat.N = maxPhotons;
         SFM.p.stat.X = maxPhotons;
 
-        double zenith0 = Math.PI / 2 - Math.PI * zenith / 180, azimuth0 = Math.PI * azimuth / 180;
-        SFM.setEntry(new Vector(Math.cos(zenith0) * Math.cos(azimuth0), Math.cos(zenith0) * Math.sin(azimuth0), -Math.sin(zenith0)));
+        // Cautious Incorporation of applet.xRotation and applet.yRotation into angles
+        float xRot = applet.xRotation, yRot = applet.yRotation;
+        yRot = (yRot == (float) Math.PI / 2) ? 0 : applet.yRotation;
+        System.out.println("appletmodel " + xRot + " " + yRot);
+        double zenith0 = Math.PI * (180 - (90 - zenith)) / 180
+            + (Math.PI - xRot) + (Math.PI - yRot), 
+            azimuth0 = Math.PI * azimuth / 180
+            + (Math.PI - yRot);
+        Vector entry = new Vector(Math.cos(zenith0) * Math.cos(azimuth0), Math.cos(zenith0) * Math.sin(azimuth0), -Math
+            .sin(zenith0));
+
+        SFM.setEntry(entry);
         SFM.run(10000);
         SFM.p.stat.printAll();
         printOutput += zenith + " degrees\t" + azimuth + " degrees\t" + SFM.p.stat.getRatio() + " %" + "\n";
 
         List<List<List<Vector>>> photonPaths = SFM.p.stat.rv;
-        for (List<List<Vector>> i : photonPaths) paths.add(new PathFollower(i));
+        for (List<List<Vector>> i : photonPaths)
+          paths.add(new PathFollower(i));
 
       } else {
-        try {
-          System.out.println("start");
-          AS.stats = new Statistics();
-          AS.stats.maxPhotonPaths = maxPhotons;
-          AS.stats.maxPhotonAbsorptionPoints = maxPhotons;
-          System.out.println("clear");
-
-          double zenith0 = Math.PI / 2 - Math.PI * zenith / 180, azimuth0 = Math.PI * azimuth / 180;
-          AS.run(1000, new Vector(Math.cos(zenith0) * Math.cos(azimuth0), Math.cos(zenith0) * Math.sin(azimuth0), -Math.sin(zenith0)));
-          System.out.println("finish");
-          AS.printStats();
-          printOutput += zenith + " degrees\t" + azimuth + " degrees\t" + (AS.stats.photonAbsorbedCounter*1./AS.stats.photonTotalCounter) + " %" + "\n";
-
-          List<List<List<Vector>>> photonPaths = AS.stats.photonPaths;
-          for (List<List<Vector>> i : photonPaths) paths.add(new PathFollower(i));
-          System.out.println("print");
-
-        } catch (Exception E) {
-          E.printStackTrace();
+        if (useStatisticalResults) {
+          if (SE.points != null && statisticsCounter < SE.points.size()) {
+            List<List<List<Vector>>> photonPaths = SE.points.get(statisticsCounter).photonPaths;
+            Vector shift = new Vector(X/2,Y/2,0);
+            for (List<List<Vector>> i : photonPaths) {
+              for (List<Vector> j : i) for (Vector k : j) k.add(shift);
+              paths.add(new PathFollower(i));
+            }
+            statisticsCounter++;
+          }
+        } else {
+          try {
+            System.out.println("start");
+            AS.stats = new Statistics();
+            AS.stats.maxPhotonPaths = maxPhotons;
+            AS.stats.maxPhotonAbsorptionPoints = maxPhotons;
+            System.out.println("clear");
+  
+            double zenith0 = Math.PI / 2 - Math.PI * zenith / 180, azimuth0 = Math.PI * azimuth / 180;
+            AS.run(1000,
+                new Vector(Math.cos(zenith0) * Math.cos(azimuth0), Math.cos(zenith0) * Math.sin(azimuth0), -Math.sin(zenith0)));
+            System.out.println("finish");
+            AS.printStats();
+            printOutput += zenith + " degrees\t" + azimuth + " degrees\t"
+                + (AS.stats.photonAbsorbedCounter * 1. / AS.stats.photonTotalCounter) + " %" + "\n";
+  
+            List<List<List<Vector>>> photonPaths = AS.stats.photonPaths;
+            Vector shift = new Vector(X/2,Y/2,0);
+            for (List<List<Vector>> i : photonPaths) {
+              for (List<Vector> j : i) for (Vector k : j) k.add(shift);
+              paths.add(new PathFollower(i));
+            }
+            System.out.println("print");
+  
+          } catch (Exception E) {
+            E.printStackTrace();
+          }
         }
 
       }
@@ -184,11 +227,23 @@ public class AppletModel {
       sunDir = tileCenter.clone();
       sunPos.sub(V.mult(sunDistance, sunDir));
 
-      if (zenith == 0) {
+      if (zenith == 0 && zenith == 90) {
         dzenith *= -1;
         azimuth = (azimuth + 180) % 360;
       }
       zenith += dzenith;
+      if (useStatisticalResults) {
+        Vector entry;
+        if (statisticsCounter < vectorList.size()) {
+          entry = vectorList.get(statisticsCounter);
+        } else if (!vectorList.isEmpty()){
+          entry = vectorList.get(vectorList.size()-1);
+        } else {
+          entry = new Vector(0,0,1);
+        }
+        azimuth = SE.vectorToAzimuth(entry);
+        zenith = SE.vectorToZenith(entry);
+      }
     }
   }
 
@@ -198,6 +253,28 @@ public class AppletModel {
 
   public void reset() {
     paths.clear();
+    System.out.println("reset");
+    if (false && useOrbit) {
+      
+    } else {
+    Vector entry = SE.angleToVector(zenith, azimuth);
+    vectorList = SE.generateVectors(entry, rotationVector, rotationAngle, rotationSize);
+    }
+    List<Vector> currentVectorList = new ArrayList<Vector>(vectorList.size());
+    for (Vector i : vectorList) 
+      currentVectorList.add(V.matrixRotate(rotationMatrix, i));
+    SE.runSimulation(vectorList, new WavelengthAM0(), maxPhotons, 1000);
+  }
+
+  /*
+   * Draws entire model/solar cell
+   */
+  public void draw(Applet applet, boolean updatePhotons) {
+    this.applet = applet;
+
+    drawFloorGrid();
+    drawSurfaces();
+    drawPhotons(updatePhotons);
   }
 
   /*
@@ -205,7 +282,7 @@ public class AppletModel {
    * @param updatePhotons whether or not the model needs to be updated which should be once every frame, so one out of the views
    * drawn needs this set as true
    */
-  public void drawPhotons(Applet applet, boolean updatePhotons) {
+  public void drawPhotons(boolean updatePhotons) {
     //    long time = System.currentTimeMillis() - startTime;
     //    Vector entryVector = getEntryVector(time);
     //    double prob = .001 * -entryVector.z;
@@ -231,7 +308,7 @@ public class AppletModel {
     int size = runningPaths;
     while (i.hasNext() && size-- > 0) {
       PathFollower path = i.next();
-      if (path.draw(applet)) {
+      if (path.drawOnPath(applet)) {
         i.remove();
         if (!continuousRunning)
           runningPaths--;
@@ -292,13 +369,13 @@ public class AppletModel {
      * 
      * @return true if the photon is off screen
      */
-    public boolean draw(Applet applet) {
+    public boolean drawOnPath(Applet applet) {
 
       int branch0 = branch, line0 = line, reflections0 = reflections;
       double distance0 = distance;
       if (branch0 < path.size()) {
         List<Vector> lineList = path.get(branch0);
-        Vector a, b, start, finish = lineList.get(line0 + 1);
+        Vector a, b, start, finish = new Vector(); // = lineList.get(line0 + 1);
         double remainingDistance = distance0 + maxDistance;
         boolean end = false;
         int color = Tools.colorScale[0];
@@ -326,7 +403,7 @@ public class AppletModel {
           applet.fill(color);
           applet.stroke(color);
           applet.strokeWeight(2);
-          drawLine(applet, start, finish);
+          drawLine(start, finish);
 
           line0++;
           reflections0++;
@@ -344,7 +421,7 @@ public class AppletModel {
           applet.lights();
           applet.fill(color);
           applet.stroke(color);
-          drawPhoton(applet, finish);
+          drawPhoton(finish);
           applet.noLights();
         }
       }
@@ -376,7 +453,7 @@ public class AppletModel {
    * 
    * @param applet Processing applet that handles drawing
    */
-  public void drawSurfaces(Applet applet) {
+  public void drawSurfaces() {
     //applet.textureMode(applet.NORMAL);
     applet.fill(Tools.black);
     applet.stroke(Tools.gray);
@@ -390,28 +467,31 @@ public class AppletModel {
         //if (s instanceof Ribbon) {
         //Ribbon r = (Ribbon) s;
         for (Ribbon r : t.LS) {
-          drawRibbon(applet, new Vector(r.rx, r.ry, 0), new Vector(r.x2, r.y2, 0),
+          drawRibbon(new Vector(r.rx, r.ry, 0), new Vector(r.x2, r.y2, 0),
               new Vector(r.x2, r.y2, Z), new Vector(r.rx, r.ry, Z), r.b);
         }
         List<Vector> bounds = new ArrayList<Vector>();
         for (int i = 0; i < t.Lx.size(); i++)
           bounds.add(new Vector(t.Lx.get(i), t.Ly.get(i), Z));
-        drawPolygon(applet, bounds);
+        drawPolygon(bounds);
       }
     } else {
+      Vector shift = new Vector(X/2,Y/2,0);
       for (List<Vector> i : edgelists) {
-        Vector v0 = i.get(i.size() - 1), v1 = i.get(0);
-        drawRibbon(applet, v0, v1, new Vector(v1.x, v1.y, Z), new Vector(v0.x, v0.y, Z), V.sub(v0, v1).length());
-        for (int j = 0; j < i.size() - 1; j++) {
-          v0 = i.get(j);
-          v1 = i.get(j + 1);
-          drawRibbon(applet, v0, v1, new Vector(v1.x, v1.y, Z), new Vector(v0.x, v0.y, Z), V.sub(v0, v1).length());
+        List<Vector> i0 = new ArrayList<Vector>(i.size());
+        for (Vector j : i) i0.add(V.add(j, shift));
+        Vector v0 = i0.get(i0.size() - 1), v1 = i0.get(0);
+        drawRibbon(v0, v1, new Vector(v1.x, v1.y, Z), new Vector(v0.x, v0.y, Z), V.sub(v0, v1).length());
+        for (int j = 0; j < i0.size() - 1; j++) {
+          v0 = i0.get(j);
+          v1 = i0.get(j + 1);
+          drawRibbon(v0, v1, new Vector(v1.x, v1.y, Z), new Vector(v0.x, v0.y, Z), V.sub(v0, v1).length());
         }
-        Vector shift = new Vector(0, 0, Z);
-        List<Vector> bounds = new ArrayList<Vector>(i.size());
-        for (Vector j : i)
-          bounds.add(V.add(j, shift));
-        drawPolygon(applet, bounds);
+        Vector rise = new Vector(0, 0, Z);
+        List<Vector> bounds = new ArrayList<Vector>(i0.size());
+        for (Vector j : i0)
+          bounds.add(V.add(j, rise));
+        drawPolygon(bounds);
       }
     }
 
@@ -422,88 +502,119 @@ public class AppletModel {
    * 
    * @param applet Processing applet that handles drawing
    */
-  public void drawFloorGrid(Applet applet) {
+  public void drawFloorGrid() {
+    double spacing = .25 * magnif;
+    // x-y-zBounds (magnified)
+    float xBounds = (float) (X * magnif), yBounds = (float) (Y * magnif), zBounds = (float) (Z * magnif);
+
     spacing = .2 * magnif;
     // Floor beyond small cell
     applet.strokeWeight(2);
     applet.stroke(Tools.gray);
     float size = modSize + 1;
     float offsetX, offsetY;
-    if (runSimpleModel) {
-      offsetX = 0;
-      offsetY = 0;
-    } else {
-      offsetX = -xBounds / 2;
-      offsetY = -yBounds / 2;
+    for (float col = 0; col <= xBounds * size; col += spacing) {
+      applet.line(col, 0, 0, col, yBounds * size, 0);
     }
-    for (float col = -xBounds * (size - 1); col <= xBounds * size; col += spacing) {
-      applet.line(col + offsetX, -yBounds * (size - 1) + offsetY, 0, col + offsetX, yBounds * size + offsetY, 0);
-    }
-    for (float row = -yBounds * (size - 1); row <= yBounds * size; row += spacing) {
-      applet.line(-xBounds * (size - 1) + offsetX, row + offsetY, 0, xBounds * size + offsetX, row + offsetY, 0);
+    for (float row = 0; row <= yBounds * size; row += spacing) {
+      applet.line(0, row, 0, xBounds * size, row, 0);
     }
 
     spacing = .1 * magnif;
     // Bounds inside of which photons spawn
     applet.fill(Tools.lgray);
     applet.beginShape();
-    Tools.vertex(applet, new Vector(offsetX, offsetY));
-    Tools.vertex(applet, new Vector(offsetX, yBounds + offsetY));
-    Tools.vertex(applet, new Vector(xBounds + offsetX, yBounds + offsetY));
-    Tools.vertex(applet, new Vector(xBounds + offsetX, offsetY));
+    Tools.vertexM(applet, new Vector(0, 0));
+    Tools.vertexM(applet, new Vector(0, yBounds));
+    Tools.vertexM(applet, new Vector(xBounds, yBounds));
+    Tools.vertexM(applet, new Vector(xBounds, 0));
     applet.endShape(applet.CLOSE);
     applet.strokeWeight(2);
     applet.stroke(Tools.white);
     for (float col = 0; col <= xBounds; col += spacing) {
-      applet.line(col + offsetX, offsetY, 0, col + offsetX, yBounds + offsetY, 0);
+      applet.line(col, 0, 0, col, yBounds, 0);
     }
     for (float row = 0; row <= yBounds; row += spacing) {
-      applet.line(offsetX, row + offsetY, 0, xBounds + offsetX, row + offsetY, 0);
+      applet.line(0, row, 0, xBounds, row, 0);
     }
+
+    // Spheres on grid for easy identification of camera orientation
+    applet.lights();
+    applet.sphereDetail(10);
+    applet.fill(Tools.white);
+    applet.stroke(Tools.white);
+    Tools.drawSphere(applet, new Vector(-7, -7, 0), 14);
+
+    applet.fill(Tools.black);
+    applet.stroke(Tools.black);
+    Tools.drawSphere(applet, new Vector(7 + magnif, 7 + magnif, 0), 14);
+
+    //TODO
+    // Rendering compass
+    //    Vector compass = new Vector(7 + magnif, 7 + magnif, 0);
+    //    Tools.arrow(this, compass, new Vector(1, 0, 0)); // south
+    //    Tools.arrow(this, compass, new Vector(-1, 0, 0)); // north
+    //    Tools.arrow(this, compass, new Vector(0, 1, 0)); // 
+    //    Tools.arrow(this, compass, new Vector(0, -1, 0)); // 
+
+    // Grid coordinates
+    applet.fill(Tools.black);
+    applet.pushMatrix();
+    applet.rotate(applet.PI / 2);
+    applet.textSize(20);
+    //text("0, 0", -30, 15,0);
+    applet.text("1, 0", magnif, 15, 0);
+    applet.text("0, 1", -30, -magnif, 0);
+    //text("1, 1", magnif, -magnif,0);
+    applet.popMatrix();
+
+    applet.noLights();
 
   }
 
   /*
    * Drawing functions using Tools class
    */
-  private void drawLine(Applet applet, Vector a, Vector b) {
-    for (int i = -modSize; i <= modSize; i++)
-      for (int j = -modSize; j <= modSize; j++) {
+  private void drawLine(Vector a, Vector b) {
+    for (int i = 0; i <= modSize; i++)
+      for (int j = 0; j <= modSize; j++) {
         Vector mod = new Vector(i * X, j * Y, 0);
-        Tools.drawLine(applet, V.add(a, mod), V.add(b, mod), magnif);
+        Tools.drawMLine(applet, V.add(a, mod), V.add(b, mod), magnif);
       }
   }
 
-  private void drawPhoton(Applet applet, Vector a) {
-    for (int i = -modSize; i <= modSize; i++)
-      for (int j = -modSize; j <= modSize; j++) {
+  private void drawPhoton(Vector a) {
+    float photonRadius = .01f * magnif;
+
+    for (int i = 0; i <= modSize; i++)
+      for (int j = 0; j <= modSize; j++) {
         Vector mod = new Vector(i * X, j * Y, 0);
-        Tools.drawPhoton(applet, V.add(a, mod), photonRadius, magnif, 1);
+        Tools.drawMPhoton(applet, V.add(a, mod), photonRadius, magnif, 1);
       }
   }
 
-  private void drawRibbon(Applet applet, Vector a, Vector b, Vector c, Vector d, double e) {
+  private void drawRibbon(Vector a, Vector b, Vector c, Vector d, double e) {
     //float xMapping = 1, yMapping = (float) (xMapping * applet.CNTimg.width * zBounds / (e * applet.CNTimg.height));
-    for (int i = -modSize; i <= modSize; i++)
-      for (int j = -modSize; j <= modSize; j++) {
+    for (int i = 0; i <= modSize; i++)
+      for (int j = 0; j <= modSize; j++) {
         Vector mod = new Vector(i * X, j * Y, 0);
         applet.beginShape();
         //applet.texture(applet.CNTimg);
-        Tools.vertex(applet, V.mult(magnif, V.add(a, mod)));//, 0, yMapping);
-        Tools.vertex(applet, V.mult(magnif, V.add(b, mod)));//, xMapping, yMapping);
-        Tools.vertex(applet, V.mult(magnif, V.add(c, mod)));//, xMapping, 0);
-        Tools.vertex(applet, V.mult(magnif, V.add(d, mod)));//, 0, 0);
+        Tools.vertexM(applet, V.mult(magnif, V.add(a, mod)));//, 0, yMapping);
+        Tools.vertexM(applet, V.mult(magnif, V.add(b, mod)));//, xMapping, yMapping);
+        Tools.vertexM(applet, V.mult(magnif, V.add(c, mod)));//, xMapping, 0);
+        Tools.vertexM(applet, V.mult(magnif, V.add(d, mod)));//, 0, 0);
         applet.endShape(applet.CLOSE);
       }
   }
 
-  private void drawPolygon(Applet applet, List<Vector> bounds) {
-    for (int i = -modSize; i <= modSize; i++)
-      for (int j = -modSize; j <= modSize; j++) {
+  private void drawPolygon(List<Vector> bounds) {
+    for (int i = 0; i <= modSize; i++)
+      for (int j = 0; j <= modSize; j++) {
         Vector mod = new Vector(i * X, j * Y, 0);
         applet.beginShape();
         for (int k = 0; k < bounds.size(); k++)
-          Tools.vertex(applet, V.mult(magnif, V.add(bounds.get(k), mod)));
+          Tools.vertexM(applet, V.mult(magnif, V.add(bounds.get(k), mod)));
         applet.endShape(applet.CLOSE);
       }
   }

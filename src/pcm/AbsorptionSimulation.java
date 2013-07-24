@@ -1,5 +1,8 @@
 package pcm;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import pcm.model.Model;
 import pcm.model.Photon;
 import pcm.model.RectangularPrismModel;
@@ -45,7 +48,13 @@ public class AbsorptionSimulation {
     photon.p.z = model.Z;
 
     if (v0.length() == 0) photon.v = issOrbit.getSunlightDirection(0);
-    else photon.v = v0;
+    else photon.v = v0.clone();
+    photon.v0 = photon.v.clone();
+    
+    photon.path = new ArrayList<List<Vector>>();
+    List<Vector> list = new ArrayList<Vector>();
+    list.add(V.sub(photon.p,photon.v));
+    photon.path.add(list);
     
     photon.w = wavelength.genWavelength();
     photon.E = 1.99e-25 / photon.w;
@@ -57,12 +66,19 @@ public class AbsorptionSimulation {
       resetPhoton(photon, v0);
 
       boolean done = false;
-      for (Solid s : model.cnts)
+
+      if (photon.v0.z >= 0) {
+        photon.absorbed = false;
+        done = true;
+      }
+
+      if (!done) for (Solid s : model.cnts)
         if (s.contains(photon.p)) {
           photon.bounce(V.K);
           s.absorb(photon);
           photon.path.get(photon.path.size()-1).add(photon.p);
           done = true;
+          break;
         }
 
       while (!done) {
@@ -95,6 +111,7 @@ public class AbsorptionSimulation {
             done = closest.surface.absorb(photon);
         }
       }
+      photon.path.get(photon.path.size()-1).add(V.add(photon.p, photon.v));
       stats.update(photon);
     }
   }

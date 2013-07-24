@@ -12,7 +12,7 @@
 <?import javafx.scene.text.*?>
 <?import pcm.gui.*?>
 
-<TabPane id="TabPane" focusTraversable="false" prefHeight="700.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE" xmlns:fx="http://javafx.com/fxml" fx:controller="pcm.gui.UIMockupController">
+<TabPane id="TabPane" fx:id="GUIPane" focusTraversable="false" prefHeight="700.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE" xmlns:fx="http://javafx.com/fxml" fx:controller="pcm.gui.UIMockupController">
   <tabs>
     <Tab closable="false" text="Pattern">
       <content>
@@ -175,7 +175,7 @@
             </MenuBar>
             <VBox prefWidth="240.0" style="-fx-background-color:silver;" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0">
               <children>
-                <Accordion>
+                <Accordion fx:id="simulationAccordion1">
                   <expandedPane>
                     <TitledPane fx:id="x3" animated="false" prefHeight="66.0" prefWidth="241.0" text="Incoming Solar Flux">
                       <content>
@@ -228,7 +228,7 @@
                     <fx:reference source="x3" />
                   </panes>
                 </Accordion>
-                <Accordion>
+                <Accordion fx:id="simulationAccordion2">
                   <expandedPane>
                     <TitledPane fx:id="x4" animated="false" prefHeight="66.0" prefWidth="243.0" text="ISS Position Over Earth (Optional)">
                       <content>
@@ -274,7 +274,7 @@
                     <Button fx:id="animationButton" alignment="CENTER" mnemonicParsing="false" prefHeight="40.0" text="Begin Simulation" />
                   </children>
                 </HBox>
-                <Accordion>
+                <Accordion fx:id="simulationAccordion3">
                   <expandedPane>
                     <TitledPane fx:id="x6" animated="false" text="Generated Results">
                       <content>
@@ -305,14 +305,17 @@
       </content>
     </Tab>
     <Tab closable="false" text="Data">
-      <AnchorPane id="AnchorPane" prefWidth="1280.0">
+      <AnchorPane id="AnchorPane" fx:id="dataAnchorPane" prefWidth="1280.0">
         <children>
-          <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <menus>
-              <Menu mnemonicParsing="false" text="Graph" />
-              <Menu mnemonicParsing="false" text="Chart" />
-            </menus>
-          </MenuBar>
+          <MenuBar fx:id="dataMenuBar" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+          <GridPane fx:id="dataGridPane" layoutX="0.0" layoutY="21.0" prefHeight="650.0" prefWidth="1000.0">
+            <columnConstraints>
+              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            </columnConstraints>
+            <rowConstraints>
+              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+          </GridPane>
         </children>
       </AnchorPane>
     </Tab>

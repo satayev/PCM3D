@@ -34,7 +34,8 @@ import pcm.model.geom.Vector;
 
 public class UIMockupController implements Initializable {
 
-  public static AnchorPane shapeCanvas;
+  public static TabPane GUIPane;
+  public static AnchorPane shapeCanvas, dataAnchorPane;
   public Button csReset, csAdd;
   public ShapePane csPane;
   public FlowPane shapePicker;
@@ -47,11 +48,158 @@ public class UIMockupController implements Initializable {
   public CheckBox toEquatorCheckBox;
   public Slider degreesSlider, photonsSlider, modelSizeSlider;
   public Label degreesLabel, photonsLabel, modelSizeLabel;
-
+  public Accordion simulationAccordion1, simulationAccordion2, simulationAccordion3;
+  public MenuBar dataMenuBar;
+  public GridPane dataGridPane;
+  
   @Override
   public void initialize(URL url, ResourceBundle rb) {
-    initializePatternTab();
 
+    assert GUIPane != null : "fx:id=\"GUIPane\" was not injected: check your FXML file 'UIMockup.fxml'.";
+    GUIPane.setPrefSize(Main.width, Main.height);
+
+    initializePatternTab();
+    initializeSimulationTab();
+    initializeDataTab();
+}
+
+private void initializeDataTab() {
+  assert dataAnchorPane != null : "fx:id=\"dataAnchorPane\" was not injected: check your FXML file 'UIMockup.fxml'.";
+  
+  assert dataMenuBar != null : "fx:id=\"dataMenuBar\" was not injected: check your FXML file 'UIMockup.fxml'.";
+ 
+  final Menu menuMode = new Menu("Mode");
+  Menu menuXAxis = new Menu("X Axis");
+  Menu menuYAxis = new Menu("Y Axis");
+  dataMenuBar.getMenus().addAll(menuMode, menuXAxis, menuYAxis);
+
+  final String[] modeOptions = new String[] {"Wavelength", "Frequency"};
+  final RadioMenuItem[] modeButtons = new RadioMenuItem[modeOptions.length];
+  final ToggleGroup groupMode = new ToggleGroup();
+  for (int i=0;i<modeOptions.length;i++) {
+    modeButtons[i]  = new RadioMenuItem(modeOptions[i]);
+    modeButtons[i].setToggleGroup(groupMode);
+    menuMode.getItems().add(modeButtons[i]);
+  }
+  groupMode.selectToggle(modeButtons[0]);
+  // Processing wavelength/frequency selection
+  groupMode.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+     public void changed(ObservableValue<? extends Toggle> ov,
+         Toggle old_toggle, Toggle new_toggle) {
+             if (groupMode.getSelectedToggle() != null) {
+               // Set as wavelength here
+               if (new_toggle == modeButtons[0]) {
+                 System.out.println(modeOptions[0]);
+               }
+               // Set as frequency here
+               if (new_toggle == modeButtons[1]) {
+                 System.out.println(modeOptions[1]);
+               }
+             }
+         }
+  });
+  
+  final String[] axisOptions = new String[] {"..", "..."};
+  final RadioMenuItem[] xAxisButtons = new RadioMenuItem[axisOptions.length];
+  final ToggleGroup groupXAxis = new ToggleGroup();
+  for (int i=0;i<axisOptions.length;i++) {
+    xAxisButtons[i]  = new RadioMenuItem(axisOptions[i]);
+    xAxisButtons[i].setToggleGroup(groupXAxis);
+    menuXAxis.getItems().add(xAxisButtons[i]);
+  }
+  groupXAxis.selectToggle(xAxisButtons[0]);
+  // Processing X-axis selection
+  groupXAxis.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+     public void changed(ObservableValue<? extends Toggle> ov,
+         Toggle old_toggle, Toggle new_toggle) {
+             if (groupMode.getSelectedToggle() != null) {
+               // Set as ..
+               if (new_toggle == xAxisButtons[0]) {
+                 System.out.println("x-axis set as"+ modeOptions[0]);
+               }
+               // Set as ...
+               else if (new_toggle == xAxisButtons[1]) {
+                 System.out.println("x-axis set as"+ modeOptions[1]);
+               }
+             }
+         }
+  });  
+  
+  final RadioMenuItem[] yAxisButtons = new RadioMenuItem[axisOptions.length];
+  final ToggleGroup groupYAxis = new ToggleGroup();
+  for (int i=0;i<axisOptions.length;i++) {
+    yAxisButtons[i]  = new RadioMenuItem(axisOptions[i]);
+    yAxisButtons[i].setToggleGroup(groupYAxis);
+    menuYAxis.getItems().add(yAxisButtons[i]);
+  }
+  groupYAxis.selectToggle(yAxisButtons[1]);
+  // Processing Y-axis selection
+  groupYAxis.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+     public void changed(ObservableValue<? extends Toggle> ov,
+         Toggle old_toggle, Toggle new_toggle) {
+             if (groupMode.getSelectedToggle() != null) {
+               // Set as ..
+               if (new_toggle == yAxisButtons[0]) {
+                 System.out.println("y-axis set as"+ modeOptions[0]);
+               }
+               // Set as ...
+               else if (new_toggle == yAxisButtons[1]) {
+                 System.out.println("y-axis set as"+ modeOptions[1]);
+               }
+             }
+         }
+  });
+  
+  // Adds the graph to Data tab
+  assert dataGridPane != null : "fx:id=\"dataGridPane\" was not injected: check your FXML file 'UIMockup.fxml'.";
+  
+  /** These variables are set according to the menu options selected */
+  // TODO need to be initialized
+  /*
+  List<Double> x;
+  List<Double> y;
+  String title; 
+  String xLabel; 
+  String yLabel;
+  LineChartGraph lcs = new LineChartGraph(x, y, title, xLabel, yLabel);
+  lcs.make();
+  lcs.lineChart.setPrefSize(Main.width, Main.height - Main.offsetTop - 50);
+  dataGridPane.add(lcs.lineChart, 0, 0);
+*/
+  
+}
+
+private void initializeSimulationTab() {
+    assert simulationAccordion1 != null : "fx:id=\"simulationAccordion1\" was not injected: check your FXML file 'UIMockup.fxml'.";
+    simulationAccordion1.expandedPaneProperty().addListener(new ChangeListener<TitledPane>() {
+      @Override
+      public void changed(ObservableValue<? extends TitledPane> property, final TitledPane oldPane, final TitledPane newPane) {
+        if (simulationAccordion1.maxHeightProperty().getValue() == 0)
+          simulationAccordion1.setMaxHeight(500);
+        else
+          simulationAccordion1.setMaxHeight(0);
+      }
+    });
+    assert simulationAccordion2 != null : "fx:id=\"simulationAccordion2\" was not injected: check your FXML file 'UIMockup.fxml'.";
+    simulationAccordion2.expandedPaneProperty().addListener(new ChangeListener<TitledPane>() {
+      @Override
+      public void changed(ObservableValue<? extends TitledPane> property, final TitledPane oldPane, final TitledPane newPane) {
+        if (simulationAccordion2.maxHeightProperty().getValue() == 0)
+          simulationAccordion2.setMaxHeight(500);
+        else
+          simulationAccordion2.setMaxHeight(0);
+      }
+    });
+    assert simulationAccordion3 != null : "fx:id=\"simulationAccordion3\" was not injected: check your FXML file 'UIMockup.fxml'.";
+    simulationAccordion3.expandedPaneProperty().addListener(new ChangeListener<TitledPane>() {
+      @Override
+      public void changed(ObservableValue<? extends TitledPane> property, final TitledPane oldPane, final TitledPane newPane) {
+        if (simulationAccordion3.maxHeightProperty().getValue() == 0)
+          simulationAccordion3.setMaxHeight(500);
+        else
+          simulationAccordion3.setMaxHeight(0);
+      }
+    });
     /*
      * Simulation tab controls using AppletInterfacer
      */
@@ -153,41 +301,6 @@ public class UIMockupController implements Initializable {
         animationButton.setText("Reset");
       }
     });
-
-    /*
-     * Various other controls that may be kept or phased out
-     */
-    //        assert degreesSlider != null : "fx:id=\"degreesSlider\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    //        assert photonsSlider != null : "fx:id=\"photonsSlider\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    //        assert modelSizeSlider != null : "fx:id=\"modelSizeSlider\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    //        assert degreesLabel != null : "fx:id=\"degreesLabel\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    //        assert photonsLabel != null : "fx:id=\"photonsLabel\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    //        assert modelSizeLabel != null : "fx:id=\"modelSizeLabel\" was not injected: check your FXML file 'UIMockup.fxml'.";
-    //
-    //        degreesLabel.setText(Double.toString(degreesSlider.getValue()));
-    //        degreesSlider.valueProperty().addListener(new ChangeListener<Number>() {
-    //            public void changed(ObservableValue<? extends Number> ov,
-    //                Number old_val, Number new_val) {
-    //        		AppletInterfacer.changed();
-    //        		degreesLabel.setText(Double.toString(degreesSlider.getValue()));
-    //            }
-    //        });
-    //        photonsLabel.setText(Double.toString(photonsSlider.getValue()));
-    //        photonsSlider.valueProperty().addListener(new ChangeListener<Number>() {
-    //            public void changed(ObservableValue<? extends Number> ov,
-    //                Number old_val, Number new_val) {
-    //        		AppletInterfacer.changed();
-    //            	photonsLabel.setText(String.valueOf((int)photonsSlider.getValue()));
-    //            }
-    //        });
-    //        modelSizeLabel.setText(Double.toString(modelSizeSlider.getValue()));
-    //        modelSizeSlider.valueProperty().addListener(new ChangeListener<Number>() {
-    //            public void changed(ObservableValue<? extends Number> ov,
-    //                Number old_val, Number new_val) {
-    //        		AppletInterfacer.changed();
-    //            	modelSizeLabel.setText(String.valueOf(Math.pow((int)modelSizeSlider.getValue(), 2)));
-    //            }
-    //        });
 
   }
 
@@ -325,6 +438,30 @@ public class UIMockupController implements Initializable {
         t.consume();
       }
     });
+  }
+
+  private SimpleFixedModel makeSFM() {
+    ObservableList<Node> shapes = shapeCanvas.getChildren();
+    List<Tower> towers = new ArrayList<Tower>();
+    double x = 1, y = 1, z = 0, theta = 0;
+
+    for (int i = 0; i < shapes.size(); i++) {
+      ShapePane shape = (ShapePane) shapes.get(i);
+      List<Double> lx = new ArrayList<Double>();
+      List<Double> ly = new ArrayList<Double>();
+      CSNode first = shape.head;
+      CSNode curr = first;
+
+      do {
+        lx.add((shape.getLayoutX() + curr.getLayoutX()) / 600.0d);
+        ly.add((shape.getLayoutY() + curr.getLayoutY()) / 600.0d);
+        curr = curr.next;
+      } while (curr != first);
+
+      towers.add(new Tower(lx, ly));
+    }
+
+    return new SimpleFixedModel(x, y, z, theta, towers, new FixedPhoton(new Vector(0, 0, -1)));
   }
 
   private List<List<Vector>> makeEdgeLists() {
