@@ -200,7 +200,7 @@ public class Applet extends PApplet {
     
     
     
-    if (model.runAnim) earth.spin((90. * 60 + 50) / (orbitDuration * 60));
+    if (model.runAnim) earth.spin((90. * 60 + 50) / (orbitDuration * 60) * (model.speed/.15)); // * (model.speed/.15) temp added to have earth speed correlate with speed of photons
     // Speed of animation depends on number of max photons shown
     t++;
     if (t >= (101 - model.maxPhotons) && model.runAnim) {
