@@ -74,6 +74,7 @@ public class UIMockupController implements Initializable {
   ObservableList<String> items;
   List<Double>[][] graphAxis;
   String[][] graphTitles;
+  int modeSelected = 0;
   
   @Override
   public void initialize(URL url, ResourceBundle rb) {
@@ -112,6 +113,7 @@ public class UIMockupController implements Initializable {
           xAxisList.getSelectionModel().select(0);
           yAxisList.getSelectionModel().select(1);
           
+          modeSelected = modeList.getSelectionModel().getSelectedIndex();
         }
       }
     });
@@ -131,9 +133,13 @@ public class UIMockupController implements Initializable {
       dataOptionsGrid.add(category, i, 0);
     }
 
+
     final String[] fileOptions = new String[] { "Save graph as .csv" };
-    final String[] modeOptions = new String[] { "Wavelength", "Frequency" };
-    final String[] axisOptions = new String[] { "..", "..." , "....", "....." };
+    final String[] modeOptions = new String[] { "1", "2" };
+    final String[][] axisOptions = new String[][] {
+    		{ "Average Absorption Rate", "Average Reflections Counter" , "Zenith Angle", "Azimuth Angle" },
+    		{ "Wavelength", "Frequency", "Wavelength Intensity", "Wavelength Alpha" }};
+    
 
     /* Creating lists */
     items = FXCollections.observableArrayList(fileOptions);
@@ -142,10 +148,10 @@ public class UIMockupController implements Initializable {
     items = FXCollections.observableArrayList(modeOptions);
     modeList.setItems(items);
     dataOptionsGrid.add(modeList, 1, 1);
-    items = FXCollections.observableArrayList(axisOptions);
+    items = FXCollections.observableArrayList(axisOptions[modeSelected]);
     xAxisList.setItems(items);
     dataOptionsGrid.add(xAxisList, 2, 1);
-    items = FXCollections.observableArrayList(axisOptions);
+    items = FXCollections.observableArrayList(axisOptions[modeSelected]);
     yAxisList.setItems(items);
     dataOptionsGrid.add(yAxisList, 3, 1);
     
@@ -168,8 +174,17 @@ public class UIMockupController implements Initializable {
         new ChangeListener<String>() {
           public void changed(ObservableValue<? extends String> ov,
               String old_val, String new_val) {
-            for (int i = 0; i < 2; i++) if (new_val.equals(modeOptions[i]))
-              f0 = i;
+            for (int i = 0; i < 2; i++) 
+            	if (new_val.equals(modeOptions[i])) {
+            		f0 = i;
+            		
+            		modeSelected = i;
+            	    items = FXCollections.observableArrayList(axisOptions[modeSelected]);
+            	    xAxisList.setItems(items);
+            	    items = FXCollections.observableArrayList(axisOptions[modeSelected]);
+            	    yAxisList.setItems(items);
+            		
+            	}
             updateGraph();
           }
         });
@@ -178,7 +193,7 @@ public class UIMockupController implements Initializable {
         new ChangeListener<String>() {
           public void changed(ObservableValue<? extends String> ov,
               String old_val, String new_val) {
-            for (int i = 0; i < 4; i++) if (new_val.equals(axisOptions[i]))
+            for (int i = 0; i < 4; i++) if (new_val.equals(axisOptions[modeSelected][i]))
               x0 = i;
             updateGraph();
           }
@@ -188,7 +203,7 @@ public class UIMockupController implements Initializable {
         new ChangeListener<String>() {
           public void changed(ObservableValue<? extends String> ov,
               String old_val, String new_val) {
-            for (int i = 0; i < 4; i++) if (new_val.equals(axisOptions[i]))
+            for (int i = 0; i < 4; i++) if (new_val.equals(axisOptions[modeSelected][i]))
               y0 = i;
             updateGraph();
           }
