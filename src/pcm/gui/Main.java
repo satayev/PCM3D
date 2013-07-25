@@ -33,7 +33,8 @@ public class Main extends JFrame implements ComponentListener {
       //region of window where PApplet sits   
       offsetTop = 53, offsetRight = 240; 
   
-   
+  public static JFrame GUI;
+
   public Main() {
     super("PCM3D");
     
@@ -71,6 +72,8 @@ public class Main extends JFrame implements ComponentListener {
 
     // For resizing listener
     addComponentListener(this);
+    
+    GUI = this;
   }
 
   /*

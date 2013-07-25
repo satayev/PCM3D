@@ -1,5 +1,6 @@
 package pcm.gui;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,8 @@ public class LineChartGraph {
   public void update(List<Double> x, List<Double> y, String title, String xLabel, String yLabel) {
     this.x = x;
     this.y = y;
-    this.title = title;
+    //this.title = title;
+    this.title = yLabel + " vs " + xLabel;
     this.xLabel = xLabel;
     this.yLabel = yLabel;
     make();
@@ -53,5 +55,23 @@ public class LineChartGraph {
       lineChart.getData().add(series);
      
   }
+  
+  public void save(String fileName) {
+	    try {
+	    	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(title + ".csv")));
+	    	String output = xLabel + "," + yLabel;
+
+	        for (int i = 0; i <= x.size(); i++) {
+	        	output += x.get(i) + "," + y.get(i) + "\n";
+	        }
+	        
+	        writer.write(output);
+	        writer.close();
+	    	
+	    } catch (IOException ioe) {
+	        System.err.println(ioe);
+	    }
+}
+  
 
 }

@@ -3,11 +3,16 @@ package pcm.gui;
 import dev.simple.FixedPhoton;
 import dev.simple.SimpleFixedModel;
 import dev.simple.Tower;
+
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -74,7 +79,7 @@ public class UIMockupController implements Initializable {
   ObservableList<String> items;
   List<Double>[][] graphAxis;
   String[][] graphTitles;
-  int modeSelected = 0;
+  int modeSelected = 0, xAxisSelected = 0, yAxisSelected = 0;
   
   @Override
   public void initialize(URL url, ResourceBundle rb) {
@@ -100,13 +105,6 @@ public class UIMockupController implements Initializable {
       @Override
       public void handle(Event t) {
         if (dataTab.isSelected()) {
-          // Retrieve data from AppletModel/Interfacer
-          // TODO - John initialize vars
-          x = new ArrayList<Double>(Arrays.asList(new Double(0), new Double(3), new Double(9)));
-          y = new ArrayList<Double>(Arrays.asList(new Double(-1), new Double(8), new Double(9)));
-          title = "Test";
-          xLabel = "x-axis";
-          yLabel = "y-axis";
 
           /* Default initial graph on data tab */
           modeList.getSelectionModel().select(0);
@@ -114,6 +112,8 @@ public class UIMockupController implements Initializable {
           yAxisList.getSelectionModel().select(1);
           
           modeSelected = modeList.getSelectionModel().getSelectedIndex();
+          xAxisSelected = xAxisList.getSelectionModel().getSelectedIndex();
+          yAxisSelected = yAxisList.getSelectionModel().getSelectedIndex();
         }
       }
     });
@@ -166,10 +166,20 @@ public class UIMockupController implements Initializable {
               String old_val, String new_val) {
             if (new_val.equals(fileOptions[0])) {
               // Save .cvs
+            	JFileChooser fileChooser = new JFileChooser(System.getProperty("user.dir"));
+            	fileChooser.setSelectedFile(new File(lcg.title.replaceAll("\\s+","")));
+            	fileChooser.setFileFilter(new FileNameExtensionFilter("CSV files (*.csv)", "*.csv"));
+            	
+            	int option = fileChooser.showSaveDialog(Main.GUI);  
+            	if(option == JFileChooser.APPROVE_OPTION){  
+	            	if(fileChooser.getSelectedFile()!=null){  
+	            		lcg.save(fileChooser.getSelectedFile().getName());
+	            	}
+            	}
             }
           }
         });
-    // TODO - John for the next three listeners
+
     modeList.getSelectionModel().selectedItemProperty().addListener(
         new ChangeListener<String>() {
           public void changed(ObservableValue<? extends String> ov,
@@ -193,8 +203,13 @@ public class UIMockupController implements Initializable {
         new ChangeListener<String>() {
           public void changed(ObservableValue<? extends String> ov,
               String old_val, String new_val) {
-            for (int i = 0; i < 4; i++) if (new_val.equals(axisOptions[modeSelected][i]))
-              x0 = i;
+        	  
+            for (int i = 0; i < 4; i++) {
+            	if (axisOptions[modeSelected][xAxisSelected].equals(axisOptions[modeSelected][i])) {
+            		x0 = i;
+                    xAxisSelected = i;
+            	}
+            }
             updateGraph();
           }
         });
@@ -203,8 +218,11 @@ public class UIMockupController implements Initializable {
         new ChangeListener<String>() {
           public void changed(ObservableValue<? extends String> ov,
               String old_val, String new_val) {
-            for (int i = 0; i < 4; i++) if (new_val.equals(axisOptions[modeSelected][i]))
-              y0 = i;
+            for (int i = 0; i < 4; i++) 
+            	if (axisOptions[modeSelected][yAxisSelected].equals(axisOptions[modeSelected][i])) {
+	              y0 = i;
+	              yAxisSelected = i;
+	            }
             updateGraph();
           }
         });
@@ -610,6 +628,7 @@ public class UIMockupController implements Initializable {
     String title = "Generic Graph", xLabel = graphTitles[f0][x0], yLabel = graphTitles[f0][y0];
     System.out.println("x: "+ x);
     System.out.println("y: "+ y);
+    
     lcg.update(x, y, title, xLabel, yLabel);
   }
 }

@@ -361,11 +361,11 @@ public class Applet extends PApplet {
         stroke(buttonOverStroke);
         //TODO - John associate xRotation and yRotation with rotation matrix, a little confusing here, so I commented out my adaptation
         // It prints out how xRotation and yRotation were changed
-//        float xRot = xRotation % (2 * PI), yRot = yRotation % (2 * PI);
-//        if (xRot < 0)
-//          xRot += 2 * PI;
-//        if (yRot < 0)
-//          yRot += 2 * PI;
+        float xRot = xRotation % (2 * PI), yRot = yRotation % (2 * PI);
+        if (xRot < 0)
+          xRot += 2 * PI;
+        if (yRot < 0)
+          yRot += 2 * PI;
 
         if (mouseClicked && !mouseDragged) {
           if (i == 0) {
@@ -377,24 +377,24 @@ public class Applet extends PApplet {
           }
           if (i == 1) {
             yRotation += PI / 2;
-//            if (xRot == 3 * PI / 2)
-//              xRotation -= PI / 2;
-//            else if (xRot == PI / 2)
-//              xRotation += PI / 2;
+            if (xRot == 3 * PI / 2)
+              xRotation -= PI / 2;
+            else if (xRot == PI / 2)
+              xRotation += PI / 2;
           }
           if (i == 2) {
             xRotation -= PI / 2;
-//            if (yRot == PI / 2)
-//              yRotation -= PI / 2;
-//            else if (yRot == 3 * PI / 2)
-//              yRotation += PI / 2;
+            if (yRot == PI / 2)
+              yRotation -= PI / 2;
+            else if (yRot == 3 * PI / 2)
+              yRotation += PI / 2;
           }
           if (i == 3) {
             xRotation += PI / 2;
-//            if (yRot == 3 * PI / 2)
-//              yRotation += PI / 2;
-//            else if (yRot == PI / 2)
-//              yRotation -= PI / 2;
+            if (yRot == 3 * PI / 2)
+              yRotation += PI / 2;
+            else if (yRot == PI / 2)
+              yRotation -= PI / 2;
           }
           println(xRotation + " " + yRotation);
           // printing/testing
