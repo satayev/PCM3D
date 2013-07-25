@@ -44,13 +44,14 @@ public class AppletModel {
   // Variables for drawing the model
   public static float magnif = 250;
   public Applet applet;
-  public double speed = .01; // speed of traveling photons used in applet view
+  public double speed = .15; // speed of traveling photons used in applet view
   /**
    * Zenith angle is [0, 90) degrees, 0 being straight down, 90 straight towards the side
    * Azimuth is degrees to the x-y axis
    */
   public static double zenith = 50, azimuth = 0;
-
+  public boolean updated = true;
+  
   // Model microscale bounds
   public double X = 1, Y = 1, Z = 1, Z0 = 1;
 
@@ -58,7 +59,8 @@ public class AppletModel {
   public Vector sunDir = new Vector(), sunPos = new Vector();
   public double sunDistance = 2, dzenith = -2.5; // delta is change in zenith for moving sun
 
-  public List<PathFollower> paths = new LinkedList<PathFollower>();
+  public List<PathFollower> paths = new LinkedList<PathFollower>(), 
+		  pathsCopy = new LinkedList<PathFollower>(); // for re-using paths list which has been altered
   /** The number of paths displayed on the screen */
   public int runningPaths = 0;
   /** indicates weather to draw a new photon when one wanders off screen */
@@ -150,7 +152,13 @@ public class AppletModel {
   /*
    * Model rerun here with reset solar flux angles
    */
-  public void run() {
+  public void run() {//boolean newRun) {
+	String simResults = "";
+	  
+//	if (!reset && advanceSun)
+//		solarAdvance();
+	
+	
     if ((zenith < 0 || zenith >= 90) && !useStatisticalResults || useStatisticalResults && SE.points != null && statisticsCounter >= SE.points.size()) {
       runAnim = false;
     } else {
@@ -162,7 +170,7 @@ public class AppletModel {
         // Cautious Incorporation of applet.xRotation and applet.yRotation into angles
         float xRot = applet.xRotation, yRot = applet.yRotation;
         yRot = (yRot == (float) Math.PI / 2) ? 0 : applet.yRotation;
-        System.out.println("appletmodel " + xRot + " " + yRot);
+        //System.out.println("appletmodel " + xRot + " " + yRot);
         double zenith0 = Math.PI * (180 - (90 - zenith)) / 180
             + (Math.PI - xRot) + (Math.PI - yRot), 
             azimuth0 = Math.PI * azimuth / 180
@@ -173,7 +181,7 @@ public class AppletModel {
         SFM.setEntry(entry);
         SFM.run(10000);
         SFM.p.stat.printAll();
-        printOutput += zenith + " degrees\t" + azimuth + " degrees\t" + SFM.p.stat.getRatio() + " %" + "\n";
+        simResults += zenith + " degrees\t" + azimuth + " degrees\t" + SFM.p.stat.getRatio() + " %" + "\n";
 
         List<List<List<Vector>>> photonPaths = SFM.p.stat.rv;
         for (List<List<Vector>> i : photonPaths)
@@ -203,7 +211,7 @@ public class AppletModel {
                 new Vector(Math.cos(zenith0) * Math.cos(azimuth0), Math.cos(zenith0) * Math.sin(azimuth0), -Math.sin(zenith0)));
             System.out.println("finish");
             AS.printStats();
-            printOutput += zenith + " degrees\t" + azimuth + " degrees\t"
+            simResults += zenith + " degrees\t" + azimuth + " degrees\t"
                 + (AS.stats.photonAbsorbedCounter * 1. / AS.stats.photonTotalCounter) + " %" + "\n";
   
             List<List<List<Vector>>> photonPaths = AS.stats.photonPaths;
@@ -220,6 +228,14 @@ public class AppletModel {
         }
 
       }
+      System.out.println("run with zenith = " + zenith + ", azimuth = " + azimuth);
+      //if (newRun)
+    	  printOutput += simResults;
+      // test
+//      System.out.println(paths.size()+ " "+runningPaths);
+//      pathsCopy.clear();
+//      pathsCopy.addAll(paths);
+      
       // Position and direction of the sun set from Photon class's baseline values for spawned photons with sunDistance taken into account
       sunPos = new Vector(.5, 1 - zenith / 180, Math.sin((1 - zenith / 180) * Math.PI));
       Vector tileCenter = new Vector(.5, .5, 0);
@@ -228,26 +244,31 @@ public class AppletModel {
       sunDir = tileCenter.clone();
       sunPos.sub(V.mult(sunDistance, sunDir));
 
-      if (zenith == 0 && zenith == 90) {
-        dzenith *= -1;
-        azimuth = (azimuth + 180) % 360;
-      }
-      zenith += dzenith;
-      if (useStatisticalResults) {
-        Vector entry;
-        if (statisticsCounter < vectorList.size()) {
-          entry = vectorList.get(statisticsCounter);
-        } else if (!vectorList.isEmpty()){
-          entry = vectorList.get(vectorList.size()-1);
-        } else {
-          entry = new Vector(0,0,1);
-        }
-        azimuth = SE.vectorToAzimuth(entry);
-        zenith = SE.vectorToZenith(entry);
-      }
+
+      solarAdvance();
     }
   }
 
+  public void solarAdvance() {
+      if (zenith == 0 && zenith == 90) {
+          dzenith *= -1;
+          azimuth = (azimuth + 180) % 360;
+        }
+        zenith += dzenith;
+        if (useStatisticalResults) {
+          Vector entry;
+          if (statisticsCounter < vectorList.size()) {
+            entry = vectorList.get(statisticsCounter);
+          } else if (!vectorList.isEmpty()){
+            entry = vectorList.get(vectorList.size()-1);
+          } else {
+            entry = new Vector(0,0,1);
+          }
+          azimuth = SE.vectorToAzimuth(entry);
+          zenith = SE.vectorToZenith(entry);
+        }
+  }
+  
   public void addPhoton() {
     runningPaths++;
   }
@@ -446,6 +467,14 @@ public class AppletModel {
         }
       }
     }
+
+	public void reset() {
+	    branch = 0; 
+	    line = 0; 
+	    reflections = 0;
+	    distance = -maxDistance;
+		
+	}
 
   }
 

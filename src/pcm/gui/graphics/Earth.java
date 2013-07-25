@@ -19,8 +19,11 @@ public class Earth {
 
   Vector position = new Vector();
   float offset = 0; // in degrees longitude offset for sine function because ISS doesn't follow consistent path
-  double earthAngularSpeed = 360. / (24 * 60 * 60), ISSAngularSpeed = 360. / (92 * 60 + 50);
-  double speed = ISSAngularSpeed; // degrees per second, speed of sphere's spin
+  double ISSOrbitalPeriod = 92.91, // from Wikipedia, in minutes
+		  ISSSunlightPeriod = 55, // in minutes, a guess, should be affected by azimuth
+		  ISSSunlightProportion = ISSSunlightPeriod / ISSOrbitalPeriod,
+  	earthAngularSpeed = 360. / (24 * 60 * 60), ISSAngularSpeed = 360. / (ISSOrbitalPeriod * 60),
+  	speed = ISSAngularSpeed; // degrees per second, speed of sphere's spin
   float lag = 0;
 
   PImage bg;
@@ -85,10 +88,7 @@ public class Earth {
 
   }
 
-  void draw(boolean toSpin, double speed) {
-    if (toSpin)
-      spin(speed);
-
+  void draw() {
     // Dark backdrop behind earth
     applet.noLights();
     applet.fill(Tools.dgray);

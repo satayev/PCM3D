@@ -165,6 +165,7 @@ public class AppletInterfacer {
       model.zenith = zenith;
       model.azimuth = azimuth;
       model.reset();
+      model.updated = true;
       updateEarth(latitude, longitude, toEquator);
       model.runAnim = true;
     }

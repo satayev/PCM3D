@@ -27,7 +27,7 @@ public class Applet extends PApplet {
   PGraphicsOpenGL pgl;
 
   boolean mouseClicked = false, mousePressedAgain = false, mouseDragged = false;
-  int t, backgroundColor = Tools.llgray,
+  int backgroundColor = Tools.llgray,
       buttonStroke = Tools.orange, buttonOverStroke = Tools.black, buttonFill = Tools.white;
 
   // Image textures
@@ -39,6 +39,11 @@ public class Applet extends PApplet {
   // Backporch rotating cube
   float xRotation = PI, yRotation = 0;
 
+  // Simulation time span
+  int t = 0, // time counter
+	photonsReiterated = 0; // associated with AppletModel's paths of photons
+  double orbitDuration = 4; // in minutes 
+  
   public Applet() {
     this(700, 700);
   }
@@ -61,6 +66,10 @@ public class Applet extends PApplet {
     this.model = model;
     this.earth = earth;
     earth.load(this);
+    
+    println("Optional key controls ->\nleft arrow = slows down model animation\nright arrow = speeds up model animation\nt = resets animation\nr = runs animation\ns = stops animation\np = prints camera vectors of the view with the rotating ability");
+    
+    System.out.println("\nISS complete orbit will take " + orbitDuration + " minutes, ISS will be in sunlight " + (earth.ISSSunlightProportion * orbitDuration) + " minutes");
 
     float magnif = model.magnif;
     // Main view
@@ -138,7 +147,6 @@ public class Applet extends PApplet {
     //CNTimg = loadImage("cnt.jpg");
     NASAimg = loadImage("nasa.jpg");
 
-    println("Optional key controls ->\nleft arrow = slows down model animation\nright arrow = speeds up model animation\nt = resets animation\nr = runs animation\ns = stops animation\np = prints camera vectors of the view with the rotating ability");
 
     addMouseWheelListener(new MouseWheelListener() {
       public void mouseWheelMoved(MouseWheelEvent mwe) {
@@ -157,6 +165,42 @@ public class Applet extends PApplet {
     //println(frameRate);
     background(backgroundColor);
 
+    
+    /*
+     * if length of time for ISS rotation = 4 minutes = orbitDuration, earth speed scalar is (90 * 60 + 50) / (4 * 60)
+     * typically 55 minutes in sunlight?
+     * (proportion of time ISS in sunlight) * 4 = y = number of minutes ISS will be in sunlight
+     * (delta zenith)/x = (180 degrees)/(y * 60 seconds)
+     * x = delta time to re-run model
+     */
+//    if (model.runAnim) {
+//	    earth.spin((90. * 60 + 50) / (orbitDuration * 60));
+//	    
+//        t++;
+//	    double rerunTime = (Math.abs(model.dzenith))/(180./(earth.ISSSunlightProportion * orbitDuration * 60));
+//
+//        if (t * 1. / this.frameRate >= rerunTime -1 || model.updated) {
+//	    	if (!model.updated) {
+//	    		model.solarAdvance();
+//	    		println("advancing angles, seconds until next = " + rerunTime);
+//	    	}
+//	    	model.updated = false;
+//	    	//model.paths.clear();
+//	    	//model.reset(); not working right or only corresponds to user-inputed angles
+//	    	model.run(true);
+//	    	t = 0;
+//		    } 
+//        else if (model.runningPaths < model.maxPhotons)
+//            model.addPhoton();
+//        else {
+//        	println("repeating angles");
+//        	model.run(false);
+//        }
+//    }
+    
+    
+    
+    if (model.runAnim) earth.spin((90. * 60 + 50) / (orbitDuration * 60));
     // Speed of animation depends on number of max photons shown
     t++;
     if (t >= (101 - model.maxPhotons) && model.runAnim) {
@@ -167,7 +211,8 @@ public class Applet extends PApplet {
     // Rerun simulation when old photons are exiting system
     if (model.runningPaths > model.paths.size())
       model.run();
-
+    
+    
     // Main view - top right viewport
     float fov = (float) (PI / 3.0); // field of view (default)
     float aspect = width / height;
@@ -224,11 +269,7 @@ public class Applet extends PApplet {
     //        1);
     //    specular(255, 255, 255);
 
-    //TODO - vary speed according to how fast model's angles are changing
-    if (model.runAnim)
-      earth.draw(true, 500 * model.speed);
-    else
-      earth.draw(false, 500 * model.speed);
+    earth.draw();
 
     ((PGraphicsOpenGL) g).endGL();
 
