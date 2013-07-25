@@ -295,7 +295,11 @@ public class AppletModel {
     this.applet = applet;
 
     drawFloorGrid();
+    
+//    applet.shader(applet.heatmap);
     drawSurfaces();
+//    applet.resetShader();
+    
     drawPhotons(updatePhotons);
   }
 

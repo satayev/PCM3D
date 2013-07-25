@@ -64,6 +64,8 @@ public class UIMockupController implements Initializable {
   public Accordion simulationAccordion1, simulationAccordion2, simulationAccordion3;
   public MenuBar dataMenuBar;
   public Menu clearButton; 
+//  public MenuItem hmAbsorption;
+//  public MenuItem hmNone;
   public GridPane dataOptionsGrid, dataGraphGrid;
   public TitledPane userEarthOptions;
 
@@ -381,6 +383,12 @@ public class UIMockupController implements Initializable {
       }
     });
 
+//    hmAbsorption.setOnAction(new EventHandler<ActionEvent>() {
+//      @Override
+//      public void handle(ActionEvent t) {
+//        
+//      }
+//    });
   }
 
   private void initializePatternTab() {
@@ -390,7 +398,17 @@ public class UIMockupController implements Initializable {
             shapeCanvas.getChildren().clear();
             clearButton.hide();
         }
-    }); 
+    });
+    shapeScale.textProperty().addListener(new ChangeListener<String>() {
+      @Override
+      public void changed(ObservableValue<? extends String> ov, String t, String t1) {
+        try {
+          shapeScale.setText(Double.toString(Math.max(0.0f, Math.min(1.0f, Double.parseDouble(t1)))));
+        } catch (NumberFormatException e) {
+          System.out.println(e);
+        }
+      }
+    });
     shapeRotation.textProperty().addListener(new ChangeListener<String>() {
       @Override
       public void changed(ObservableValue<? extends String> ov, String t, String t1) {

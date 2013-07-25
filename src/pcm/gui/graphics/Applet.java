@@ -22,10 +22,12 @@ public class Applet extends PApplet {
   Earth earth;
   AppletModel model;
 
-  //GL2 gl; // processing 2.09
+//  GL2 gl; // processing 2.09
   GL gl; // processing 1.5
   PGraphicsOpenGL pgl;
 
+//  PShader heatmap;
+  
   boolean mouseClicked = false, mousePressedAgain = false, mouseDragged = false;
   int backgroundColor = Tools.llgray,
       buttonStroke = Tools.orange, buttonOverStroke = Tools.black, buttonFill = Tools.white;
@@ -144,6 +146,8 @@ public class Applet extends PApplet {
     size(width, height, OPENGL);
     frameRate(60);
 
+//    heatmap = loadShader("heatFrag.glsl", "heatVert.glsl");
+    
     //CNTimg = loadImage("cnt.jpg");
     NASAimg = loadImage("nasa.jpg");
 
@@ -221,6 +225,7 @@ public class Applet extends PApplet {
     perspective(fov / 3, aspect, (float) (cameraZ / 10.0), (float) (cameraZ * 10.0));
 
     gl = ((PGraphicsOpenGL) g).beginGL();
+//    gl = ((PGraphicsOpenGL) g).beginPGL().gl.getGL2();
     gl.glViewport(width / 2, height / 2, width / 2, height / 2);
     ((PGraphicsOpenGL) g).endGL();
 
@@ -230,31 +235,37 @@ public class Applet extends PApplet {
 
     userInput(views[0]);
     ((PGraphicsOpenGL) g).endGL();
+//    ((PGraphicsOpenGL) g).endPGL();
 
     cameraZ = ((float) (height / 2.0) / tan((float) (PI * 60.0 / 360.0))); //default
 
     // Bird's eye (top) view - top left viewport
     perspective((float) (PI / 47.0), aspect, (float) (cameraZ / 10.0), (float) (cameraZ * 10.0)); // small fov for non-immersive orthogalized view
     gl = ((PGraphicsOpenGL) g).beginGL();
+//    gl = ((PGraphicsOpenGL) g).beginPGL().gl.getGL2();
     gl.glViewport(0, height / 2, width / 2, height / 2);
     ((PGraphicsOpenGL) g).endGL();
     views[1].camera();
     model.draw(this, false);
     ((PGraphicsOpenGL) g).endGL();
+//    ((PGraphicsOpenGL) g).endPGL();
 
     // Front, either side, or back view, determined by z - bottom left viewport
     perspective((float) (PI / 11.0), aspect, (float) (cameraZ / 10.0), (float) (cameraZ * 10.0));
     gl = ((PGraphicsOpenGL) g).beginGL();
+//    gl = ((PGraphicsOpenGL) g).beginPGL().gl.getGL2();
     gl.glViewport(0, 0, width / 2, height / 2);
     ((PGraphicsOpenGL) g).endGL();
     views[z].camera();
     model.draw(this, false);
     ((PGraphicsOpenGL) g).endGL();
+//    ((PGraphicsOpenGL) g).endPGL();
 
     cameraZ = ((float) (height) / tan((float) (PI * 60.0 / 360.0)));
     perspective(fov / 3, aspect, (float) (cameraZ / 10.0), (float) (cameraZ * 10.0));
     // Earth and ISS orbit view - bottom right viewport
     gl = ((PGraphicsOpenGL) g).beginGL();
+//    gl = ((PGraphicsOpenGL) g).beginPGL().gl.getGL2();
     gl.glViewport(width / 2, 0, width / 2, height / 2);
     ((PGraphicsOpenGL) g).endGL();
 
@@ -272,14 +283,17 @@ public class Applet extends PApplet {
     earth.draw();
 
     ((PGraphicsOpenGL) g).endGL();
+//    ((PGraphicsOpenGL) g).endPGL();
 
     perspective();
     // User controls on applet
     gl = ((PGraphicsOpenGL) g).beginGL();
+//    gl = ((PGraphicsOpenGL) g).beginPGL().gl.getGL2();
     gl.glViewport(0, 0, width, height);
     ((PGraphicsOpenGL) g).endGL();
     userPanel();
     ((PGraphicsOpenGL) g).endGL();
+//    ((PGraphicsOpenGL) g).endPGL();
 
     mouseClicked = false;
   }

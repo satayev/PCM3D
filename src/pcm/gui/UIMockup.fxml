@@ -34,16 +34,16 @@
                 <!--<Menu mnemonicParsing="false" text="Preview" />-->
               </menus>
             </MenuBar>
-            <VBox prefWidth="240.0" style="-fx-border-color: #000000;&#10;-fx-border-width: 1px;" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0">
+            <VBox prefWidth="240.0" style="-fx-background-color:silver;" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0">
               <children>
-                <HBox alignment="CENTER">
+                <HBox alignment="CENTER" style="-fx-background-color:lightgray;">
                   <children>
                     <Label text="Scale">
                       <HBox.margin>
                         <Insets left="5.0" fx:id="x5_x0_x0" />
                       </HBox.margin>
                     </Label>
-                    <TextField fx:id="shapeScale" prefWidth="80.0" text="0.1" HBox.hgrow="ALWAYS">
+                    <TextField fx:id="shapeScale" prefWidth="80.0" text="0.5" HBox.hgrow="ALWAYS">
                       <HBox.margin>
                         <Insets left="23.0" right="8.0" />
                       </HBox.margin>
@@ -55,7 +55,7 @@
                     </Label>
                   </children>
                 </HBox>
-                <HBox alignment="CENTER">
+                <HBox alignment="CENTER" style="-fx-background-color:lightgray;">
                   <children>
                     <Label text="Rotation">
                       <HBox.margin>
@@ -167,14 +167,16 @@
           <children>
             <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
               <menus>
-                <Menu mnemonicParsing="false" text="Open TLE" />
-                <Menu mnemonicParsing="false" text="View mode...">
+                  <Menu />
+<!--                <Menu mnemonicParsing="false" text="Open TLE" />
+                <Menu mnemonicParsing="false" text="Heatmap">
                   <items>
-                    <MenuItem mnemonicParsing="false" text="Absorption" />
+                    <MenuItem mnemonicParsing="false" text="Absorption" fx:id="hmAbsorption" />
+                    <MenuItem mnemonicParsing="false" text="Reflection" fx:id="hmReflection" />
                     <MenuItem mnemonicParsing="false" text="Nth hit" />
-                    <MenuItem mnemonicParsing="false" text="etc...." />
+                    <MenuItem mnemonicParsing="false" text="None" fx:id="hmNone" />
                   </items>
-                </Menu>
+                </Menu>-->
               </menus>
             </MenuBar>
             <VBox prefWidth="240.0" style="-fx-background-color:silver;" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0">
