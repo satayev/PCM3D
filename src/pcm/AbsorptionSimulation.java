@@ -105,13 +105,13 @@ public class AbsorptionSimulation {
         else {
           photon.bounce(closest.surface.normalAt(closest));
 
-          if (closest.surface == model.ceiling)
+          if (closest.surface == model.ceiling) {
+            photon.path.get(photon.path.size()-1).add(V.add(photon.p, photon.v));
             done = true;
-          else
+          } else
             done = closest.surface.absorb(photon);
         }
       }
-      photon.path.get(photon.path.size()-1).add(V.add(photon.p, photon.v));
       stats.update(photon);
     }
   }

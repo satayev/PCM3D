@@ -207,7 +207,7 @@ public class UIMockupController implements Initializable {
               String old_val, String new_val) {
         	  
             for (int i = 0; i < 4; i++) {
-            	if (axisOptions[modeSelected][xAxisSelected].equals(axisOptions[modeSelected][i])) {
+            	if (new_val != null && new_val.equals(axisOptions[modeSelected][i])) {
             		x0 = i;
                     xAxisSelected = i;
             	}
@@ -221,7 +221,7 @@ public class UIMockupController implements Initializable {
           public void changed(ObservableValue<? extends String> ov,
               String old_val, String new_val) {
             for (int i = 0; i < 4; i++) 
-            	if (axisOptions[modeSelected][yAxisSelected].equals(axisOptions[modeSelected][i])) {
+            	if (new_val != null && new_val.equals(axisOptions[modeSelected][i])) {
 	              y0 = i;
 	              yAxisSelected = i;
 	            }
