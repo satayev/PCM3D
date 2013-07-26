@@ -207,7 +207,7 @@ public class UIMockupController implements Initializable {
               String old_val, String new_val) {
         	  
             for (int i = 0; i < 4; i++) {
-            	if (axisOptions[modeSelected][xAxisSelected].equals(axisOptions[modeSelected][i])) {
+            	if (new_val != null && new_val.equals(axisOptions[modeSelected][i])) {
             		x0 = i;
                     xAxisSelected = i;
             	}
@@ -221,7 +221,7 @@ public class UIMockupController implements Initializable {
           public void changed(ObservableValue<? extends String> ov,
               String old_val, String new_val) {
             for (int i = 0; i < 4; i++) 
-            	if (axisOptions[modeSelected][yAxisSelected].equals(axisOptions[modeSelected][i])) {
+            	if (new_val != null && new_val.equals(axisOptions[modeSelected][i])) {
 	              y0 = i;
 	              yAxisSelected = i;
 	            }
@@ -631,6 +631,9 @@ public class UIMockupController implements Initializable {
     }
     for (double i : SE.wavelengthIntensity) graphAxis[1][2].add(i);
     for (double i : SE.wavelengthAlpha) graphAxis[1][3].add(i);
+    
+    graphAxis[1][1] = graphAxis[1][0];
+    
     updateGraph();
   }
   
