@@ -68,6 +68,7 @@ public class UIMockupController implements Initializable {
 //  public MenuItem hmNone;
   public GridPane dataOptionsGrid, dataGraphGrid;
   public TitledPane userEarthOptions;
+  public VBox userEarthSubOptions;
 
   /** These variables are set according to the menu options selected */
   int f0 = 0, x0 = 0, y0 = 0;
@@ -320,16 +321,23 @@ public class UIMockupController implements Initializable {
     fiveSecondsWonder.play();
 
     assert userEarthOptions != null : "fx:id=\"userEarthOptions\" was not injected: check your FXML file 'UIMockup.fxml'.";
+    assert userEarthSubOptions != null : "fx:id=\"userEarthSubOptions\" was not injected: check your FXML file 'UIMockup.fxml'.";
+    
+    
     assert orbitCheckBox != null : "fx:id=\"orbitCheckBox\" was not injected: check your FXML file 'UIMockup.fxml'.";
+    orbitCheckBox.setSelected(true);
+    
     // Whether to use preset ISS orbit or not
     orbitCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
       @Override
       public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
         if (newValue) {
-          userEarthOptions.setPrefHeight(45);
+          //userEarthOptions.setPrefHeight(45);
+        	userEarthSubOptions.setStyle("-fx-background-color: #666666;");
           //TODO - John
         } else {
-          userEarthOptions.setPrefHeight(90);
+          //userEarthOptions.setPrefHeight(90);
+        	userEarthSubOptions.setStyle("-fx-background-color: lightgray;");
           //TODO - John
         }
       }
