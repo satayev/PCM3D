@@ -632,8 +632,6 @@ public class UIMockupController implements Initializable {
     for (double i : SE.wavelengthIntensity) graphAxis[1][2].add(i);
     for (double i : SE.wavelengthAlpha) graphAxis[1][3].add(i);
     
-    graphAxis[1][1] = graphAxis[1][0];
-    
     updateGraph();
   }
   
@@ -643,7 +641,6 @@ public class UIMockupController implements Initializable {
     if (x0 < 0 || x0 >= 4) x0 = 0;
     if (y0 < 0 || y0 >= 4) y0 = 0;
     System.out.println("Graph options: " + f0 + " " + x0 + " " + y0);
-    System.out.println("Graph size: " + graphAxis.length + " " + graphAxis[0].length + " " + graphAxis[1].length);
     
     List<Double> x = graphAxis[f0][x0], y = graphAxis[f0][y0];
     String title = "Generic Graph", xLabel = graphTitles[f0][x0], yLabel = graphTitles[f0][y0];

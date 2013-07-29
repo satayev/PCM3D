@@ -48,8 +48,9 @@ public class AppletModel {
   /**
    * Zenith angle is [0, 90) degrees, 0 being straight down, 90 straight towards the side
    * Azimuth is degrees to the x-y axis
+   * Tilt Angle is the tilt of the rotation, with 0 degrees being upwards
    */
-  public static double zenith = 50, azimuth = 0;
+  public static double zenith = 50, azimuth = 0, tiltAngle = 0;
   public boolean updated = true;
   
   // Model microscale bounds
@@ -86,10 +87,11 @@ public class AppletModel {
   int modSize = 0;
   int maxPhotons = 40;
   
-  public boolean useAngles = false, useStatisticalResults = true, useOrbit;
+  public boolean useAngles = false, useStatisticalResults = true, useOrbit = true;
+  public double orbitStartTime = 0, orbitStepSize = 1, orbitLength = 90;
   public int statisticsCounter = 0;
   
-  public Vector rotationVector = new Vector(0,0,1);
+  public Vector rotationVector = new Vector(1,0,0);
   public double rotationAngle = Math.PI / 36;
   public int rotationSize = 72;
   
@@ -276,10 +278,16 @@ public class AppletModel {
   public void reset() {
     paths.clear();
     System.out.println("reset");
-    if (false && useOrbit) {
-      
+    if (useOrbit) {
+      int steps = (int) (orbitLength / orbitStepSize);
+      ISSOrbit orbit = new ISSOrbit();
+      vectorList = new ArrayList<Vector>();
+      for (int i = 0; i <= steps; i++) {
+        vectorList.add(orbit.getSunlightDirection(orbitStartTime + orbitStepSize * i));
+      }
     } else {
     Vector entry = SE.angleToVector(zenith, azimuth);
+    rotationVector = SE.generateRotationVector(entry, tiltAngle);
     vectorList = SE.generateVectors(entry, rotationVector, rotationAngle, rotationSize);
     }
     List<Vector> currentVectorList = new ArrayList<Vector>(vectorList.size());
@@ -405,42 +413,44 @@ public class AppletModel {
         double remainingDistance = distance0 + maxDistance;
         boolean end = false;
         int color = Tools.colorScale[0];
-        while (remainingDistance > 0 && !end) {
-          a = lineList.get(line0);
-          b = lineList.get(line0 + 1);
-          double length = V.sub(b, a).length();
-          Vector normal = V.normalize(V.sub(b, a));
-          if (remainingDistance - maxDistance < 0)
-            start = a.clone();
-          else
-            start = V.scaleAdd(a, remainingDistance - maxDistance, normal);
-          if (remainingDistance > length)
-            finish = b.clone();
-          else
-            finish = V.scaleAdd(a, remainingDistance, normal);
-          remainingDistance = remainingDistance - length;
-
-          int index = 0, power = reflections0;
-          while ((power /= 2) > 0)
-            index++;
-          if (index > 8)
-            index = 8;
-          color = Tools.colorScale[index];
-          applet.fill(color);
-          applet.stroke(color);
-          applet.strokeWeight(2);
-          drawLine(start, finish);
-
-          line0++;
-          reflections0++;
-          while (line0 >= lineList.size() - 1) {
-            line0 = 0;
-            branch0++;
-            reflections0--;
-            if (branch0 >= path.size())
-              end = true;
+        if (lineList.size() >= 2) {
+          while (remainingDistance > 0 && !end) {
+            a = lineList.get(line0);
+            b = lineList.get(line0 + 1);
+            double length = V.sub(b, a).length();
+            Vector normal = V.normalize(V.sub(b, a));
+            if (remainingDistance - maxDistance < 0)
+              start = a.clone();
             else
-              lineList = path.get(branch0);
+              start = V.scaleAdd(a, remainingDistance - maxDistance, normal);
+            if (remainingDistance > length)
+              finish = b.clone();
+            else
+              finish = V.scaleAdd(a, remainingDistance, normal);
+            remainingDistance = remainingDistance - length;
+  
+            int index = 0, power = reflections0;
+            while ((power /= 2) > 0)
+              index++;
+            if (index > 8)
+              index = 8;
+            color = Tools.colorScale[index];
+            applet.fill(color);
+            applet.stroke(color);
+            applet.strokeWeight(2);
+            drawLine(start, finish);
+  
+            line0++;
+            reflections0++;
+            while (line0 >= lineList.size() - 1) {
+              line0 = 0;
+              branch0++;
+              reflections0--;
+              if (branch0 >= path.size())
+                end = true;
+              else
+                lineList = path.get(branch0);
+            }
           }
         }
         if (remainingDistance < 0) {
@@ -458,15 +468,17 @@ public class AppletModel {
       if (branch < path.size()) {
         List<Vector> lineList = path.get(branch);
         distance += speed;
-        double length = V.sub(lineList.get(line), lineList.get(line + 1)).length();
-        if (distance >= length) {
-          distance -= length;
-          line++;
-          reflections++;
-          if (line >= lineList.size() - 1) {
-            line = 0;
-            branch++;
+        if (lineList.size() >= 2) {
+          double length = V.sub(lineList.get(line), lineList.get(line + 1)).length();
+          if (distance >= length) {
+            distance -= length;
+            line++;
             reflections++;
+            if (line >= lineList.size() - 1) {
+              line = 0;
+              branch++;
+              reflections++;
+            }
           }
         }
       }

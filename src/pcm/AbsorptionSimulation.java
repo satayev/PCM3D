@@ -47,7 +47,8 @@ public class AbsorptionSimulation {
     photon.p.y = model.Y * (PCM3D.rnd.nextDouble() - 0.5);
     photon.p.z = model.Z;
 
-    if (v0.length() == 0) photon.v = issOrbit.getSunlightDirection(0);
+    if (v0 == null) photon.v = new Vector(0,0,1);
+    else if (v0.length() == 0) photon.v = issOrbit.getSunlightDirection(0);
     else photon.v = v0.clone();
     photon.v0 = photon.v.clone();
     
@@ -62,12 +63,13 @@ public class AbsorptionSimulation {
 
   public void run(int n, Vector v0) throws Exception {
     Photon photon = new Photon(new Vector(), new Vector());
+    System.out.println("Start: "+ v0);
     while (n-- > 0) {
       resetPhoton(photon, v0);
 
       boolean done = false;
 
-      if (photon.v0.z >= 0) {
+      if (photon.v0.z >= -V.EPS) {
         photon.absorbed = false;
         done = true;
       }
@@ -114,6 +116,7 @@ public class AbsorptionSimulation {
       }
       stats.update(photon);
     }
+    System.out.println("Finish");
   }
 
   public void run(int n) throws Exception {

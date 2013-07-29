@@ -95,13 +95,7 @@ public class StatisticalEvaluator {
   }
   
   public List<Vector> generateVectors(Vector entry, double angle, int size) {
-    Vector y = V.cross(entry, new Vector(0,0,1)), x = V.cross(y, entry);
-    y.normalize();
-    x.normalize();
-    double angle0 = Math.PI*angle / 180;
-    Vector rotation = V.add(V.mult(Math.cos(angle0), x), V.mult(Math.sin(angle0), y));
-    rotation = V.cross(rotation, entry);
-    rotation.normalize();
+    Vector rotation = generateRotationVector(entry, angle);
     double degree = 2*Math.PI / size;
     return generateVectors(entry, rotation, degree, size);
   }
@@ -122,14 +116,27 @@ public class StatisticalEvaluator {
   }
   
   public double vectorToZenith(Vector vector) {
+    if (vector == null) return Double.NaN;
     return Math.acos(vector.z) * 180 / Math.PI;
   }
   
   public double vectorToAzimuth(Vector vector) {
+    if (vector == null) return Double.NaN;
     Vector v0 = vector.clone();
     v0.z = 0;
     v0.normalize();
     return Math.acos(v0.x) * 180 / Math.PI;
+  }
+
+  public Vector generateRotationVector(Vector entry, double angle) {
+    Vector y = V.cross(entry, new Vector(0,0,1)), x = V.cross(y, entry);
+    y.normalize();
+    x.normalize();
+    double angle0 = Math.PI*angle / 180;
+    Vector rotation = V.add(V.mult(Math.cos(angle0), x), V.mult(Math.sin(angle0), y));
+    rotation = V.cross(rotation, entry);
+    rotation.normalize();
+    return rotation;
   }
   
 }

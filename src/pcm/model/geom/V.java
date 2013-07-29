@@ -198,6 +198,7 @@ public final class V {
       System.err.println("Invalid Matrix: " + matrix.length);
       return vector;
     }
+    if (vector == null) return vector;
     return new Vector(matrix[0].dot(vector), matrix[1].dot(vector), matrix[2].dot(vector));
   }
 }

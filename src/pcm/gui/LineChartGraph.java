@@ -47,9 +47,13 @@ public class LineChartGraph {
       lineChart.setTitle(title);
       //defining a series
       XYChart.Series series = new XYChart.Series();
+      double eps = 1e8;
       //populating the series with data
-      for (int i = 0; i < x.size(); i++) 
-        series.getData().add(new XYChart.Data(x.get(i), y.get(i)));
+      for (int i = 0; i < x.size(); i++) {
+        double x0 = x.get(i), y0 = y.get(i);
+        if (x0 < eps && x0 > -eps && y0 < eps && y0 > -eps)
+          series.getData().add(new XYChart.Data(x0, y0));
+      }
       
       lineChart.getData().clear();
       lineChart.getData().add(series);
