@@ -9,10 +9,10 @@ Inside Eclipse or Netbeans, running Graphics with UI
 ========================
 To have the Processing 1.5 applet show in pcm.graphics.Main.java, go to Main's run configurations (within Eclipse IDE). Inside the arguments tab and inside the VM Arguments field, place
 
--Djava.library.path="src/data/dlls"
+-Djava.library.path="lib/processing-1.5.1/dlls"
 
 or
 
--Djava.library.path="src/data/dlls64"
+-Djava.library.path="lib/processing-1.5.1/dlls64"
 
 for 64-bit systems
