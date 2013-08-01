@@ -281,7 +281,7 @@ public class AppletModel {
           p0.normalize();
           double longitude = Math.acos(p0.x) * 180 / Math.PI; // assuming longitude = 0 at x-axis
           boolean headedTowardEquator = latitude > 0 ^ v.z > 0;
-          Vector s = orbit.getSunlightDirection(orbitStartTime);
+          Vector s = V.mult(-1, orbit.getSunlightDirection(orbitStartTime));
           
           orbitStartTime += orbitStepSize;
         }
