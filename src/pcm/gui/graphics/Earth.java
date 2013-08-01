@@ -56,6 +56,9 @@ public class Earth {
     this.applet = applet;
     texmap = applet.loadImage("world32k.jpg");
     initializeSphere(sDetail);
+    
+    // or rather offset
+    //rotationY = (float) (360 * applet.model.orbitStartTime / applet.model.orbitLength);
   }
 
   /*
@@ -73,19 +76,32 @@ public class Earth {
       offset -= 90;
   }
 
+  
+  
   /*
    * Performs a rotation of Earth at speed of the ISS (slightly slower than Earth's rotation).
    * 
+   * If called in coordination with preset orbit, when AppletModel's run method is called, 
+   * and then solarAdvance() which steps the orbit, earth rotation translates into a proportion of (orbitStepSize / orbitLength) by 360 degrees.
+   * Scalar is then used to apply a (much smaller) spin per frame.
+   * 
+   * @param usingPresetOrbit for orbit step size settings in coordination with AppletModel
    * @param scalar with domain of [0, infinity) to slow down or speed up speed away from ~93 minutes ISS orbit in animation
    */
-  void spin(double scalar) {
-    rotationY += (speed / applet.frameRate) * scalar;
+  void spin(boolean usingPresetOrbit, double scalar) {
+	double frameRate = applet.frameRate;
 
+	if (usingPresetOrbit) {
+		frameRate = 1;
+
+		scalar *= (360. * applet.model.orbitStepSize / applet.model.orbitLength) / speed;
+	}
+	
+    rotationY += (speed / frameRate) * scalar;
     rotationX = (float) (51.6 * Math.sin(applet.radians(rotationY + offset)));
 
-    lag += (earthAngularSpeed / applet.frameRate) * scalar;
+    lag += (earthAngularSpeed / frameRate) * scalar;
     //applet.println(rotationY+ " "+ rotationX);
-
   }
 
   void draw() {

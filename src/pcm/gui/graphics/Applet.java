@@ -43,6 +43,7 @@ public class Applet extends PApplet {
 
   // Simulation time span
   int t = 0, // time counter
+	t2 = 0, // corresponding to how often AppletModel's run() is called
 	photonsReiterated = 0; // associated with AppletModel's paths of photons
   double orbitDuration = 4; // in minutes 
   
@@ -204,7 +205,7 @@ public class Applet extends PApplet {
     
     
     
-    if (model.runAnim) earth.spin((90. * 60 + 50) / (orbitDuration * 60) * (model.speed/.15)); // * (model.speed/.15) temp added to have earth speed correlate with speed of photons
+    //if (model.runAnim) earth.spin((90. * 60 + 50) / (orbitDuration * 60) * (model.speed/.15)); // * (model.speed/.15) temp added to have earth speed correlate with speed of photons
     // Speed of animation depends on number of max photons shown
     t++;
     if (t >= (101 - model.maxPhotons) && model.runAnim) {
@@ -212,10 +213,15 @@ public class Applet extends PApplet {
         model.addPhoton();
       t = 0;
     }
+
     // Rerun simulation when old photons are exiting system
-    if (model.runningPaths > model.paths.size())
+    if (model.runningPaths > model.paths.size()) {
       model.run();
-    
+      println("time surpassed = " + t2 +" +++++++++++++++ longitude = " + earth.rotationY);
+      earth.spin(model.useStatisticalResults, 1);
+      t2 = 0;
+    }
+    t2++;
     
     // Main view - top right viewport
     float fov = (float) (PI / 3.0); // field of view (default)
