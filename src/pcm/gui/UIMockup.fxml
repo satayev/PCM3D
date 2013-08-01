@@ -241,7 +241,7 @@
                         <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                           <children>
 							<CheckBox fx:id="orbitCheckBox" mnemonicParsing="false" text="Use TLE orbit"  AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="4.0"/>
-                            <VBox alignment="CENTER" AnchorPane.leftAnchor="9.0" AnchorPane.rightAnchor="9.0" AnchorPane.topAnchor="22.0">
+                            <VBox fx:id="userEarthSubOptions"  alignment="CENTER" AnchorPane.leftAnchor="9.0" AnchorPane.rightAnchor="9.0" AnchorPane.topAnchor="22.0">
 							  <children>
 								<HBox>
 								  <children>
