@@ -39,7 +39,7 @@ public class Applet extends PApplet {
   int z = 3; // for multi-side-view changing
 
   // Backporch rotating cube
-  float xRotation = PI, yRotation = 0;
+  float xRotation = PI, yRotation = 0, zRotation = 0;
 
   // Simulation time span
   int t = 0, // time counter
@@ -339,8 +339,9 @@ public class Applet extends PApplet {
     pushMatrix(); // push the overall image centering
 
     // TODO - John where xRotation and yRotation are applied to the cube 
-    rotateX(xRotation);
+    rotateZ(zRotation);
     rotateY(yRotation);
+    rotateX(xRotation);
     box(model.magnif * modSize); // draw the framing box outlines
 
     pushMatrix();
@@ -375,47 +376,72 @@ public class Applet extends PApplet {
         stroke(buttonOverStroke);
         //TODO - John associate xRotation and yRotation with rotation matrix, a little confusing here, so I commented out my adaptation
         // It prints out how xRotation and yRotation were changed
-        float xRot = xRotation % (2 * PI), yRot = yRotation % (2 * PI);
-        if (xRot < 0)
-          xRot += 2 * PI;
-        if (yRot < 0)
-          yRot += 2 * PI;
+//        float xRot = xRotation % (2 * PI), yRot = yRotation % (2 * PI);
+//        if (xRot < 0)
+//          xRot += 2 * PI;
+//        if (yRot < 0)
+//          yRot += 2 * PI;
 
         if (mouseClicked && !mouseDragged) {
-          if (i == 0) {
-            yRotation -= PI / 2;
-            //          if (xRot == PI/2)
-            //            xRotation -= PI / 2;
-            //          else if (xRot == 3*PI/2)
-            //            xRotation += PI / 2;
+          pcm.model.geom.V v = new pcm.model.geom.V();
+          Vector[] xMat = new Vector[3], yMat = new Vector[3], zMat = new Vector[3];
+          xMat[0] = new Vector(1, 0, 0);
+          xMat[1] = new Vector(0, Math.cos(xRotation), -Math.sin(xRotation));
+          xMat[2] = new Vector(0, Math.sin(xRotation), Math.cos(xRotation));
+          yMat[0] = new Vector(Math.cos(yRotation), 0, Math.sin(yRotation));
+          yMat[1] = new Vector(0, 1, 0);
+          yMat[2] = new Vector(-Math.sin(yRotation), 0, Math.cos(yRotation));
+          zMat[0] = new Vector(Math.cos(zRotation), -Math.sin(zRotation), 0);
+          zMat[1] = new Vector(Math.sin(zRotation), Math.cos(zRotation), 0);
+          zMat[2] = new Vector(0, 0, 1);
+          
+          Vector[] xMatT = new Vector[3], yMatT = new Vector[3], zMatT = new Vector[3];
+          xMatT[0] = new Vector(xMat[0].x, xMat[1].x, xMat[2].x);
+          xMatT[1] = new Vector(xMat[0].y, xMat[1].y, xMat[2].y);
+          xMatT[2] = new Vector(xMat[0].z, xMat[1].z, xMat[2].z);
+          
+          Vector[] matrix = AppletInterfacer.model.rotationMatrix;
+          System.out.println("rotation matrix initial: "+matrix[0]+" "+matrix[1]+" "+matrix[2]);
+          
+          Vector rotation;
+          System.out.println("i: "+i);
+          switch (i) {
+            case 0:
+              rotation = v.mult(-1, matrix[1]);
+              break;
+            case 1:
+              rotation = matrix[1];
+              break;
+            case 2:
+              rotation = v.mult(-1, matrix[0]);
+              break;
+            case 3:
+              rotation = matrix[0];
+              break;
+            default:
+              rotation = matrix[2];
+              break;
           }
-          if (i == 1) {
-            yRotation += PI / 2;
-            if (xRot == 3 * PI / 2)
-              xRotation -= PI / 2;
-            else if (xRot == PI / 2)
-              xRotation += PI / 2;
-          }
-          if (i == 2) {
-            xRotation -= PI / 2;
-            if (yRot == PI / 2)
-              yRotation -= PI / 2;
-            else if (yRot == 3 * PI / 2)
-              yRotation += PI / 2;
-          }
-          if (i == 3) {
-            xRotation += PI / 2;
-            if (yRot == 3 * PI / 2)
-              yRotation += PI / 2;
-            else if (yRot == PI / 2)
-              yRotation -= PI / 2;
-          }
-          println(xRotation + " " + yRotation);
+          System.out.println("rotation vector: "+rotation);
+          for (Vector j : matrix) j.set(v.rotateAbout(j, rotation, Math.PI/2));
+          System.out.println("rotation matrix final: "+matrix[0]+" "+matrix[1]+" "+matrix[2]);
+
+          Vector v0 = matrix[0].clone(), v1 = matrix[1].clone();
+          zRotation = (float) -Math.atan2(-v0.y,v0.x);
+          v0.set(v.rotateAbout(v0, new Vector(0,0,1), -zRotation));
+          v1.set(v.rotateAbout(v1, new Vector(0,0,1), -zRotation));
+          yRotation = (float) -Math.atan2(v0.z,v0.x);
+          v1.set(v.rotateAbout(v1, new Vector(0,1,0), -yRotation));
+          xRotation = (float) -Math.atan2(-v1.z,v1.y);
+          
+          println(xRotation + " " + yRotation + " " + zRotation);
           // printing/testing
 //          xRot = xRotation%(2*PI); yRot = yRotation%(2*PI);
 //          if (xRot < 0) xRot+=2*PI; if (yRot < 0) yRot+=2*PI;
 //          println(xRot + " " + yRot);
-//          model.reset();
+          
+          // AppletInterfacer.model.setRotationMatrix(xRotation, yRotation, 0);
+          model.reset();
         }
       }
       else {

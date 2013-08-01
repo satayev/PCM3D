@@ -63,7 +63,6 @@ public class AbsorptionSimulation {
 
   public void run(int n, Vector v0) throws Exception {
     Photon photon = new Photon(new Vector(), new Vector());
-    System.out.println("Start: "+ v0);
     while (n-- > 0) {
       resetPhoton(photon, v0);
 
@@ -116,7 +115,6 @@ public class AbsorptionSimulation {
       }
       stats.update(photon);
     }
-    System.out.println("Finish");
   }
 
   public void run(int n) throws Exception {

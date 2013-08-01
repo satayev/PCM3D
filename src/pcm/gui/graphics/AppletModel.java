@@ -143,9 +143,7 @@ public class AppletModel {
     printOutput = "Zenith Angle\tAzimuth Angle\tAbsorption\n\n";
     startTime = System.currentTimeMillis();
     
-    rotationMatrix[0] = new Vector(1,0,0);
-    rotationMatrix[1] = new Vector(0,1,0);
-    rotationMatrix[2] = new Vector(0,0,1);
+    setRotationMatrix(Math.PI, 0, 0);
     
     reset();
     
@@ -195,8 +193,13 @@ public class AppletModel {
             List<List<List<Vector>>> photonPaths = SE.points.get(statisticsCounter).photonPaths;
             Vector shift = new Vector(X/2,Y/2,0);
             for (List<List<Vector>> i : photonPaths) {
-              for (List<Vector> j : i) for (Vector k : j) k.add(shift);
-              paths.add(new PathFollower(i));
+              List<List<Vector>> i0 = new ArrayList<List<Vector>>();
+              for (List<Vector> j : i) {
+                List<Vector> j0 = new ArrayList<Vector>();
+                for (Vector k : j) j0.add(V.add(k,shift));
+                i0.add(j0);
+              }
+              paths.add(new PathFollower(i0));
             }
             statisticsCounter++;
           }
@@ -268,6 +271,7 @@ public class AppletModel {
           }
           azimuth = SE.vectorToAzimuth(entry);
           zenith = SE.vectorToZenith(entry);
+          orbitStartTime += orbitStepSize;
         }
   }
   
@@ -286,14 +290,38 @@ public class AppletModel {
         vectorList.add(orbit.getSunlightDirection(orbitStartTime + orbitStepSize * i));
       }
     } else {
-    Vector entry = SE.angleToVector(zenith, azimuth);
-    rotationVector = SE.generateRotationVector(entry, tiltAngle);
-    vectorList = SE.generateVectors(entry, rotationVector, rotationAngle, rotationSize);
+      Vector entry = SE.angleToVector(zenith, azimuth);
+      rotationVector = SE.generateRotationVector(entry, tiltAngle);
+      vectorList = SE.generateVectors(entry, rotationVector, rotationAngle, rotationSize);
     }
+    
+//    Vector[] m0 = new Vector[3];
+//    m0[0] = new Vector(rotationMatrix[0].x, rotationMatrix[1].x, rotationMatrix[2].x);
+//    m0[1] = new Vector(rotationMatrix[0].y, rotationMatrix[1].y, rotationMatrix[2].y);
+//    m0[2] = new Vector(rotationMatrix[0].z, rotationMatrix[1].z, rotationMatrix[2].z);
     List<Vector> currentVectorList = new ArrayList<Vector>(vectorList.size());
-    for (Vector i : vectorList) 
-      currentVectorList.add(V.matrixRotate(rotationMatrix, i));
-    SE.runSimulation(vectorList, new WavelengthAM0(), maxPhotons, 1000);
+    System.out.println("VectorList: "+vectorList.get(0));
+    for (Vector i : vectorList) {
+      if (i == null) currentVectorList.add(i);
+      else {
+        Vector rotated = V.matrixRotate(rotationMatrix, new Vector(-i.y,-i.x,-i.z));
+        currentVectorList.add(new Vector(-rotated.y,-rotated.x,-rotated.z));
+      }
+    }
+    System.out.println("VectorList: "+currentVectorList.get(0));
+    SE.runSimulation(currentVectorList, new WavelengthAM0(), maxPhotons, 1000);
+  }
+  
+  public void setRotationMatrix(double xRotation, double yRotation, double zRotation) {
+    rotationMatrix[0] = new Vector(1,0,0);
+    rotationMatrix[1] = new Vector(0,1,0);
+    rotationMatrix[2] = new Vector(0,0,1);
+    for (Vector i : rotationMatrix)
+      i.set(V.rotateAbout(i, new Vector(1,0,0), -xRotation));
+    for (Vector i : rotationMatrix)
+      i.set(V.rotateAbout(i, new Vector(0,1,0), -yRotation));
+    for (Vector i : rotationMatrix)
+      i.set(V.rotateAbout(i, new Vector(0,0,1), -zRotation));
   }
 
   /*
