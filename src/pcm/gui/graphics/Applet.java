@@ -384,21 +384,6 @@ public class Applet extends PApplet {
 
         if (mouseClicked && !mouseDragged) {
           pcm.model.geom.V v = new pcm.model.geom.V();
-          Vector[] xMat = new Vector[3], yMat = new Vector[3], zMat = new Vector[3];
-          xMat[0] = new Vector(1, 0, 0);
-          xMat[1] = new Vector(0, Math.cos(xRotation), -Math.sin(xRotation));
-          xMat[2] = new Vector(0, Math.sin(xRotation), Math.cos(xRotation));
-          yMat[0] = new Vector(Math.cos(yRotation), 0, Math.sin(yRotation));
-          yMat[1] = new Vector(0, 1, 0);
-          yMat[2] = new Vector(-Math.sin(yRotation), 0, Math.cos(yRotation));
-          zMat[0] = new Vector(Math.cos(zRotation), -Math.sin(zRotation), 0);
-          zMat[1] = new Vector(Math.sin(zRotation), Math.cos(zRotation), 0);
-          zMat[2] = new Vector(0, 0, 1);
-          
-          Vector[] xMatT = new Vector[3], yMatT = new Vector[3], zMatT = new Vector[3];
-          xMatT[0] = new Vector(xMat[0].x, xMat[1].x, xMat[2].x);
-          xMatT[1] = new Vector(xMat[0].y, xMat[1].y, xMat[2].y);
-          xMatT[2] = new Vector(xMat[0].z, xMat[1].z, xMat[2].z);
           
           Vector[] matrix = AppletInterfacer.model.rotationMatrix;
           System.out.println("rotation matrix initial: "+matrix[0]+" "+matrix[1]+" "+matrix[2]);

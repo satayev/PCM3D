@@ -271,6 +271,18 @@ public class AppletModel {
           }
           azimuth = SE.vectorToAzimuth(entry);
           zenith = SE.vectorToZenith(entry);
+          
+          ISSOrbit orbit = new ISSOrbit();
+          Vector p = orbit.getISSPosition(orbitStartTime).clone();
+          Vector p0 = V.normalize(p);
+          Vector v = orbit.getISSVelocity(orbitStartTime).clone();
+          double latitude = Math.asin(p0.z) * 180 / Math.PI;
+          p0.z = 0;
+          p0.normalize();
+          double longitude = Math.acos(p0.x) * 180 / Math.PI; // assuming longitude = 0 at x-axis
+          boolean headedTowardEquator = latitude > 0 ^ v.z > 0;
+          Vector s = orbit.getSunlightDirection(orbitStartTime);
+          
           orbitStartTime += orbitStepSize;
         }
   }
@@ -286,19 +298,14 @@ public class AppletModel {
       int steps = (int) (orbitLength / orbitStepSize);
       ISSOrbit orbit = new ISSOrbit();
       vectorList = new ArrayList<Vector>();
-      for (int i = 0; i <= steps; i++) {
+      for (int i = 0; i <= steps; i++) 
         vectorList.add(orbit.getSunlightDirection(orbitStartTime + orbitStepSize * i));
-      }
     } else {
       Vector entry = SE.angleToVector(zenith, azimuth);
       rotationVector = SE.generateRotationVector(entry, tiltAngle);
       vectorList = SE.generateVectors(entry, rotationVector, rotationAngle, rotationSize);
     }
     
-//    Vector[] m0 = new Vector[3];
-//    m0[0] = new Vector(rotationMatrix[0].x, rotationMatrix[1].x, rotationMatrix[2].x);
-//    m0[1] = new Vector(rotationMatrix[0].y, rotationMatrix[1].y, rotationMatrix[2].y);
-//    m0[2] = new Vector(rotationMatrix[0].z, rotationMatrix[1].z, rotationMatrix[2].z);
     List<Vector> currentVectorList = new ArrayList<Vector>(vectorList.size());
     System.out.println("VectorList: "+vectorList.get(0));
     for (Vector i : vectorList) {

@@ -63,7 +63,7 @@ public class ISSOrbit {
     return sunlight;
   }
 
-  private Vector getISSPosition(double minutesSince) {
+  public Vector getISSPosition(double minutesSince) {
     // NORAD Spacetrack Report #3
     Sgp4Data data = sgp4.runSgp4(tle.epochYear, tle.epochDay, minutesSince);
     Vector p = data.pos;
@@ -71,6 +71,16 @@ public class ISSOrbit {
     p.mult(RADIUS_EARTH_KM);
     v.mult(SPEED_KMperSEC);
     return p;
+  }
+  
+  public Vector getISSVelocity(double minutesSince) {
+    // NORAD Spacetrack Report #3
+    Sgp4Data data = sgp4.runSgp4(tle.epochYear, tle.epochDay, minutesSince);
+    Vector p = data.pos;
+    Vector v = data.vel;
+    p.mult(RADIUS_EARTH_KM);
+    v.mult(SPEED_KMperSEC);
+    return v;
   }
 
   private Vector getSunPosition(double minutesSince) {
