@@ -205,7 +205,7 @@ public class Applet extends PApplet {
     
     
     
-    //if (model.runAnim) earth.spin((90. * 60 + 50) / (orbitDuration * 60) * (model.speed/.15)); // * (model.speed/.15) temp added to have earth speed correlate with speed of photons
+    if (model.runAnim) earth.spin(false, (90. * 60 + 50) / (orbitDuration * 60) * (model.speed/.15)); // * (model.speed/.15) temp added to have earth speed correlate with speed of photons
     // Speed of animation depends on number of max photons shown
     t++;
     if (t >= (101 - model.maxPhotons) && model.runAnim) {
@@ -217,8 +217,8 @@ public class Applet extends PApplet {
     // Rerun simulation when old photons are exiting system
     if (model.runningPaths > model.paths.size()) {
       model.run();
-      println("time surpassed = " + t2 +" +++++++++++++++ longitude = " + earth.rotationY);
-      earth.spin(model.useStatisticalResults, 1);
+      //println("time surpassed = " + t2 +" +++++++++++++++ longitude = " + earth.rotationY);
+      //earth.spin(model.useStatisticalResults, 1);
       t2 = 0;
     }
     t2++;

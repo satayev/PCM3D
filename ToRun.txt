@@ -1,8 +1,18 @@
-Running Graphics with UI
+Running GUI Application
 ========================
+(Double-)click on GUI.jar and window will pop up. If this is not the case, install java at java.com. Note: This application may not be compatible with non-Windows operating systems.
 
+
+
+Using source code @ https://github.com/satayev/PCM3D/
+Inside Eclipse or Netbeans, running Graphics with UI
+========================
 To have the Processing 1.5 applet show in pcm.graphics.Main.java, go to Main's run configurations (within Eclipse IDE). Inside the arguments tab and inside the VM Arguments field, place
+
 -Djava.library.path="src/data/dlls"
+
 or
+
 -Djava.library.path="src/data/dlls64"
+
 for 64-bit systems

@@ -17,7 +17,7 @@ public class JarRunnable {
 		  proc = Runtime.getRuntime().exec("java -Xms256m -Xmx512m -Djava.library.path=src/data/dlls64 -jar pcm.gui.main.jar");
 	  else 
 		  proc = Runtime.getRuntime().exec("java -Xms256m -Xmx512m -Djava.library.path=src/data/dlls -jar pcm.gui.main.jar");
-
+	  
   }
 
 }

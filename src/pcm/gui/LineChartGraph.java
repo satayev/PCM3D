@@ -34,7 +34,7 @@ public class LineChartGraph {
     this.x = x;
     this.y = y;
     //this.title = title;
-    this.title = yLabel + " vs " + xLabel;
+    this.title = yLabel + " Vs " + xLabel;
     this.xLabel = xLabel;
     this.yLabel = yLabel;
     make();
