@@ -326,6 +326,7 @@ public class UIMockupController implements Initializable {
     
     assert orbitCheckBox != null : "fx:id=\"orbitCheckBox\" was not injected: check your FXML file 'UIMockup.fxml'.";
     orbitCheckBox.setSelected(true);
+    userEarthSubOptions.setStyle("-fx-background-color: #666666;");
     
     // Whether to use preset ISS orbit or not
     orbitCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
