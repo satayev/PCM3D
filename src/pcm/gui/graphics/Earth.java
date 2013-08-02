@@ -30,7 +30,7 @@ public class Earth {
   PImage texmap;
 
   int sDetail = 35; // Sphere detail setting
-  float rotationX = 0; // corresponds with degrees latitude
+  float rotationX = 180; // corresponds with degrees latitude
   float rotationY = 0; // corresponds with degrees longitude
   float globeRadius = 250;
   float pushBack = 0;
@@ -61,8 +61,26 @@ public class Earth {
     //rotationY = (float) (360 * applet.model.orbitStartTime / applet.model.orbitLength);
   }
 
+
   /*
-   * Rotates Earth to latitude and longitude position with ISS over it
+   * Rotates Earth to latitude and longitude position with ISS over it.
+   * 
+   * @param latitude correlates with sphere's rotationX, typical range of [-90, 90]
+   * @param longitude correlates with sphere's rotationY, typical range of range [-180, 180]
+   */
+  void setISSPosition(double latitude, double longitude) {
+    rotationX = (float) latitude;
+    rotationY = (float) longitude;
+  } 
+  
+  /*
+   * Rotates Earth to latitude and longitude position with ISS over it.
+   * Because of the ISS's sine wave trajectory, it could be heading towards or away from the Equator. 
+   * If its next position is to be inferred from its previous position, then this direction needs to be known.
+   * 
+   * @param latitude correlates with sphere's rotationX, typical range of [-90, 90]
+   * @param longitude correlates with sphere's rotationY, typical range of range [-180, 180]
+   * @param toEquator ISS direction
    */
   void setISSPosition(double latitude, double longitude, boolean toEquator) {
     rotationX = (float) latitude;
@@ -76,7 +94,6 @@ public class Earth {
       offset -= 90;
   }
 
-  
   
   /*
    * Performs a rotation of Earth at speed of the ISS (slightly slower than Earth's rotation).
